@@ -115,7 +115,7 @@
         "comment-format": [
             true
         ],
-        "completed-docs": true,
+        "completed-docs": false,
         "export-name": false,
         "function-name": [
             true,
@@ -145,7 +145,7 @@
         "max-line-length": [
             true,
             {
-                "limit": 120,
+                "limit": 150,
                 "ignore-pattern": "^import"
             }
         ],
@@ -229,7 +229,7 @@
         "no-consecutive-blank-lines": true,
         "no-empty-line-after-opening-brace": false,
         "no-single-line-block-comment": false,
-        "no-trailing-whitespace": true,
+        "no-trailing-whitespace": false,
         "no-unnecessary-semicolons": true,
         "object-literal-key-quotes": [
             true,
@@ -244,7 +244,7 @@
         ],
         "quotemark": [
             true,
-            "double"
+            "single"
         ],
         "react-tsx-curly-spacing": false,
         "semicolon": [
