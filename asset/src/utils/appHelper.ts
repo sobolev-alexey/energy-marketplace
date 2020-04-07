@@ -6,7 +6,7 @@ import { serverPortNumber, websocketPortNumber } from "../config.json";
 import { IDataResponse } from "../models/api/IDataResponse";
 import { IRoute } from "../models/app/IRoute";
 import { IConfiguration } from "../models/configuration/IConfiguration";
-import { EncryptionService, IKeys, IMessagePayload } from './encryptionHelper';
+import { EncryptionService, IKeys, IMessagePayload, IReceivedMessagePayload } from './encryptionHelper';
 
 /**
  * Class to help with expressjs routing.
@@ -84,28 +84,26 @@ export class AppHelper {
                 messageText: 'Hey, Bob!'
             };
 
-            const message: string = JSON.stringify(messageJSON);
-
             // Alice signs her message
-            const signature: string = encryptionService.signMessage(
-                aliceKeys?.privateKey, message
+            const signature: Buffer = encryptionService.signMessage(
+                aliceKeys?.privateKey, messageJSON
             );
-            console.log(222, signature);
+            // console.log(222, signature);
 
             // Alice encrypts payload with Bobs public key
-            const payload: IMessagePayload = { message, signature };
+            const payload: IMessagePayload = { message: messageJSON, signature };
             console.log(333, payload);
 
-            const encrypted: Buffer = encryptionService.publicEncrypt(
+            const encrypted: string = encryptionService.publicEncrypt(
                 bobKeys?.publicKey, JSON.stringify(payload)
             );
-            console.log(444, encrypted, typeof encrypted);
+            // console.log(444, encrypted);
 
             // Bob decrypts message with his private key
-            const decrypted: IMessagePayload = encryptionService.privateDecrypt(
+            const decrypted: IReceivedMessagePayload = encryptionService.privateDecrypt(
                 bobKeys?.privateKey, encrypted
             );
-            console.log(555, decrypted);
+            console.log(555, decrypted.message);
 
             // Bob verifies Alice signature
             const verificationResult: boolean = encryptionService.verifySignature(
