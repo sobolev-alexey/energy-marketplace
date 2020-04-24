@@ -23,6 +23,13 @@
             "mwm": 9
         }
     ],
+    "comNetNodes": [
+        {
+            "provider": "https://comnet.iota.works:443",
+            "depth": 3,
+            "mwm": 10            
+        }
+    ],
     "allowedDomains": [
     ]
 }
