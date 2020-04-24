@@ -1,12 +1,14 @@
-import bodyParser from "body-parser";
-import cors from "cors";
-import express, { Application } from "express";
-import isEmpty from "lodash/isEmpty";
-import { serverPortNumber, websocketPortNumber } from "../config.json";
-import { IDataResponse } from "../models/api/IDataResponse";
-import { IRoute } from "../models/app/IRoute";
-import { IConfiguration } from "../models/configuration/IConfiguration";
-import { EncryptionService, IKeys, IMessagePayload, IReceivedMessagePayload } from './encryptionHelper';
+import bodyParser from 'body-parser';
+import cors from 'cors';
+import express, { Application } from 'express';
+import isEmpty from 'lodash/isEmpty';
+import { serverPortNumber, websocketPortNumber } from '../config.json';
+import { IDataResponse } from '../models/api/IDataResponse';
+import { IRoute } from '../models/app/IRoute';
+import { IConfiguration } from '../models/configuration/IConfiguration';
+// import { EncryptionService, IKeys, IMessagePayload, IReceivedMessagePayload } from './encryptionHelper';
+
+// import randomstring from 'randomstring';
 
 /**
  * Class to help with expressjs routing.
@@ -24,31 +26,31 @@ export class AppHelper {
         onComplete?: (app: Application, config: IConfiguration, websocketPort: number) => void,
         customListener?: boolean): Application {
         // tslint:disable:no-var-requires no-require-imports
-        const packageJson = require("../../package.json");
-        const configId = process.env.CONFIG_ID || "local";
+        const packageJson = require('../../package.json');
+        const configId = process.env.CONFIG_ID || 'local';
         // tslint:disable-next-line:non-literal-require
         const config: IConfiguration = require(`../data/config.${configId}.json`);
 
         const app: Application = express();
 
-        app.use(bodyParser.json({ limit: "10mb" }));
-        app.use(bodyParser.urlencoded({ limit: "10mb", extended: true }));
+        app.use(bodyParser.json({ limit: '10mb' }));
+        app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
         app.use(bodyParser.json());
 
         app.use(cors({
-            origin: config.allowedDomains && config.allowedDomains.length > 0 ? config.allowedDomains : "*",
-            methods: ["GET", "POST", "OPTIONS", "PUT", "PATCH", "DELETE"],
-            allowedHeaders: "content-type"
+            origin: config.allowedDomains && config.allowedDomains.length > 0 ? config.allowedDomains : '*',
+            methods: ['GET', 'POST', 'OPTIONS', 'PUT', 'PATCH', 'DELETE'],
+            allowedHeaders: 'content-type'
         }));
 
         routes.unshift(
             {
-                path: "/",
-                method: "get",
+                path: '/',
+                method: 'get',
                 inline: async () => ({ name: packageJson.name, version: packageJson.version })
             });
 
-        // app.use("/docs", express.static(path.resolve(__dirname , "../", "docs")));
+        // app.use('/docs', express.static(path.resolve(__dirname , '../', 'docs')));
 
         AppHelper.buildRoutes(config, app, routes);
 
@@ -73,46 +75,47 @@ export class AppHelper {
             }
         }
 
-        try {
-            console.log('Encryption');
-            const encryptionService = new EncryptionService();
-            const aliceKeys: IKeys = encryptionService.generateKeys();
-            const bobKeys: IKeys = encryptionService.generateKeys();
-            const messageJSON: any = {
-                name: 'Alice',
-                messageTo: 'Bob',
-                messageText: 'Hey, Bob!'
-            };
+        // try {
+        //     console.log('Encryption');
+        //     const encryptionService = new EncryptionService();
+        //     const aliceKeys: IKeys = encryptionService.generateKeys();
+        //     const bobKeys: IKeys = encryptionService.generateKeys();
+            // const messageJSON: any = {
+            //     name: 'Alice',
+            //     messageTo: 'Bob',
+            //     messageText: 'Hey, Bob!'
+            // };
 
-            // Alice signs her message
-            const signature: Buffer = encryptionService.signMessage(
-                aliceKeys?.privateKey, messageJSON
-            );
-            // console.log(222, signature);
+            // // Alice signs her message
+            // const signature: Buffer = encryptionService.signMessage(
+            //     aliceKeys?.privateKey, messageJSON
+            // );
+            // // console.log(222, signature);
 
-            // Alice encrypts payload with Bobs public key
-            const payload: IMessagePayload = { message: messageJSON, signature };
-            console.log(333, payload);
+            // // Alice encrypts payload with Bobs public key
+            // const payload: IMessagePayload = { message: messageJSON, signature };
+            // console.log(333, payload);
 
-            const encrypted: string = encryptionService.publicEncrypt(
-                bobKeys?.publicKey, JSON.stringify(payload)
-            );
-            // console.log(444, encrypted);
+            // const encrypted: string = encryptionService.publicEncrypt(
+            //     bobKeys?.publicKey, JSON.stringify(payload)
+            // );
+            // // console.log(444, encrypted);
 
-            // Bob decrypts message with his private key
-            const decrypted: IReceivedMessagePayload = encryptionService.privateDecrypt(
-                bobKeys?.privateKey, encrypted
-            );
-            console.log(555, decrypted.message);
+            // // Bob decrypts message with his private key
+            // const decrypted: IReceivedMessagePayload = encryptionService.privateDecrypt(
+            //     bobKeys?.privateKey, encrypted
+            // );
+            // console.log(555, decrypted.message);
 
-            // Bob verifies Alice signature
-            const verificationResult: boolean = encryptionService.verifySignature(
-                aliceKeys?.publicKey, decrypted?.message, decrypted?.signature
-            );
-            console.log(777, verificationResult);
-        } catch (error) {
-            throw new Error(error);
-        }
+            // // Bob verifies Alice signature
+            // const verificationResult: boolean = encryptionService.verifySignature(
+            //     aliceKeys?.publicKey, decrypted?.message, decrypted?.signature
+            // );
+        //     console.log(777, aliceKeys);            
+        //     console.log(888, bobKeys);            
+        // } catch (error) {
+        //     throw new Error(error);
+        // }
 
         return app;
     }
@@ -145,7 +148,7 @@ export class AppHelper {
 
                     console.log(`===> ${routes[i].method.toUpperCase()} ${routes[i].path}`, filteredParams);
                     if (routes[i].func) {
-                        let modulePath = "../routes/";
+                        let modulePath = '../routes/';
                         if (routes[i].folder) {
                             modulePath += `${routes[i].folder}/`;
                         }
@@ -164,13 +167,13 @@ export class AppHelper {
                 console.log(response);
                 if (routes[i].dataResponse) {
                     const dataResponse = <IDataResponse>response;
-                    res.setHeader("Content-Type", dataResponse.contentType);
+                    res.setHeader('Content-Type', dataResponse.contentType);
                     if (dataResponse.filename) {
-                        res.setHeader("Content-Disposition", `attachment; filename="${dataResponse.filename}"`);
+                        res.setHeader('Content-Disposition', `attachment; filename='${dataResponse.filename}'`);
                     }
                     res.send(dataResponse.data);
                 } else {
-                    res.setHeader("Content-Type", "application/json");
+                    res.setHeader('Content-Type', 'application/json');
                     res.send(JSON.stringify(response));
                 }
                 res.end();
@@ -186,14 +189,14 @@ export class AppHelper {
     private static logParams(obj: { [id: string]: any }): { [id: string]: any } {
         const newobj = {};
         for (const key in obj) {
-            if (key.indexOf("pass") >= 0) {
-                newobj[key] = "*************";
-            } else if (key.indexOf("base64") >= 0) {
-                newobj[key] = "<base64>";
+            if (key.indexOf('pass') >= 0) {
+                newobj[key] = '*************';
+            } else if (key.indexOf('base64') >= 0) {
+                newobj[key] = '<base64>';
             } else {
-                if (obj[key].constructor.name === "Object") {
+                if (obj[key].constructor.name === 'Object') {
                     newobj[key] = this.logParams(obj[key]);
-                } else if (obj[key].constructor.name === "Array") {
+                } else if (obj[key].constructor.name === 'Array') {
                     newobj[key] = obj[key].map(o => this.logParams(o));
                 } else {
                     newobj[key] = obj[key];
