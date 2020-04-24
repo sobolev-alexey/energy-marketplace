@@ -1,4 +1,10 @@
 {
     "serverPortNumber": 4000,
-    "websocketPortNumber": 8000
+    "websocketPortNumber": 8000,
+    "defaultSecurity": 2,
+    "defaultDepth": 3,
+    "defaultMwm": 9,
+    "database": "../../db/energy_broker.sqlite3",
+    "mamMode": "RESTRICTED",
+    "tag": "ENERGYBROKER"
 }
