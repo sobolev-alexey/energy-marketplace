@@ -1,4 +1,4 @@
-import { IMessagePayload } from "../models/IMessagePayload";
+import { IMessagePayload } from '../models/IMessagePayload';
 
 /**
  * Process message payload
@@ -6,9 +6,9 @@ import { IMessagePayload } from "../models/IMessagePayload";
  */
 export function message(payload: IMessagePayload): void {
     try {
-        console.log("WebSocket message received");
+        console.log('WebSocket message received');
         console.log(payload);
     } catch (err) {
-        console.error("WS error", err);
+        console.error('WS error', err);
     }
 }

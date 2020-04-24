@@ -3,7 +3,7 @@ import { INodeConfiguration } from './INodeConfiguration';
 /**
  * Definition of configuration file.
  */
-export interface IConfiguration {
+export interface IAssetConfiguration {
     /**
      * The providers to use for IOTA communication on mainnet.
      */

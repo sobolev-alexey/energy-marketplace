@@ -2,7 +2,7 @@ export interface IPublishRequest {
     /**
      * What provider are we using to publish.
      */
-    provider: string | "mainnet" | "devnet";
+    provider: string | 'mainnet' | 'devnet';
 
     /**
      * What depth are we using for attaching.
@@ -17,7 +17,7 @@ export interface IPublishRequest {
     /**
      * The mode for publishing the message.
      */
-    mode: "public" | "private" | "restricted";
+    mode: 'public' | 'private' | 'restricted';
 
     /**
      * Key that is required for the data in restricted mode.
@@ -37,7 +37,7 @@ export interface IPublishRequest {
     /**
      * What is the data type.
      */
-    dataType: "trytes" | "text" | "json";
+    dataType: 'trytes' | 'text' | 'json';
 
     /**
      * What is the data to publish in the channel.

@@ -1,4 +1,4 @@
-import { IConfiguration } from "../configuration/IConfiguration";
+import { IConfiguration } from '../configuration/IConfiguration';
 
 export interface IRoute {
     /**
@@ -8,7 +8,7 @@ export interface IRoute {
     /**
      * The http method.
      */
-    method: "get" | "post" | "put" | "delete";
+    method: 'get' | 'post' | 'put' | 'delete';
     /**
      * Folder within the routes folder.
      */
