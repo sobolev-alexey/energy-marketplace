@@ -30,7 +30,7 @@ export class ValidationHelper {
      * @param num The number to validate.
      */
     public static number(name: string, num: number): void {
-        if (num === undefined || num === null || typeof num !== "number") {
+        if (num === undefined || num === null || typeof num !== 'number') {
             throw new Error(`The parameter '${name}' has an invalid value, it should be a number.`);
         }
     }
@@ -44,7 +44,7 @@ export class ValidationHelper {
     public static oneOf(name: string, val: any, options: any[]): void {
         if (options.indexOf(val) < 0) {
             throw new Error(
-                `The parameter '${name}' has an invalid value, it should be one of [${options.join(", ")}].`);
+                `The parameter '${name}' has an invalid value, it should be one of [${options.join(', ')}].`);
         }
     }
 }
