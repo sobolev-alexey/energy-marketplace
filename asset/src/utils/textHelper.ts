@@ -9,8 +9,8 @@ export class TextHelper {
      */
     public static encodeNonASCII(value: string): string | undefined {
         return value ?
-            value.replace(/[\u007F-\uFFFF]/g, chr => `\\u${(`0000${chr.charCodeAt(0).toString(16)}`).substr(-4)}`)
-            : undefined;
+            value.replace(/[\u007F-\uFFFF]/g, chr => `\\u${(`0000${chr.charCodeAt(0).toString(16)}`).substr(-4)}`) :
+            undefined;
     }
 
     /**
