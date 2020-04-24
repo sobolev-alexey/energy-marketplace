@@ -39,24 +39,24 @@
         "node-rsa": "^1.0.8",
         "randomstring": "^1.1.5",
         "socket.io": "^2.3.0",
-        "sqlite3": "^4.1.1",
+        "sqlite3": "4.1.1",
         "uuid": "^7.0.3"
     },
     "devDependencies": {
         "@types/cors": "^2.8.6",
-        "@types/express": "^4.17.4",
-        "@types/node": "^13.11.0",
+        "@types/express": "^4.17.6",
+        "@types/node": "^13.13.2",
         "@types/node-rsa": "^1.0.0",
         "@types/socket.io": "^2.1.4",
         "api2html": "^0.3.5",
         "copyfiles": "^2.2.0",
-        "nodemon": "^2.0.2",
+        "nodemon": "^2.0.3",
         "npm-run-all": "^4.1.5",
         "rimraf": "^3.0.2",
-        "ts-jest": "^25.3.1",
+        "ts-jest": "^25.4.0",
         "tslint": "^6.1.1",
         "tslint-eslint-rules": "^5.4.0",
         "tslint-microsoft-contrib": "^6.2.0",
-        "typescript": "^3.8.3"
+        "typescript": "^3.7.0"
     }
 }
