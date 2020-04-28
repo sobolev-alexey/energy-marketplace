@@ -5,7 +5,7 @@ import crypto from 'crypto';
 import { defaultSecurity } from '../config.json';
 import { ServiceFactory } from '../factories/serviceFactory';
 import { readData, removeData, writeData } from './databaseHelper';
-import { addToPaymentQueue, processPaymentQueue } from './paymentQueueHelper';
+import { processPaymentQueue } from './paymentQueueHelper';
 
 export const generateSeed = (length = 81) => {
     const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ9';

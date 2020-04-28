@@ -8,8 +8,6 @@ import { IRoute } from '../models/app/IRoute';
 import { IConfiguration } from '../models/configuration/IConfiguration';
 // import { EncryptionService, IKeys, IMessagePayload, IReceivedMessagePayload } from './encryptionHelper';
 
-// import randomstring from 'randomstring';
-
 /**
  * Class to help with expressjs routing.
  */
