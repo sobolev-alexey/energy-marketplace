@@ -3,6 +3,7 @@
     "exchangeRate": 0.00152,
     "maxEnergyPrice": 3.7,
     "minWalletAmount": 10,
+    "minOfferAmount": 300,
     "assetOwnerAPI": "http://localhost:6000",
     "marketplaceAPI": "http://localhost:5000",
     "assetId": "p2C8BDYZyI",

@@ -6,5 +6,10 @@
     "defaultMwm": 9,
     "database": "../../db/energy_broker.sqlite3",
     "mamMode": "RESTRICTED",
-    "tag": "ENERGYBROKER"
+    "tag": "ENERGYBROKER",
+    "energyProductionSpeed": 20,
+    "energyProductionAmount": 50,
+    "energyConsumptionSpeed": 10,
+    "energyConsumptionAmount": 10,
+    "transactionCreationSpeed": 20
 }
