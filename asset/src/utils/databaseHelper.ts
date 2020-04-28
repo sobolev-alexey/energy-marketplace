@@ -8,11 +8,13 @@ const db = new sqlite3.Database(
         if (error) {
             return console.error('New database Error', error, path.resolve(__dirname, database));
         }
-        await db.run('CREATE TABLE IF NOT EXISTS asset (assetId TEXT PRIMARY KEY, assetOwner TEXT, type TEXT, network TEXT, exchangeRate REAL, minWalletAmount INTEGER, maxEnergyPrice REAL, assetOwnerAPI TEXT, marketplaceAPI TEXT, assetOwnerPublicKey TEXT, marketplacePublicKey TEXT, deviceUUID TEXT, assetName TEXT, location TEXT)');
+        await db.run('CREATE TABLE IF NOT EXISTS asset (assetId TEXT PRIMARY KEY, assetOwner TEXT, type TEXT, network TEXT, exchangeRate REAL, minWalletAmount INTEGER, maxEnergyPrice REAL, minOfferAmount REAL, assetOwnerAPI TEXT, marketplaceAPI TEXT, assetOwnerPublicKey TEXT, marketplacePublicKey TEXT, deviceUUID TEXT, assetName TEXT, location TEXT)');
         await db.run('CREATE TABLE IF NOT EXISTS wallet (seed TEXT PRIMARY KEY, address TEXT, keyIndex INTEGER, balance INTEGER)');
-        await db.run('CREATE TABLE IF NOT EXISTS data (transactionId TEXT, requester TEXT, provider TEXT, energyAmount INTEGER, paymentAmount INTEGER, status TEXT, additionalDetails TEXT)');
+        await db.run('CREATE TABLE IF NOT EXISTS transactionLog (transactionId TEXT, timestamp TEXT, requester TEXT, provider TEXT, energyAmount INTEGER, paymentAmount INTEGER, status TEXT, additionalDetails TEXT)');
         await db.run('CREATE TABLE IF NOT EXISTS keys (privateKey TEXT PRIMARY KEY, publicKey TEXT)');
         await db.run('CREATE TABLE IF NOT EXISTS paymentQueue (address TEXT, value INTEGER)');
+        await db.run('CREATE TABLE IF NOT EXISTS log (timestamp TEXT, event TEXT)');
+        await db.run('CREATE TABLE IF NOT EXISTS energy (timestamp TEXT, energyAvailable REAL, energyReserved REAL)');
         await db.run('CREATE TABLE IF NOT EXISTS mam (transactionId TEXT PRIMARY KEY, root TEXT, seed TEXT, mode TEXT, sideKey TEXT, security INTEGER, start INTEGER, count INTEGER, nextCount INTEGER, keyIndex INTEGER, nextRoot TEXT)');
      }
 );
@@ -28,7 +30,7 @@ export const close = async () => {
 export const createAsset = async ({ 
     assetId, assetOwner, type, network,
     exchangeRate, minWalletAmount, maxEnergyPrice, 
-    assetOwnerAPI, marketplaceAPI, 
+    minOfferAmount, assetOwnerAPI, marketplaceAPI, 
     assetOwnerPublicKey, marketplacePublicKey, 
     deviceUUID = '', assetName = '', location = '' 
 }) => {
@@ -36,33 +38,17 @@ export const createAsset = async ({
         REPLACE INTO asset (
             assetId, assetOwner, type, network,
             exchangeRate, minWalletAmount, maxEnergyPrice,
-            assetOwnerAPI, marketplaceAPI,
+            minOfferAmount, assetOwnerAPI, marketplaceAPI,
             assetOwnerPublicKey, marketplacePublicKey,
             deviceUUID, assetName, location
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
     await db.run(replace, [
         assetId, assetOwner, type, network,
         exchangeRate, minWalletAmount, maxEnergyPrice, 
-        assetOwnerAPI, marketplaceAPI, 
+        minOfferAmount, assetOwnerAPI, marketplaceAPI, 
         assetOwnerPublicKey, marketplacePublicKey, 
         deviceUUID, assetName, location
     ]);
-};
-
-export const createWallet = async ({ seed, address, balance = 0, keyIndex }) => {
-    const replace = `
-        REPLACE INTO wallet (
-            seed, address, balance, keyIndex
-        ) VALUES (?, ?, ?, ?)`;
-    await db.run(replace, [seed, address, balance, keyIndex]);
-};
-
-export const createPaymentQueue = async ({ address, value }) => {
-    const replace = `
-        REPLACE INTO paymentQueue (
-            address, value
-        ) VALUES (?, ?)`;
-    await db.run(replace, [address, value]);
 };
 
 export const createKeyStorage = async ({ privateKey, publicKey }) => {
@@ -73,7 +59,31 @@ export const createKeyStorage = async ({ privateKey, publicKey }) => {
     await db.run(replace, [privateKey, publicKey]);
 };
 
-export const createMAMChannel = async ({ transactionId, root, seed, mode, sideKey, security, start, count, nextCount, index, nextRoot }) => {
+export const updateWallet = async ({ seed, address, balance = 0, keyIndex }) => {
+    const replace = `
+        REPLACE INTO wallet (
+            seed, address, balance, keyIndex
+        ) VALUES (?, ?, ?, ?)`;
+    await db.run(replace, [seed, address, balance, keyIndex]);
+};
+
+export const updatePaymentQueue = async ({ address, value }) => {
+    const replace = `
+        REPLACE INTO paymentQueue (
+            address, value
+        ) VALUES (?, ?)`;
+    await db.run(replace, [address, value]);
+};
+
+export const updateEnergyStorage = async ({ timestamp, energyAvailable = 0, energyReserved = 0 }) => {
+    const replace = `
+        REPLACE INTO energy (
+            timestamp, energyAvailable, energyReserved
+        ) VALUES (?, ?, ?)`;
+    await db.run(replace, [timestamp, energyAvailable, energyReserved]);
+};
+
+export const updateMAMChannel = async ({ transactionId, root, seed, mode, sideKey, security, start, count, nextCount, index, nextRoot }) => {
     const replace = `
         REPLACE INTO mam (
             transactionId, root, seed, mode, sideKey, security, start, count, nextCount, keyIndex, nextRoot
@@ -81,12 +91,24 @@ export const createMAMChannel = async ({ transactionId, root, seed, mode, sideKe
     await db.run(replace, [transactionId, root, seed, mode, sideKey, security, start, count, nextCount, index, nextRoot]);
 };
 
-export const createTransactionStorage = async ({ transactionId, requester, provider, energyAmount, paymentAmount, status, additionalDetails }) => {
+export const updateTransactionStorage = async ({ 
+    transactionId, timestamp, requester, provider, 
+    energyAmount, paymentAmount, status, additionalDetails 
+}) => {
     const insert = `
-        INSERT INTO data (
-            transactionId, requester, provider, energyAmount, paymentAmount, status, additionalDetails
-        ) VALUES (?, ?, ?, ?, ?, ?, ?)`;
-    await db.run(insert, [transactionId, requester, provider, energyAmount, paymentAmount, status, additionalDetails]);
+        INSERT INTO transactionLog (
+            transactionId, timestamp, requester, provider,
+            energyAmount, paymentAmount, status, additionalDetails
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+    await db.run(insert, [transactionId, timestamp, requester, provider, energyAmount, paymentAmount, status, additionalDetails]);
+};
+
+export const updateLogStorage = async ({ timestamp, event }) => {
+    const insert = `
+        INSERT INTO log (
+            timestamp, event
+        ) VALUES (?, ?)`;
+    await db.run(insert, [timestamp, event]);
 };
 
 export const writeData = async (table, data) => {
@@ -96,21 +118,27 @@ export const writeData = async (table, data) => {
             case 'asset':
                 await createAsset(data);
                 return;
-            case 'wallet':
-                await createWallet(data);
-                return;
-            case 'data':
-                await createTransactionStorage(data);
-                return;
             case 'keys':
                 await createKeyStorage(data);
                 return;
+            case 'wallet':
+                await updateWallet(data);
+                return;
+            case 'transaction':
+                await updateTransactionStorage(data);
+                return;
+            case 'log':
+                await updateLogStorage(data);
+                return;
+            case 'energy':
+                await updateEnergyStorage(data);
+                return;
             case 'paymentQueue':
-                await createPaymentQueue(data);
+                await updatePaymentQueue(data);
                 return;
             case 'mam':
             default:
-                await createMAMChannel(data);
+                await updateMAMChannel(data);
                 return;
         }
     } catch (error) {
