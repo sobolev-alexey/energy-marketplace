@@ -7,7 +7,8 @@ export interface IKeys {
 
 export interface IMessagePayload { 
     message: any; 
-    signature: Buffer; 
+    signature: Buffer;
+    mam?: object;
 }
 
 export interface IReceivedMessagePayload { 
