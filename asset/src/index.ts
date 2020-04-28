@@ -2,12 +2,12 @@
 import { LoadBalancerSettings, RandomWalkStrategy } from '@iota/client-load-balancer';
 import { Server } from 'http';
 import SocketIO from 'socket.io';
-import configFile from './config.json';
 import { ServiceFactory } from './factories/serviceFactory';
 import { IRoute } from './models/app/IRoute';
+import { init } from './routes/init';
 import { message } from './socketSubscriptions/message';
 import { AppHelper } from './utils/appHelper';
-import { publish } from './utils/mamHelper';
+import { BusinessLogic } from './utils/businessLogicHelper';
 
 const routes: IRoute[] = [
     { path: '/init', method: 'get', func: 'init' },
@@ -38,10 +38,10 @@ AppHelper.build(routes, async (app, config, websocketPort) => {
         socket.on('disconnect', () => console.log('marketplace disconnected'));
     });
 
-    // const alldata = await readAllData('mam');
-    // console.log('alldata', alldata);
-    // const mam = await publish('22-33', { ...configFile, param: 2 } );
-    // console.log('mam', mam);
+    ServiceFactory.register('businessLogic', () => new BusinessLogic());
 
-    await publish('111-222-333', configFile);
+    // tslint:disable-next-line:no-unused-expression
+    new BusinessLogic();
 });
+
+init();
