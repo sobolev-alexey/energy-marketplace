@@ -65,7 +65,7 @@
         "no-duplicate-super": true,
         "no-duplicate-variable": true,
         "no-empty": false,
-        "no-floating-promises": true,
+        "no-floating-promises": false,
         "no-for-in-array": true,
         "no-import-side-effect": false,
         "no-increment-decrement": false,
@@ -118,13 +118,13 @@
         "completed-docs": false,
         "export-name": false,
         "function-name": [
-            true,
+            false,
             {
                 "method-regex": "^[a-z][\\w\\d]+$",
                 "private-method-regex": "^[a-z][\\w\\d]+$",
                 "protected-method-regex": "^[a-z][\\w\\d]+$",
-                "static-method-regex": "^[a-z][\\w\\d]+$",
-                "function-regex": "^[a-z][\\w\\d]+$"
+                "static-method-regex": "^[a-z][\\w\\d]+$"
+                // "function-regex": "^[a-z][\\w\\d]+$"
             }
         ],
         "import-name": false,
@@ -190,7 +190,7 @@
             false
         ],
         "ordered-imports": [
-            true
+            false
         ],
         "prefer-array-literal": false,
         "prefer-const": true,
