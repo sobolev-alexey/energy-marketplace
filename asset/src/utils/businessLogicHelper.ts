@@ -102,6 +102,8 @@ export function BusinessLogic() {
 
     const createOffer = async(asset, energyData) => {
         try {
+            const status = 'Initial offer';
+
             // Retrieve encryption keys
             const keys: any = await readData('keys');
             if (!keys || !keys.privateKey) {
@@ -119,7 +121,7 @@ export function BusinessLogic() {
             });
 
             // Create payload, specify price and amount
-            const payload: any = await generatePayload(asset, 'offer');
+            const payload: any = await generatePayload(asset, 'offer', status);
             console.log(111, payload);
 
             // Sign payload
@@ -147,13 +149,14 @@ export function BusinessLogic() {
 
             // Log transaction
             await transactionLog({
-                transactionId: payload.transactionId, 
+                transactionId: payload.transactionId,
+                contractId: '', 
                 timestamp: payload?.timestamp, 
-                requester: '', 
-                provider: asset.assetId,
+                requesterId: '', 
+                providerId: asset.assetId,
                 energyAmount: payload.energyAmount, 
                 paymentAmount: payload.energyPrice, 
-                status: '1. Initial offer', 
+                status, 
                 additionalDetails: ''
             });
         } catch (error) {
@@ -184,7 +187,7 @@ export function BusinessLogic() {
         }
     };
 
-    const generatePayload = async (asset, type): Promise<object> => {
+    const generatePayload = async (asset, type, status): Promise<object> => {
         try {
             // asset ID, type, MAM channel details, public key in a local database
             // replies with MAM root/DID, where public key is stored
@@ -197,7 +200,8 @@ export function BusinessLogic() {
                     assetId: asset.assetId,
                     energyAmount: asset.minOfferAmount,
                     energyPrice: asset.maxEnergyPrice,
-                    location: asset.location
+                    location: asset.location,
+                    status
                 };
             }
         } catch (error) {
