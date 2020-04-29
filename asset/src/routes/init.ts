@@ -1,7 +1,7 @@
 // import path from 'path';
 import assetConfig from '../asset.config.json';
 import { readData, readAllData, writeData } from '../utils/databaseHelper';
-import { EncryptionService } from '../utils/encryptionHelper';
+import { EncryptionService, IMessagePayload } from '../utils/encryptionHelper';
 import { log } from '../utils/loggerHelper';
 import { sendRequest } from '../utils/communicationHelper';
 
@@ -30,6 +30,7 @@ export async function init(): Promise<void> {
 
         // Register asset with Marketplace
         if (config.marketplaceAPI) {
+            // Create payload, specify price and amount
             const assetPayload = {
                 assetId: config.assetId, 
                 assetOwner: config.assetOwner, 
@@ -40,7 +41,21 @@ export async function init(): Promise<void> {
                 type: config.type, 
                 network: config.network
             };
-            const response = await sendRequest('/register', assetPayload);
+
+            // Sign payload
+            const encryptionService = new EncryptionService();
+            const signature: Buffer = encryptionService.signMessage(
+                keys?.privateKey, assetPayload
+            );
+
+            // Encrypt payload and signature with Marketplace public key
+            const messagePayload: IMessagePayload = { message: assetPayload, signature };
+
+            const encrypted: string = encryptionService.publicEncrypt(
+                config.marketplacePublicKey, JSON.stringify(messagePayload)
+            );
+
+            const response = await sendRequest('/register', { encrypted });
             if (!response || !response.success) {
                 throw new Error('Asset registration with marketplace failed');
             }
