@@ -6,9 +6,8 @@ import { init } from './routes/init';
 import { AppHelper } from './utils/appHelper';
 
 const routes: IRoute[] = [
-    { path: '/init', method: 'get', func: 'init' },
-    { path: '/v0/publish', method: 'post', folder: 'v0', func: 'publish' },
-    { path: '/v0/fetch', method: 'post', folder: 'v0', func: 'fetch' }
+    { path: '/register', method: 'post', func: 'register' }
+    // { path: '/v0/fetch', method: 'post', folder: 'v0', func: 'fetch' }
 ];
 
 AppHelper.build(routes, async (app, config, websocketPort) => {

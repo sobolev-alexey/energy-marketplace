@@ -109,8 +109,6 @@ export class AppHelper {
             // const verificationResult: boolean = encryptionService.verifySignature(
             //     aliceKeys?.publicKey, decrypted?.message, decrypted?.signature
             // );
-        //     console.log(777, aliceKeys);            
-        //     console.log(888, bobKeys);            
         // } catch (error) {
         //     throw new Error(error);
         // }
