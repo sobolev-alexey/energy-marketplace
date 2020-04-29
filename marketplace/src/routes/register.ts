@@ -19,17 +19,26 @@ export async function register(_: any, request: any): Promise<any> {
                 );  
     
                 const asset: any = await readData('asset', 'assetId', decrypted?.message?.assetId);
-                if (verificationResult && !asset) {
-                    await writeData('asset', decrypted?.message);
+                
+                if (verificationResult) {
+                    if (!asset) {
+                        await writeData('asset', decrypted?.message);
+                        await log(`Asset registration successful. ${asset.assetId}`);
+                    }
+                    await log(`Asset already exists. ${asset.assetId}`);
+                    return { success: true };
                 }
-                return { success: true };
+                await log(`Asset signature verification failed. ${asset.assetId}`);
+                throw new HttpError('Asset signature verification failed', 404);
             }
+            await log(`No marketplace key`);
             throw new HttpError('No marketplace key', 404);
         } else {
-            throw new HttpError('No data found', 404);
+            await log(`No encrypted payload found`);
+            throw new HttpError('No encrypted payload found', 404);
         }
     } catch (error) {
-        await log(`Registration failed. Error: ${error.toString()}`);
+        await log(`Asset registration failed. ${error.toString()}`);
         throw new Error(error);
     }
 }
