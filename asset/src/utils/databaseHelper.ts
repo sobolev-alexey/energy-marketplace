@@ -97,7 +97,7 @@ export const updateTransactionStorage = async ({
 }) => {
     const insert = `
         INSERT INTO transactionLog (
-            transactionId, contractId, timestamp, requester, provider,
+            transactionId, contractId, timestamp, requesterId, providerId,
             energyAmount, paymentAmount, status, additionalDetails
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
     await db.run(insert, [transactionId, contractId, timestamp, requesterId, providerId, energyAmount, paymentAmount, status, additionalDetails]);
