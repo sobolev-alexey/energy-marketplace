@@ -1,0 +1,35 @@
+{
+    "mainNetNodes": [
+        {
+            "provider": "https://nodes.iota.cafe:443",
+            "depth": 3,
+            "mwm": 14            
+        }
+    ],
+    "devNetNodes": [
+        {
+            "provider": "https://iri01.bare01.devnet.iota.cafe",
+            "depth": 3,
+            "mwm": 9
+        },
+        {
+            "provider": "https://altnodes.devnet.iota.org:443",
+            "depth": 3,
+            "mwm": 9
+        },
+        {
+            "provider": "https://nodes.devnet.iota.org:443",
+            "depth": 3,
+            "mwm": 9
+        }
+    ],
+    "comNetNodes": [
+        {
+            "provider": "https://comnet.iota.works:443",
+            "depth": 3,
+            "mwm": 10            
+        }
+    ],
+    "allowedDomains": [
+    ]
+}

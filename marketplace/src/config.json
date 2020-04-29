@@ -1,0 +1,10 @@
+{
+    "serverPortNumber": 5000,
+    "websocketPortNumber": 9000,
+    "defaultSecurity": 2,
+    "defaultDepth": 3,
+    "defaultMwm": 9,
+    "database": "../../db/marketplace.sqlite3",
+    "mamMode": "RESTRICTED",
+    "tag": "ENERGYBROKER"
+}
