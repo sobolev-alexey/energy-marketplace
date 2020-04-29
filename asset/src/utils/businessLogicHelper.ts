@@ -114,14 +114,15 @@ export function BusinessLogic() {
             await log('Creating offer...');
 
             // Reserve energy
+            const energyToOffer = Number(asset.energyAvailable);
             await writeData('energy', { 
                 timestamp: Date.now().toString(), 
-                energyAvailable: Number(energyData.energyAvailable) - Number(asset.minOfferAmount),
-                energyReserved: Number(energyData.energyReserved) + Number(asset.minOfferAmount)
+                energyAvailable: 0,
+                energyReserved: Number(energyData.energyReserved) + energyToOffer
             });
 
             // Create payload, specify price and amount
-            const payload: any = await generatePayload(asset, 'offer', status);
+            const payload: any = await generatePayload(asset, 'offer', status, energyToOffer);
             console.log(111, payload);
 
             // Sign payload
@@ -147,18 +148,29 @@ export function BusinessLogic() {
             const response = await sendRequest('/offer', { encrypted });
             console.log(555, response);
 
-            // Log transaction
-            await transactionLog({
-                transactionId: payload.transactionId,
-                contractId: '', 
-                timestamp: payload?.timestamp, 
-                requesterId: '', 
-                providerId: asset.assetId,
-                energyAmount: payload.energyAmount, 
-                paymentAmount: payload.energyPrice, 
-                status, 
-                additionalDetails: ''
-            });
+            if (response.success) {
+                // Log transaction
+                await transactionLog({
+                    transactionId: payload.transactionId,
+                    timestamp: payload.timestamp, 
+                    providerId: payload.assetId,
+                    energyAmount: payload.energyAmount, 
+                    paymentAmount: payload.energyPrice, 
+                    status: payload.status, 
+                    contractId: '', 
+                    requesterId: '', 
+                    additionalDetails: ''
+                });
+            } else {
+                await log(`createOffer Error ${response.message}`);
+
+                // Unreserve energy
+                await writeData('energy', { 
+                    timestamp: Date.now().toString(), 
+                    energyAvailable: Number(energyData.energyAvailable) + energyToOffer,
+                    energyReserved: Number(energyData.energyReserved) - energyToOffer
+                });
+            }
         } catch (error) {
             console.error('createOffer', error);
             await log(`createOffer Error ${error.toString()}`);
@@ -187,7 +199,7 @@ export function BusinessLogic() {
         }
     };
 
-    const generatePayload = async (asset, type, status): Promise<object> => {
+    const generatePayload = async (asset, type, status, energyToOffer): Promise<object> => {
         try {
             // asset ID, type, MAM channel details, public key in a local database
             // replies with MAM root/DID, where public key is stored
@@ -198,8 +210,8 @@ export function BusinessLogic() {
                     timestamp: Date.now().toString(),
                     transactionId: randomstring.generate(20),
                     assetId: asset.assetId,
-                    energyAmount: asset.minOfferAmount,
-                    energyPrice: asset.maxEnergyPrice,
+                    energyAmount: energyToOffer,
+                    energyPrice: Number(energyToOffer * asset.maxEnergyPrice),
                     location: asset.location,
                     status
                 };
