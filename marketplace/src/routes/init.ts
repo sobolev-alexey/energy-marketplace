@@ -1,6 +1,6 @@
 // import path from 'path';
 import marketplaceKeys from '../marketplace.config.json';
-import { readAllData, writeData } from '../utils/databaseHelper';
+import { readData, writeData } from '../utils/databaseHelper';
 import { log } from '../utils/loggerHelper';
 
 /**
@@ -13,7 +13,7 @@ export async function init(): Promise<void> {
         // asset ID, type, MAM channel details, public key in a local database
         // replies with MAM root/DID, where public key is stored
 
-        const keys: any = await readAllData('keys');
+        const keys: any = await readData('keys');
         await new Promise(resolve => setTimeout(resolve, 2000));
         await log('Initializing...');
         if (!keys || !keys.privateKey) {
