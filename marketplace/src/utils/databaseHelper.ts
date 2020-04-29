@@ -8,7 +8,7 @@ const db = new sqlite3.Database(
         if (error) {
             return console.error('New database Error', error, path.resolve(__dirname, database));
         }
-        await db.run('CREATE TABLE IF NOT EXISTS asset (assetId TEXT PRIMARY KEY, assetOwner TEXT, type TEXT, network TEXT, exchangeRate REAL, minWalletAmount INTEGER, maxEnergyPrice REAL, minOfferAmount REAL, assetOwnerAPI TEXT, marketplaceAPI TEXT, assetOwnerPublicKey TEXT, marketplacePublicKey TEXT, deviceUUID TEXT, assetName TEXT, location TEXT)');
+        await db.run('CREATE TABLE IF NOT EXISTS asset (assetId TEXT PRIMARY KEY, assetOwner TEXT, assetName TEXT, assetPublicKey TEXT, deviceUUID TEXT, location TEXT, type TEXT, network TEXT)');
         await db.run('CREATE TABLE IF NOT EXISTS transactionLog (transactionId TEXT, contractId TEXT, timestamp TEXT, requesterId TEXT, providerId TEXT, energyAmount INTEGER, paymentAmount INTEGER, status TEXT, additionalDetails TEXT)');
         await db.run('CREATE TABLE IF NOT EXISTS keys (privateKey TEXT PRIMARY KEY, publicKey TEXT)');
         await db.run('CREATE TABLE IF NOT EXISTS log (timestamp TEXT, event TEXT)');
@@ -25,24 +25,20 @@ export const close = async () => {
 };
 
 export const createAsset = async ({ 
-    assetId, assetOwner, type, network,
-    exchangeRate, minWalletAmount, maxEnergyPrice, 
-    minOfferAmount, assetOwnerAPI, marketplaceAPI, 
-    assetOwnerPublicKey, marketplacePublicKey, 
-    deviceUUID = '', assetName = '', location = '' 
+    assetId, assetOwner, assetName = '', 
+    assetPublicKey, deviceUUID = '', location = '',
+    type, network
 }) => {
     const replace = `
         REPLACE INTO asset (
-            assetId, assetOwner, type, network,
-            assetPublicKey, marketplacePublicKey,
-            deviceUUID, assetName, location
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+            assetId, assetOwner, assetName, 
+            assetPublicKey, deviceUUID, location,
+            type, network
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
     await db.run(replace, [
-        assetId, assetOwner, type, network,
-        exchangeRate, minWalletAmount, maxEnergyPrice, 
-        minOfferAmount, assetOwnerAPI, marketplaceAPI, 
-        assetOwnerPublicKey, marketplacePublicKey, 
-        deviceUUID, assetName, location
+        assetId, assetOwner, assetName, 
+        assetPublicKey, deviceUUID, location,
+        type, network
     ]);
 };
 
