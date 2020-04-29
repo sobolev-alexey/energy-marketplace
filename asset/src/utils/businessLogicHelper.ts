@@ -144,7 +144,7 @@ export function BusinessLogic() {
             );
 
             // Send encrypted payload and signature to Marketplace
-            const response = await sendRequest('/offer', encrypted);
+            const response = await sendRequest('/offer', { encrypted });
             console.log(555, response);
 
             // Log transaction
