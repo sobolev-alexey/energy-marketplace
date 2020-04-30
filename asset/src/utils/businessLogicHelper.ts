@@ -34,7 +34,8 @@ export function BusinessLogic() {
                 energyAmount = Number(energy && energy.energyAvailable || 0) + energyProductionAmount;
                 await writeData('energy', { 
                     timestamp: Date.now().toString(), 
-                    energyAvailable: energyAmount 
+                    energyAvailable: energyAmount,
+                    energyReserved: energy.energyReserved
                 });
 
                 await log(`Produced ${energyProductionAmount} W of energy`);
@@ -59,7 +60,8 @@ export function BusinessLogic() {
                 energyAmount = Number(energy && energy.energyAvailable || 0) - energyConsumptionAmount;
                 await writeData('energy', { 
                     timestamp: Date.now().toString(), 
-                    energyAvailable: energyAmount > 0 ? energyAmount : 0
+                    energyAvailable: energyAmount > 0 ? energyAmount : 0,
+                    energyReserved: energy.energyReserved
                 });
 
                 await log(`Consumed ${energyConsumptionAmount} W of energy`);
@@ -113,13 +115,7 @@ export function BusinessLogic() {
             // Log event 
             await log('Creating offer...');
 
-            // Reserve energy
-            const energyToOffer = Number(asset.energyAvailable);
-            await writeData('energy', { 
-                timestamp: Date.now().toString(), 
-                energyAvailable: 0,
-                energyReserved: Number(energyData.energyReserved) + energyToOffer
-            });
+            const energyToOffer = Number(energyData.energyAvailable);
 
             // Create payload, specify price and amount
             const payload: any = await generatePayload(asset, 'offer', status, energyToOffer);
@@ -161,15 +157,15 @@ export function BusinessLogic() {
                     requesterId: '', 
                     additionalDetails: ''
                 });
-            } else {
-                await log(`createOffer Error ${response.message}`);
 
-                // Unreserve energy
+                // Reserve energy
                 await writeData('energy', { 
                     timestamp: Date.now().toString(), 
-                    energyAvailable: Number(energyData.energyAvailable) + energyToOffer,
-                    energyReserved: Number(energyData.energyReserved) - energyToOffer
+                    energyAvailable: 0,
+                    energyReserved: Number(energyData.energyReserved) + energyToOffer
                 });
+            } else {
+                await log(`createOffer Error ${response.message}`);
             }
         } catch (error) {
             console.error('createOffer', error);
