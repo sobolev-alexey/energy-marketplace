@@ -17,18 +17,21 @@ export async function register(_: any, request: any): Promise<any> {
                 const verificationResult: boolean = encryptionService.verifySignature(
                     decrypted?.message?.assetPublicKey, decrypted?.message, decrypted?.signature
                 );  
-    
-                const asset: any = await readData('asset', 'assetId', decrypted?.message?.assetId);
-                
+                    
+                const assetId = decrypted?.message?.assetId;
                 if (verificationResult) {
-                    if (!asset) {
-                        await writeData('asset', decrypted?.message);
-                        await log(`Asset registration successful. ${asset.assetId}`);
+                    const asset: any = await readData('asset', 'assetId', assetId);
+
+                    if (asset) {
+                        await log(`Asset already exists. ${assetId}`);
+                        return { success: true };
                     }
-                    await log(`Asset already exists. ${asset.assetId}`);
+
+                    await writeData('asset', decrypted?.message);
+                    await log(`Asset registration successful. ${assetId}`);
                     return { success: true };
                 }
-                await log(`Asset signature verification failed. ${asset.assetId}`);
+                await log(`Asset signature verification failed. ${assetId}`);
                 throw new HttpError('Asset signature verification failed', 404);
             }
             await log(`No marketplace key`);
