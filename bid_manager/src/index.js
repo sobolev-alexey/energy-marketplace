@@ -1,6 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const { writeData, readAllData, removeData } = require('./database');
+const { createRequest, createOffer, readAllData, removeData } = require('./database');
 
 const app = express();
 app.use(bodyParser.json({ limit: '100mb' }));
@@ -10,36 +10,34 @@ app.use(bodyParser.json());
 app.post('/offer', async (req, res) => {
     try {
         console.log('Got offer');
-        console.log(req.body);
         const match = await findMatch('request', req.body);
         if (match) { // if there is a match, return match
             await removeData('request', 'transactionId', match.request.transactionId);
-            res.json({ status: 'success', match });
+            res.json({ success: true, match });
         } else { // if no match, store offer
-            await writeData('offer', req.body);
-            res.json({ status: 'success' });
+            await createOffer(req.body);
+            res.json({ success: true });
         }
     } catch (e) {
         console.error(e);
-        res.json({ status: 'offer failure', error: JSON.stringify(e) });
+        res.json({ success: false, error: JSON.stringify(e) });
     }
 });
 
 app.post('/request', async (req, res) => {
     try {
         console.log('Got request');
-        console.log(req.body);
         const match = await findMatch('offer', req.body);
         if (match) { // if there is a match, return match
             await removeData('offer', 'transactionId', match.offer.transactionId);
-            res.json({ status: 'success', match });
+            res.json({ success: true, match });
         } else { // if no match, store request
-            await writeData('request', req.body);
-            res.json({ status: 'success' });
+            await createRequest(req.body);
+            res.json({ success: true });
         }
     } catch (e) {
         console.error(e);
-        res.json({ status: 'request failure', error: JSON.stringify(e) });
+        res.json({ success: false, error: JSON.stringify(e) });
     }
 });
 
@@ -56,30 +54,36 @@ const findMatch = async (table, payload) => {
                 const matchingOffer = data.find(offer => 
                     offer.assetId !== payload.assetId &&
                     offer.energyAmount >= payload.energyAmount &&
-                    offer.price <= payload.price
+                    offer.energyPrice <= payload.energyPrice
                 );
 
-                console.log('Found matching offer');
-                console.log(matchingOffer, payload);
-
-                return {
-                    offer: matchingOffer,
-                    request: payload
-                };
+                if (matchingOffer) {
+                    console.log('Found matching offer');
+                    console.log(matchingOffer, payload);
+    
+                    return {
+                        offer: matchingOffer,
+                        request: payload
+                    };
+                }
+                return null;
             case 'request':
                 const matchingRequest = data.find(request => 
                     request.assetId !== payload.assetId &&
                     request.energyAmount <= payload.energyAmount &&
-                    request.price >= payload.price
+                    request.energyPrice >= payload.energyPrice
                 );
 
-                console.log('Found matching request');
-                console.log(matchingRequest, payload);
+                if (matchingRequest) {
+                    console.log('Found matching request');
+                    console.log(matchingRequest, payload);
 
-                return {
-                    offer: payload,
-                    request: matchingRequest
-                };
+                    return {
+                        offer: payload,
+                        request: matchingRequest
+                    };
+                }
+                return null;
             default:
                 return;
         }
