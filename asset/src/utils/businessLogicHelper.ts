@@ -207,7 +207,7 @@ export function BusinessLogic() {
                     transactionId: randomstring.generate(20),
                     assetId: asset.assetId,
                     energyAmount: energyToOffer,
-                    energyPrice: Number(energyToOffer * asset.maxEnergyPrice),
+                    energyPrice: asset.maxEnergyPrice,
                     location: asset.location,
                     status
                 };
