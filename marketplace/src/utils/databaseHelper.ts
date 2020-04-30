@@ -9,7 +9,7 @@ const db = new sqlite3.Database(
             return console.error('New database Error', error, path.resolve(__dirname, database));
         }
         await db.run('CREATE TABLE IF NOT EXISTS asset (assetId TEXT PRIMARY KEY, assetOwner TEXT, assetName TEXT, assetPublicKey TEXT, deviceUUID TEXT, location TEXT, type TEXT, network TEXT, websocket TEXT)');
-        await db.run('CREATE TABLE IF NOT EXISTS transactionLog (transactionId TEXT, contractId TEXT, timestamp TEXT, requesterId TEXT, providerId TEXT, energyAmount INTEGER, paymentAmount INTEGER, status TEXT, additionalDetails TEXT)');
+        await db.run('CREATE TABLE IF NOT EXISTS transactionLog (transactionId TEXT, contractId TEXT, timestamp TEXT, requesterId TEXT, providerId TEXT, energyAmount REAL, paymentAmount REAL, status TEXT, additionalDetails TEXT)');
         await db.run('CREATE TABLE IF NOT EXISTS keys (privateKey TEXT PRIMARY KEY, publicKey TEXT)');
         await db.run('CREATE TABLE IF NOT EXISTS log (timestamp TEXT, event TEXT)');
         await db.run('CREATE TABLE IF NOT EXISTS mam (transactionId TEXT PRIMARY KEY, root TEXT, seed TEXT, mode TEXT, sideKey TEXT, security INTEGER, start INTEGER, count INTEGER, nextCount INTEGER, keyIndex INTEGER, nextRoot TEXT)');
