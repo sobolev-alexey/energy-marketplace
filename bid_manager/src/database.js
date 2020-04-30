@@ -11,12 +11,10 @@ const db = new sqlite3.Database(
             }
 
             await db.run(`CREATE TABLE IF NOT EXISTS offer (
-                assetId TEXT, transactionId TEXT, timestamp TEXT, energyAmount REAL, price REAL
-            )`);
+                assetId TEXT, transactionId TEXT, timestamp TEXT, energyAmount REAL, energyPrice REAL)`);
 
             await db.run(`CREATE TABLE IF NOT EXISTS request (
-                assetId TEXT, transactionId TEXT, timestamp TEXT, energyAmount REAL, price REAL
-            )`);
+                assetId TEXT, transactionId TEXT, timestamp TEXT, energyAmount REAL, energyPrice REAL)`);
         } catch (error) {
             console.log('create', error);
             return null;
@@ -32,39 +30,20 @@ exports.close = async () => {
     });
 };
 
-exports.createOffer = async ({ assetId, transactionId, timestamp, energyAmount, price }) => {
+exports.createOffer = async ({ assetId, transactionId, timestamp, energyAmount, energyPrice }) => {
     const query = `
         REPLACE INTO offer (
-            assetId TEXT, transactionId TEXT, timestamp TEXT, energyAmount REAL, price REAL
+            assetId, transactionId, timestamp, energyAmount, energyPrice
         ) VALUES (?, ?, ?, ?, ?)`;
-    await db.run(query, [assetId, transactionId, timestamp, energyAmount, price]);
+    await db.run(query, [assetId, transactionId, timestamp, energyAmount, energyPrice]);
 };
 
-exports.createRequest = async ({ assetId, transactionId, timestamp, energyAmount, price }) => {
+exports.createRequest = async ({ assetId, transactionId, timestamp, energyAmount, energyPrice }) => {
     const query = `
         REPLACE INTO request (
-            assetId TEXT, transactionId TEXT, timestamp TEXT, energyAmount REAL, price REAL
+            assetId, transactionId, timestamp, energyAmount, energyPrice
         ) VALUES (?, ?, ?, ?, ?)`;
-    await db.run(query, [assetId, transactionId, timestamp, energyAmount, price]);
-};
-
-exports.writeData = async (table, data) => {
-    try {
-        console.log('writeData', table, data);
-        switch (table) {
-            case 'offer':
-                await createOffer(data);
-                return;
-            case 'request':
-                await createRequest(data);
-                return;
-            default:
-                return;
-        }
-    } catch (error) {
-        console.log('writeData', error);
-        return null;
-    }
+    await db.run(query, [assetId, transactionId, timestamp, energyAmount, energyPrice]);
 };
 
 exports.readAllData = async (table) => {
