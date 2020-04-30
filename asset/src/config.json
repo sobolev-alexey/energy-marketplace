@@ -1,4 +1,5 @@
 {
+    "websocketURL": "http://localhost",
     "serverPortNumber": 4000,
     "websocketPortNumber": 8000,
     "defaultSecurity": 2,

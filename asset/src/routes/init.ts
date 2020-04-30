@@ -1,4 +1,4 @@
-// import path from 'path';
+import { websocketURL, websocketPortNumber } from '../config.json';
 import assetConfig from '../asset.config.json';
 import { readData, readAllData, writeData } from '../utils/databaseHelper';
 import { EncryptionService, IMessagePayload } from '../utils/encryptionHelper';
@@ -39,7 +39,8 @@ export async function init(): Promise<void> {
                 deviceUUID: config.deviceUUID, 
                 location: config.location,
                 type: config.type, 
-                network: config.network
+                network: config.network,
+                websocket: `${websocketURL}:${websocketPortNumber}`
             };
 
             // Sign payload
