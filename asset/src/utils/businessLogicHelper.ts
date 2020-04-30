@@ -35,7 +35,7 @@ export function BusinessLogic() {
                 await writeData('energy', { 
                     timestamp: Date.now().toString(), 
                     energyAvailable: energyAmount,
-                    energyReserved: energy.energyReserved
+                    energyReserved: (energy && energy.energyReserved || 0)
                 });
 
                 await log(`Produced ${energyProductionAmount} W of energy`);
