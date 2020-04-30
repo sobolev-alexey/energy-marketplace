@@ -14,6 +14,7 @@ export interface IMessagePayload {
 export interface IReceivedMessagePayload { 
     message: any; 
     signature: ISignature; 
+    mam?: object;
 }
 
 interface ISignature { 
