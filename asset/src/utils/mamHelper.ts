@@ -1,17 +1,17 @@
 import { composeAPI, LoadBalancerSettings } from '@iota/client-load-balancer';
 import { 
-    asciiToTrytes
-    // trytesToAscii 
+    asciiToTrytes,
+    trytesToAscii 
 } from '@iota/converter';
 import {
     createChannel,
     createMessage,
     IMamMessage,
-    mamAttach
-    // mamFetchAll,
+    mamAttach,
+    mamFetchAll
 } from '@iota/mam.js';
 import crypto from 'crypto';
-import { defaultDepth, defaultMwm, defaultSecurity, mamMode, tag } from '../config.json';
+import { chunkSize, defaultDepth, defaultMwm, defaultSecurity, mamMode, tag } from '../config.json';
 import { ServiceFactory } from '../factories/serviceFactory';
 import { readData, writeData } from './databaseHelper';
 
@@ -83,8 +83,9 @@ export const publish = async (transactionId, packet) => {
         // Attach the payload
         if (bundle && bundle.length && bundle[0].hash) {
             // Save new mamState
+            await new Promise(resolve => setTimeout(resolve, 2000));
             await writeData('mam', { transactionId, root, ...mamState });
-            return { hash: bundle[0].hash, root, secretKey };
+            return { transactionId, root, ...mamState };
         }
         return null;
     } catch (error) {
@@ -93,17 +94,26 @@ export const publish = async (transactionId, packet) => {
     }
 };
 
-// export const fetchFromRoot = async (root, secretKey) => {
-//     // Output syncronously once fetch is completed
-//     const mode = 'restricted';
-//     const result = await Mam.fetch(root, mode, secretKey);
-//     return result && result.messages.map(message => JSON.parse(trytesToAscii(message)));
-// };
+export const fetch = async (assetId, transactionId) => {
+    try {
+        const config: any = await readData('asset', 'assetId', assetId, 1);
+        const loadBalancerSettings = ServiceFactory.get<LoadBalancerSettings>(
+            `${config?.network}-load-balancer-settings`
+        );
+        const api = composeAPI(loadBalancerSettings);
 
-// export const fetchFromChannelId = async channelId => {
-//     const channelData: IMamState = await readData('mam', channelId);
-//     if (channelData) {
-//         return await fetchFromRoot(channelData.root, channelData.side_key);
-//     }
-//     return [];
-// };
+        const channelState: any = await readData('mam', 'transactionId', transactionId, 1);
+        const fetched = await mamFetchAll(api, channelState.root, channelState.mode, channelState.sideKey, chunkSize);
+        const result = [];
+        
+        if (fetched && fetched.length > 0) {
+            for (let i = 0; i < fetched.length; i++) {
+                result.push(trytesToAscii(fetched[i].message));
+            }
+        }
+        return result;
+    } catch (error) {
+        console.error('MAM fetch', error);
+        throw new Error(error);
+    }
+};
