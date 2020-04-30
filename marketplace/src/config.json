@@ -7,5 +7,6 @@
     "chunkSize": 20,
     "database": "../../db/marketplace.sqlite3",
     "mamMode": "RESTRICTED",
-    "tag": "ENERGYBROKER"
+    "tag": "ENERGYBROKER",
+    "bidManagerURL": "http://localhost:5050"
 }
