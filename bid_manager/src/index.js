@@ -53,32 +53,32 @@ const findMatch = async (table, payload) => {
         // offer assetId !== request assetId
         switch (table) {
             case 'offer':
-                const match = data.find(offer => 
+                const matchingOffer = data.find(offer => 
                     offer.assetId !== payload.assetId &&
                     offer.energyAmount >= payload.energyAmount &&
                     offer.price <= payload.price
                 );
 
                 console.log('Found matching offer');
-                console.log(match, payload);
+                console.log(matchingOffer, payload);
 
                 return {
-                    offer: match,
+                    offer: matchingOffer,
                     request: payload
                 };
             case 'request':
-                const match = data.find(request => 
+                const matchingRequest = data.find(request => 
                     request.assetId !== payload.assetId &&
                     request.energyAmount <= payload.energyAmount &&
                     request.price >= payload.price
                 );
 
                 console.log('Found matching request');
-                console.log(match, payload);
+                console.log(matchingRequest, payload);
 
                 return {
                     offer: payload,
-                    request: match
+                    request: matchingRequest
                 };
             default:
                 return;
