@@ -8,7 +8,7 @@ const db = new sqlite3.Database(
         if (error) {
             return console.error('New database Error', error, path.resolve(__dirname, database));
         }
-        await db.run('CREATE TABLE IF NOT EXISTS asset (assetId TEXT PRIMARY KEY, assetOwner TEXT, assetName TEXT, assetPublicKey TEXT, deviceUUID TEXT, location TEXT, type TEXT, network TEXT)');
+        await db.run('CREATE TABLE IF NOT EXISTS asset (assetId TEXT PRIMARY KEY, assetOwner TEXT, assetName TEXT, assetPublicKey TEXT, deviceUUID TEXT, location TEXT, type TEXT, network TEXT, websocket TEXT)');
         await db.run('CREATE TABLE IF NOT EXISTS transactionLog (transactionId TEXT, contractId TEXT, timestamp TEXT, requesterId TEXT, providerId TEXT, energyAmount INTEGER, paymentAmount INTEGER, status TEXT, additionalDetails TEXT)');
         await db.run('CREATE TABLE IF NOT EXISTS keys (privateKey TEXT PRIMARY KEY, publicKey TEXT)');
         await db.run('CREATE TABLE IF NOT EXISTS log (timestamp TEXT, event TEXT)');
@@ -27,18 +27,18 @@ export const close = async () => {
 export const createAsset = async ({ 
     assetId, assetOwner, assetName = '', 
     assetPublicKey, deviceUUID = '', location = '',
-    type, network
+    type, network, websocket
 }) => {
     const replace = `
         REPLACE INTO asset (
             assetId, assetOwner, assetName, 
             assetPublicKey, deviceUUID, location,
-            type, network
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+            type, network, websocket
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
     await db.run(replace, [
         assetId, assetOwner, assetName, 
         assetPublicKey, deviceUUID, location,
-        type, network
+        type, network, websocket
     ]);
 };
 
