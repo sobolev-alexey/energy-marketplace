@@ -1,27 +1,26 @@
 import axios from 'axios';
 import io from 'socket.io-client';
-import { readData } from './databaseHelper';
 import { log } from './loggerHelper';
+import { bidManagerURL } from '../config.json';
 
 interface IResponse {
     success: boolean;
-    message: any;
+    match?: any;
+    message?: any;
 }
 
 /**
  * Perform a request to login a user.
  * @param endpoint The API endpoint.
- * @param request The request to send.
+ * @param payload The request to send.
  * @returns The response from the request.
  */
-export const sendRequest = async (endpoint: string, request: string): Promise<IResponse> => {
-    const asset: any = await readData('asset');
-    
-    const ax = axios.create({ baseURL: asset.marketplaceAPI });
+export const sendRequest = async (endpoint: string, payload: object): Promise<IResponse> => {
+    const ax = axios.create({ baseURL: bidManagerURL });
     let response: IResponse;
 
     try {
-        const axiosResponse = await ax.post<IResponse>(endpoint, request);
+        const axiosResponse = await ax.post<IResponse>(endpoint, payload);
 
         response = axiosResponse.data;
     } catch (err) {
