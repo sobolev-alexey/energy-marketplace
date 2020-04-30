@@ -3,6 +3,7 @@ import { log, transactionLog } from '../utils/loggerHelper';
 import { fetch } from '../utils/mamHelper';
 import { HttpError } from '../errors/httpError';
 import { EncryptionService, IReceivedMessagePayload } from '../utils/encryptionHelper';
+import { sendRequest } from '../utils/communicationHelper';
 
 export async function offerOrRequest(_: any, requestDetails: any): Promise<any> {
     try {
@@ -38,6 +39,9 @@ export async function offerOrRequest(_: any, requestDetails: any): Promise<any> 
                         //  && mamFetchLastMessage?.message?.transactionId === decrypted?.message?.transactionId
                     ) {
                         await transactionLog(decrypted?.message);
+                        const payload = (({ assetId, transactionId, timestamp, energyAmount, energyPrice }) => 
+                            ({ assetId, transactionId, timestamp, energyAmount, energyPrice }))(decrypted?.message);
+                        const match = await sendRequest(decrypted?.message.type, payload);
                         return { success: true };
                     }
                     await log(`Asset signature verification failed. ${asset.assetId}`);
