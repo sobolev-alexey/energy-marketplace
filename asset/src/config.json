@@ -1,0 +1,17 @@
+{
+    "websocketURL": "http://localhost",
+    "serverPortNumber": 4000,
+    "websocketPortNumber": 8000,
+    "defaultSecurity": 2,
+    "defaultDepth": 3,
+    "defaultMwm": 9,
+    "chunkSize": 20,
+    "database": "../../db/energy_broker.sqlite3",
+    "mamMode": "RESTRICTED",
+    "tag": "ENERGYBROKER",
+    "energyProductionSpeed": 40,
+    "energyProductionAmount": 50,
+    "energyConsumptionSpeed": 40,
+    "energyConsumptionAmount": 10,
+    "transactionCreationSpeed": 40
+}
