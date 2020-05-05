@@ -82,8 +82,12 @@ export const publish = async (transactionId, packet) => {
 
         // Attach the payload
         if (bundle && bundle.length && bundle[0].hash) {
+
+            // Check if the message was attached
+            const result = await checkAttachedMessage(api, root, secretKey);
+            console.log('checkAttachedMessage', result);
+
             // Save new mamState
-            await new Promise(resolve => setTimeout(resolve, 2000));
             await writeData('mam', { transactionId, root, ...mamState });
             return { transactionId, root, ...mamState };
         }
@@ -91,6 +95,26 @@ export const publish = async (transactionId, packet) => {
     } catch (error) {
         console.log('MAM publish', error);
         throw new Error(error);
+    }
+};
+
+const checkAttachedMessage = async (api, root, secretKey) => {
+    let retries = 0;
+
+    while (retries++ < 10) {
+        const fetched = await mamFetchAll(api, root, MAM_MODE[mamMode], secretKey, chunkSize);
+        const result = [];
+        
+        if (fetched && fetched.length > 0) {
+            for (let i = 0; i < fetched.length; i++) {
+                result.push(trytesToAscii(fetched[i].message));
+            }
+        }
+
+        if (result.length > 0) {
+            return result.length;
+        }
+        await new Promise(resolve => setTimeout(resolve, 2000));
     }
 };
 
