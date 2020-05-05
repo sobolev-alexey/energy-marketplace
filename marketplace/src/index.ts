@@ -8,7 +8,8 @@ import { AppHelper } from './utils/appHelper';
 const routes: IRoute[] = [
     { path: '/register', method: 'post', func: 'register' },
     { path: '/request', method: 'post', func: 'offerOrRequest' },
-    { path: '/offer', method: 'post', func: 'offerOrRequest' }
+    { path: '/offer', method: 'post', func: 'offerOrRequest' },
+    { path: '/match', method: 'post', func: 'match' }
     // { path: '/v0/fetch', method: 'post', folder: 'v0', func: 'fetch' }
 ];
 
