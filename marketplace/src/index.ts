@@ -1,5 +1,5 @@
 
-import { LoadBalancerSettings, RandomWalkStrategy } from '@iota/client-load-balancer';
+import { LoadBalancerSettings, LinearWalkStrategy, SuccessMode } from '@iota/client-load-balancer';
 import { ServiceFactory } from './factories/serviceFactory';
 import { IRoute } from './models/app/IRoute';
 import { init } from './routes/init';
@@ -15,13 +15,15 @@ const routes: IRoute[] = [
 
 AppHelper.build(routes, async (app, config, websocketPort) => {
     const mainNetLoadBalancerSettings: LoadBalancerSettings = {
-        nodeWalkStrategy: new RandomWalkStrategy(config.mainNetNodes),
+        nodeWalkStrategy: new LinearWalkStrategy(config.mainNetNodes),
+        successMode: SuccessMode.keep,
         timeoutMs: 10000
     };
     ServiceFactory.register('mainnet-load-balancer-settings', () => mainNetLoadBalancerSettings);
 
     const devNetLoadBalancerSettings: LoadBalancerSettings = {
-        nodeWalkStrategy: new RandomWalkStrategy(config.devNetNodes),
+        nodeWalkStrategy: new LinearWalkStrategy(config.devNetNodes),
+        // successMode: SuccessMode.keep,
         timeoutMs: 10000
     };
     ServiceFactory.register('devnet-load-balancer-settings', () => devNetLoadBalancerSettings);
