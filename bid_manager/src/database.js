@@ -46,18 +46,47 @@ exports.createRequest = async ({ assetId, transactionId, timestamp, energyAmount
     await db.run(query, [assetId, transactionId, timestamp, energyAmount, energyPrice]);
 };
 
-exports.readAllData = async (table) => {
+exports.findOffer = async (request) => {
     return new Promise((resolve, reject) => {
         try {
-            db.all(`SELECT * FROM ${table} ORDER BY timestamp DESC`, (err, rows) => {
-                if (err) {
-                    return resolve(null);
-                } else {
-                    return resolve(rows);
-                }
+            db.get(`
+                SELECT * FROM offer 
+                WHERE assetId != '${request.assetId}'
+                AND energyAmount >= ${request.energyAmount}
+                AND energyPrice <= ${request.energyPrice}
+                ORDER BY timestamp ASC
+                LIMIT 1`, (err, row) => {
+                    if (err) {
+                        return resolve(null);
+                    } else {
+                        return resolve(row || null);
+                    }
             });
         } catch (error) {
-            console.log('readAllData', error);
+            console.log('findOffer', error);
+            return reject(null);
+        }
+    });
+};
+
+exports.findRequest = async (offer) => {
+    return new Promise((resolve, reject) => {
+        try {
+            db.get(`
+                SELECT * FROM request 
+                WHERE assetId != '${offer.assetId}'
+                AND energyAmount >= ${offer.energyAmount}
+                AND energyPrice <= ${offer.energyPrice}
+                ORDER BY timestamp ASC
+                LIMIT 1`, (err, row) => {
+                    if (err) {
+                        return resolve(null);
+                    } else {
+                        return resolve(row || null);
+                    }
+            });
+        } catch (error) {
+            console.log('findRequest', error);
             return reject(null);
         }
     });
