@@ -41,7 +41,8 @@ export async function offerOrRequest(_: any, requestDetails: any): Promise<any> 
                         await transactionLog(decrypted?.message);
                         const payload = (({ assetId, transactionId, timestamp, energyAmount, energyPrice }) => 
                             ({ assetId, transactionId, timestamp, energyAmount, energyPrice }))(decrypted?.message);
-                        const match = await sendRequest(decrypted?.message.type, payload);
+                        await sendRequest(decrypted?.message.type, payload);
+
                         return { success: true };
                     }
                     await log(`Asset signature verification failed. ${asset.assetId}`);
