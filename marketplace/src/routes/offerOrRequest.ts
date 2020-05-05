@@ -41,9 +41,10 @@ export async function offerOrRequest(_: any, requestDetails: any): Promise<any> 
                         await transactionLog(decrypted?.message);
                         const payload = (({ assetId, transactionId, timestamp, energyAmount, energyPrice }) => 
                             ({ assetId, transactionId, timestamp, energyAmount, energyPrice }))(decrypted?.message);
-                        await sendRequest(decrypted?.message.type, payload);
+                        // tslint:disable-next-line:no-unnecessary-local-variable
+                        const bidManagerResponse = await sendRequest(decrypted?.message.type, payload);
 
-                        return { success: true };
+                        return bidManagerResponse;
                     }
                     await log(`Asset signature verification failed. ${asset.assetId}`);
                     throw new HttpError('Asset signature verification failed', 404);
