@@ -34,7 +34,7 @@ app.post('/request', async (req, res) => {
 const findMatch = async (table, payload) => {
     const start = Date.now();
     try {
-        console.log('Looking for match', table, payload);
+        console.log('Looking for matching', table, payload);
         // Rules:
         // energy amount offered >= energy amount requested
         // energy price offered <= energy price requested
