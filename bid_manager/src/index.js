@@ -45,9 +45,6 @@ const findMatch = async (table, payload) => {
                 console.log('findOffer', matchingOffer);
 
                 if (matchingOffer) {
-                    console.log('Found matching offer');
-                    console.log(matchingOffer, payload);
-    
                     const response = await sendMatch({
                         offer: matchingOffer,
                         request: payload
@@ -67,9 +64,6 @@ const findMatch = async (table, payload) => {
                 console.log('findRequest', matchingRequest);
 
                 if (matchingRequest) {
-                    console.log('Found matching request');
-                    console.log(matchingRequest, payload);
-
                     const response = sendMatch({
                         offer: payload,
                         request: matchingRequest
