@@ -9,9 +9,9 @@
     "database": "../../db/energy_broker.sqlite3",
     "mamMode": "RESTRICTED",
     "tag": "ENERGYBROKER",
-    "energyProductionSpeed": 20,
+    "energyProductionSpeed": 40,
     "energyProductionAmount": 50,
     "energyConsumptionSpeed": 100,
     "energyConsumptionAmount": 10,
-    "transactionCreationSpeed": 20
+    "transactionCreationSpeed": 40
 }
