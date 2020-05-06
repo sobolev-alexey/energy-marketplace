@@ -1,8 +1,5 @@
 import { composeAPI, LoadBalancerSettings } from '@iota/client-load-balancer';
-import { 
-    asciiToTrytes,
-    trytesToAscii 
-} from '@iota/converter';
+import { asciiToTrytes, trytesToAscii } from '@iota/converter';
 import {
     createChannel,
     createMessage,
@@ -136,6 +133,7 @@ export const fetch = async (assetId, transactionId) => {
                 result.push(trytesToAscii(fetched[i].message));
             }
         }
+
         return result;
     } catch (error) {
         console.error('MAM fetch', error);
