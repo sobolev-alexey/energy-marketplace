@@ -1,6 +1,7 @@
 import randomstring from 'randomstring';
 import { log, transactionLog } from './loggerHelper';
-import { signPublishEncryptSend } from './businessLogicHelper';
+import { signPublishEncryptSend } from './routineHelper';
+import { readData } from '../utils/databaseHelper';
 
 export async function processMatch(requestPayload: any): Promise<{success: boolean}> {
     try {
@@ -32,7 +33,9 @@ export async function processMatch(requestPayload: any): Promise<{success: boole
                 additionalDetails: ''
             };
 
-            const payload = { offer, request, contractId };
+            const consumerAsset: any = await readData('asset', 'assetId', requestPayload?.request?.assetId);
+
+            const payload = { offer, request, contractId, location: consumerAsset?.location };
             await log(`Match found. Request: ${request}, Offer: ${offer}, Contract: ${contractId}`);
             
             console.log('MATCH 1', payload);
