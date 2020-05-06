@@ -89,7 +89,7 @@ export const publish = async (transactionId, packet) => {
 
             // Save new mamState
             await writeData('mam', { transactionId, root, ...mamState });
-            return { hash: bundle[0].hash, root, secretKey };
+            return { hash: bundle?.[0].hash, root, secretKey };
         }
         return null;
     } catch (error) {

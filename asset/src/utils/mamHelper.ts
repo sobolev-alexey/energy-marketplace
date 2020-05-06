@@ -81,7 +81,7 @@ export const publish = async (transactionId, packet) => {
         const root = mamStateFromDB && mamStateFromDB?.root ? mamStateFromDB.root : message.root;
 
         // Attach the payload
-        if (bundle && bundle.length && bundle[0].hash) {
+        if (bundle && bundle.length && bundle?.[0].hash) {
 
             // Check if the message was attached
             const result = await checkAttachedMessage(api, root, secretKey);
