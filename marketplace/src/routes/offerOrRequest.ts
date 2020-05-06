@@ -4,6 +4,7 @@ import { fetch } from '../utils/mamHelper';
 import { HttpError } from '../errors/httpError';
 import { EncryptionService, IReceivedMessagePayload } from '../utils/encryptionHelper';
 import { sendRequest } from '../utils/communicationHelper';
+import { bidManagerURL } from '../config.json';
 
 export async function offerOrRequest(_: any, requestDetails: any): Promise<any> {
     try {
@@ -51,10 +52,12 @@ export async function offerOrRequest(_: any, requestDetails: any): Promise<any> 
                         }
 
                         await transactionLog(decrypted?.message);
-                        const payload = (({ assetId, transactionId, timestamp, energyAmount, energyPrice }) => 
-                            ({ assetId, transactionId, timestamp, energyAmount, energyPrice }))(decrypted?.message);
+                        const payload = (({ assetId, transactionId, timestamp, energyAmount, energyPrice, type }) => 
+                            ({ assetId, transactionId, timestamp, energyAmount, energyPrice, type }))(decrypted?.message);
+                        
+                        const bidManagerEndpoint = `${bidManagerURL}/${decrypted?.message.type}`;   
                         // tslint:disable-next-line:no-unnecessary-local-variable
-                        const bidManagerResponse = await sendRequest(decrypted?.message.type, payload);
+                        const bidManagerResponse = await sendRequest(bidManagerEndpoint, payload);
 
                         return bidManagerResponse;
                     }
