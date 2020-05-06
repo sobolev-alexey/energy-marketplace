@@ -8,8 +8,8 @@ const db = new sqlite3.Database(
         if (error) {
             return console.error('New database Error', error, path.resolve(__dirname, database));
         }
-        await db.run('CREATE TABLE IF NOT EXISTS asset (assetId TEXT PRIMARY KEY, assetOwner TEXT, assetName TEXT, assetPublicKey TEXT, deviceUUID TEXT, location TEXT, type TEXT, network TEXT, websocket TEXT)');
-        await db.run('CREATE TABLE IF NOT EXISTS transactionLog (transactionId TEXT, contractId TEXT, timestamp TEXT, requesterId TEXT, providerId TEXT, energyAmount REAL, paymentAmount REAL, status TEXT, additionalDetails TEXT)');
+        await db.run('CREATE TABLE IF NOT EXISTS asset (assetId TEXT PRIMARY KEY, assetOwner TEXT, assetName TEXT, assetPublicKey TEXT, deviceUUID TEXT, location TEXT, type TEXT, network TEXT, websocket TEXT, assetURL TEXT)');
+        await db.run('CREATE TABLE IF NOT EXISTS transactionLog (transactionId TEXT, type TEXT, contractId TEXT, timestamp TEXT, requesterId TEXT, providerId TEXT, energyAmount REAL, paymentAmount REAL, status TEXT, additionalDetails TEXT)');
         await db.run('CREATE TABLE IF NOT EXISTS keys (privateKey TEXT PRIMARY KEY, publicKey TEXT)');
         await db.run('CREATE TABLE IF NOT EXISTS log (timestamp TEXT, event TEXT)');
         await db.run('CREATE TABLE IF NOT EXISTS mam (transactionId TEXT PRIMARY KEY, root TEXT, seed TEXT, mode TEXT, sideKey TEXT, security INTEGER, start INTEGER, count INTEGER, nextCount INTEGER, keyIndex INTEGER, nextRoot TEXT)');
@@ -27,18 +27,18 @@ export const close = async () => {
 export const createAsset = async ({ 
     assetId, assetOwner, assetName = '', 
     assetPublicKey, deviceUUID = '', location = '',
-    type, network, websocket
+    type, network, websocket, assetURL
 }) => {
     const replace = `
         REPLACE INTO asset (
             assetId, assetOwner, assetName, 
             assetPublicKey, deviceUUID, location,
-            type, network, websocket
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+            type, network, websocket, assetURL
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
     await db.run(replace, [
         assetId, assetOwner, assetName, 
         assetPublicKey, deviceUUID, location,
-        type, network, websocket
+        type, network, websocket, assetURL
     ]);
 };
 
@@ -59,15 +59,18 @@ export const updateMAMChannel = async ({ transactionId, root, seed, mode, sideKe
 };
 
 export const updateTransactionStorage = async ({ 
-    transactionId, contractId, timestamp, requesterId, providerId, 
+    transactionId, type, contractId, timestamp, requesterId, providerId, 
     energyAmount, paymentAmount, status, additionalDetails 
 }) => {
     const insert = `
         INSERT INTO transactionLog (
-            transactionId, contractId, timestamp, requesterId, providerId,
+            transactionId, type, contractId, timestamp, requesterId, providerId,
             energyAmount, paymentAmount, status, additionalDetails
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-    await db.run(insert, [transactionId, contractId, timestamp, requesterId, providerId, energyAmount, paymentAmount, status, additionalDetails]);
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+    await db.run(insert, [
+        transactionId, type, contractId, timestamp, requesterId, providerId, 
+        energyAmount, paymentAmount, status, additionalDetails
+    ]);
 };
 
 export const updateLogStorage = async ({ timestamp, event }) => {
