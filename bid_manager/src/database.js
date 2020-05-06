@@ -11,10 +11,10 @@ const db = new sqlite3.Database(
             }
 
             await db.run(`CREATE TABLE IF NOT EXISTS offer (
-                assetId TEXT, transactionId TEXT, timestamp TEXT, energyAmount REAL, energyPrice REAL)`);
+                assetId TEXT, transactionId TEXT, timestamp TEXT, energyAmount REAL, energyPrice REAL, type TEXT)`);
 
             await db.run(`CREATE TABLE IF NOT EXISTS request (
-                assetId TEXT, transactionId TEXT, timestamp TEXT, energyAmount REAL, energyPrice REAL)`);
+                assetId TEXT, transactionId TEXT, timestamp TEXT, energyAmount REAL, energyPrice REAL, type TEXT)`);
         } catch (error) {
             console.log('create', error);
             return null;
@@ -30,20 +30,20 @@ exports.close = async () => {
     });
 };
 
-exports.createOffer = async ({ assetId, transactionId, timestamp, energyAmount, energyPrice }) => {
+exports.createOffer = async ({ assetId, transactionId, timestamp, energyAmount, energyPrice, type }) => {
     const query = `
         REPLACE INTO offer (
-            assetId, transactionId, timestamp, energyAmount, energyPrice
-        ) VALUES (?, ?, ?, ?, ?)`;
-    await db.run(query, [assetId, transactionId, timestamp, energyAmount, energyPrice]);
+            assetId, transactionId, timestamp, energyAmount, energyPrice, type
+        ) VALUES (?, ?, ?, ?, ?, ?)`;
+    await db.run(query, [assetId, transactionId, timestamp, energyAmount, energyPrice, type]);
 };
 
-exports.createRequest = async ({ assetId, transactionId, timestamp, energyAmount, energyPrice }) => {
+exports.createRequest = async ({ assetId, transactionId, timestamp, energyAmount, energyPrice, type }) => {
     const query = `
         REPLACE INTO request (
-            assetId, transactionId, timestamp, energyAmount, energyPrice
-        ) VALUES (?, ?, ?, ?, ?)`;
-    await db.run(query, [assetId, transactionId, timestamp, energyAmount, energyPrice]);
+            assetId, transactionId, timestamp, energyAmount, energyPrice, type
+        ) VALUES (?, ?, ?, ?, ?, ?)`;
+    await db.run(query, [assetId, transactionId, timestamp, energyAmount, energyPrice, type]);
 };
 
 exports.findOffer = async (request) => {
