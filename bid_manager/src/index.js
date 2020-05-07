@@ -47,7 +47,7 @@ const findMatch = async (table, payload) => {
                 if (matchingOffer) {
                     const response = await sendMatch({
                         offer: matchingOffer,
-                        request: payload
+                        request: { ...payload, assetId: payload.requesterId }
                     });
 
                     if (response && response.success) {
@@ -65,7 +65,7 @@ const findMatch = async (table, payload) => {
 
                 if (matchingRequest) {
                     const response = sendMatch({
-                        offer: payload,
+                        offer: { ...payload, assetId: payload.providerId },
                         request: matchingRequest
                     });
 
