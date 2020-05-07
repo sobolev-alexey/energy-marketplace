@@ -9,33 +9,33 @@ export async function processMatch(requestPayload: any): Promise<{success: boole
             // Assign contract ID
             const contractId = randomstring.generate(20);
             const timestamp = Date.now().toString();
-            const offer = {
+            const consumerAsset: any = await readData('asset', 'assetId', requestPayload?.request?.assetId);
+
+            const transaction = {
                 contractId, 
                 timestamp,
-                transactionId: requestPayload?.offer?.transactionId,
                 providerId: requestPayload?.offer?.assetId,
                 energyAmount: requestPayload?.request?.energyAmount, 
-                paymentAmount: requestPayload?.offer?.energyPrice, 
+                energyPrice: requestPayload?.offer?.energyPrice, 
                 requesterId: requestPayload?.request?.assetId,
                 status: 'Contract created', 
+                location: consumerAsset?.location,
                 additionalDetails: ''
+            };
+
+            const offer = {
+                ...transaction,
+                type: 'offer',
+                transactionId: requestPayload?.offer?.transactionId
             };
 
             const request = {
-                contractId, 
-                timestamp,
-                transactionId: requestPayload?.request?.transactionId,
-                providerId: requestPayload?.offer?.assetId,
-                energyAmount: requestPayload?.request?.energyAmount, 
-                paymentAmount: requestPayload?.offer?.energyPrice, 
-                requesterId: requestPayload?.request?.assetId,
-                status: 'Contract created', 
-                additionalDetails: ''
+                ...transaction,
+                type: 'request',
+                transactionId: requestPayload?.request?.transactionId
             };
 
-            const consumerAsset: any = await readData('asset', 'assetId', requestPayload?.request?.assetId);
-
-            const payload = { offer, request, contractId, location: consumerAsset?.location };
+            const payload = { offer, request, contractId };
             await log(`Match found. Request: ${request}, Offer: ${offer}, Contract: ${contractId}`);
             
             console.log('MATCH 1', payload);
