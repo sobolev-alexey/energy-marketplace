@@ -116,7 +116,7 @@ export const updateLogStorage = async ({ timestamp, event }) => {
 
 export const writeData = async (table, data) => {
     try {
-        if (table !== 'keys') {
+        if (table !== 'keys' || table !== 'asset') {
             console.log('writeData', table, data);
         }
         switch (table) {
