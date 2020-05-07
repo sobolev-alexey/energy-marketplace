@@ -13,5 +13,6 @@
     "energyProductionAmount": 50,
     "energyConsumptionSpeed": 100,
     "energyConsumptionAmount": 10,
+    "energyProvisionSpeed": 40,
     "transactionCreationSpeed": 40
 }
