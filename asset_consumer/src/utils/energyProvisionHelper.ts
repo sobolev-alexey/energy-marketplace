@@ -15,7 +15,7 @@ export const provideEnergy = async (transaction: any): Promise<void> => {
         await writeData('energy', { 
             timestamp: Date.now().toString(), 
             energyAvailable: Number(energy && energy?.energyAvailable || 0), 
-            energyReserved: Number(energy && energy?.energyReserved || 0) - transaction?.energyAmount
+            energyReserved: Number(energy && energy?.energyReserved || 0) - Number(transaction?.energyAmount)
         });
 
         // Log transaction
@@ -45,7 +45,7 @@ export const receiveEnergy = async (transaction: any): Promise<void> => {
         const energy: any = await readData('energy');
         await writeData('energy', { 
             timestamp: Date.now().toString(), 
-            energyAvailable: Number(energy && energy?.energyAvailable || 0) + transaction?.energyAmount, 
+            energyAvailable: Number(energy && energy?.energyAvailable || 0) + Number(transaction?.energyAmount), 
             energyReserved: Number(energy && energy?.energyReserved || 0)
         });
 
