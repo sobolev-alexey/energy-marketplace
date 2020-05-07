@@ -3,20 +3,19 @@ import { log, transactionLog } from './loggerHelper';
 import { confirmEnergyProvision } from './businessLogicHelper';
 import { energyProvisionSpeed } from '../config.json';
 
-export const provideEnergy = async (
-    location: string, 
-    energyProvisionAmount: number, 
-    transaction: any
-) => {
+export const provideEnergy = async (transaction: any) => {
     try {
-        await log(`Energy provision of ${energyProvisionAmount} started to ${location}`);
+        // Log transaction
+        await transactionLog(transaction);
+        
+        await log(`Energy provision of ${transaction?.energyAmount} started to ${transaction?.location}`);
         await new Promise(resolve => setTimeout(resolve, energyProvisionSpeed * 1000));
 
         const energy: any = await readData('energy');
         await writeData('energy', { 
             timestamp: Date.now().toString(), 
-            energyAvailable: Number(energy && energy.energyAvailable || 0), 
-            energyReserved: Number(energy && energy.energyReserved || 0) - energyProvisionAmount
+            energyAvailable: Number(energy && energy?.energyAvailable || 0), 
+            energyReserved: Number(energy && energy?.energyReserved || 0) - transaction?.energyAmount
         });
 
         // Log transaction
@@ -26,7 +25,7 @@ export const provideEnergy = async (
             status: 'Energy provision finished'
         });
 
-        await log(`Energy provision of ${energyProvisionAmount} finished to ${location}`);
+        await log(`Energy provision of ${transaction?.energyAmount} finished to ${transaction?.location}`);
 
         confirmEnergyProvision();
     } catch (error) {
@@ -34,20 +33,19 @@ export const provideEnergy = async (
     }
 };
 
-export const receiveEnergy = async (
-    location: string, 
-    energyProvisionAmount: number, 
-    transaction: any
-) => {
+export const receiveEnergy = async (transaction: any) => {
     try {
-        await log(`Energy provision of ${energyProvisionAmount} started to ${location}`);
+        // Log transaction
+        await transactionLog(transaction);
+
+        await log(`Energy provision of ${transaction?.energyAmount} started to ${transaction.location}`);
         await new Promise(resolve => setTimeout(resolve, energyProvisionSpeed * 1000));
 
         const energy: any = await readData('energy');
         await writeData('energy', { 
             timestamp: Date.now().toString(), 
-            energyAvailable: Number(energy && energy.energyAvailable || 0) + energyProvisionAmount, 
-            energyReserved: Number(energy && energy.energyReserved || 0)
+            energyAvailable: Number(energy && energy?.energyAvailable || 0) + transaction?.energyAmount, 
+            energyReserved: Number(energy && energy?.energyReserved || 0)
         });
 
         // Log transaction
@@ -57,7 +55,7 @@ export const receiveEnergy = async (
             status: 'Energy provision finished'
         });
 
-        await log(`Energy provision of ${energyProvisionAmount} finished to ${location}`);
+        await log(`Energy provision of ${transaction?.energyAmount} finished to ${transaction.location}`);
 
         confirmEnergyProvision();
     } catch (error) {
