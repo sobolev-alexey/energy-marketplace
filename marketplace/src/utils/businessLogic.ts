@@ -11,6 +11,8 @@ export async function processMatch(requestPayload: any): Promise<{success: boole
             const timestamp = Date.now().toString();
             const consumerAsset: any = await readData('asset', 'assetId', requestPayload?.request?.assetId);
 
+            // console.log('MATCH 1', requestPayload);
+
             const transaction = {
                 contractId, 
                 timestamp,
@@ -38,18 +40,18 @@ export async function processMatch(requestPayload: any): Promise<{success: boole
             const payload = { offer, request, contractId };
             await log(`Match found. Request: ${JSON.stringify(request)}, Offer: ${JSON.stringify(offer)}, Contract: ${contractId}`);
             
-            console.log('MATCH 1', payload);
+            // console.log('MATCH 2', payload);
 
             // Send out contract confirmations
             const producerResponse = await signPublishEncryptSend(
                 payload, requestPayload?.offer?.assetId, requestPayload?.offer?.transactionId, 'contract'
             );
-            console.log('MATCH 2', producerResponse);
+            // console.log('MATCH 3', producerResponse);
             
             const consumerResponse = await signPublishEncryptSend(
                 payload, requestPayload?.request?.assetId, requestPayload?.request?.transactionId, 'contract'
             );
-            console.log('MATCH 3', consumerResponse);
+            // console.log('MATCH 4', consumerResponse);
 
             // Evaluate responses 
             if (producerResponse?.success && consumerResponse?.success) {
@@ -61,7 +63,7 @@ export async function processMatch(requestPayload: any): Promise<{success: boole
 
                 await log(`Contract details sent to assets and stored. Contract: ${contractId}`);
 
-                console.log('MATCH 4 DONE');
+                // console.log('MATCH 5 DONE');
             } else {
                 await log(`Contract communication failure. Request: ${JSON.stringify(consumerResponse)}, Offer: ${JSON.stringify(producerResponse)}, Contract: ${contractId}`);
             }

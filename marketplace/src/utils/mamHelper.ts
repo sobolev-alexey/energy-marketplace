@@ -62,13 +62,10 @@ export const publish = async (transactionId, packet) => {
             secretKey = mamStateFromDB?.sideKey;
             mamState = mamStateFromDB;
             mamState.index = mamStateFromDB?.keyIndex;
-            console.log('RETRIEVED MAM state', mamState);
         } else {
             // Set channel mode & update key
             secretKey = generateRandomKey(81);
             mamState = createChannel(generateRandomKey(81), defaultSecurity, MAM_MODE[mamMode], secretKey);
-            console.log('INITIAL MAM state', mamState);
-
         }
 
         // Create MAM Payload - STRING OF TRYTES
