@@ -11,6 +11,8 @@ import { log, transactionLog } from './loggerHelper';
 import { publish } from './mamHelper';
 import { EncryptionService, IMessagePayload } from './encryptionHelper';
 import { sendRequest } from './communicationHelper';
+import { decryptVerify } from './routineHelper';
+import { provideEnergy } from './energyProvisionHelper';
 
 let energyProductionInterval;
 let energyConsumptionInterval;
@@ -35,7 +37,7 @@ export function BusinessLogic() {
                 await writeData('energy', { 
                     timestamp: Date.now().toString(), 
                     energyAvailable: energyAmount,
-                    energyReserved: energy.energyReserved
+                    energyReserved: (energy && energy.energyReserved || 0)
                 });
 
                 await log(`Produced ${energyProductionAmount} W of energy`);
@@ -239,18 +241,15 @@ export function BusinessLogic() {
 
     const generatePayload = async (asset, type, status, energy): Promise<object> => {
         try {
-            // asset ID, type, MAM channel details, public key in a local database
-            // replies with MAM root/DID, where public key is stored
-
             if (asset) {
                 return {
                     type,
                     timestamp: Date.now().toString(),
                     transactionId: randomstring.generate(20),
-                    assetId: asset.assetId,
+                    assetId: asset?.assetId,
                     energyAmount: energy,
-                    energyPrice: asset.maxEnergyPrice,
-                    location: asset.location,
+                    energyPrice: asset?.maxEnergyPrice,
+                    location: asset?.location,
                     status
                 };
             }
@@ -263,4 +262,42 @@ export function BusinessLogic() {
     energyProductionInterval = setInterval(produceEnergy, energyProductionSpeed * 1000);
     energyConsumptionInterval = setInterval(consumeEnergy, energyConsumptionSpeed * 1000);
     transactionInterval = setInterval(createMarketplaceTransaction, transactionCreationSpeed * 1000);
+}
+
+export async function processContract(request: any): Promise<any> {
+    try {
+        const payload = await decryptVerify(request);        
+        if (payload?.verificationResult) {
+            const asset: any = await readData('asset');
+            if (asset?.type === 'producer') {
+                // Log transaction
+                await transactionLog(payload?.message?.offer);
+
+                provideEnergy(
+                    payload?.message?.location, 
+                    payload?.message?.offer?.energyAmount,
+                    payload?.message?.offer
+                );
+            } else if (asset?.type === 'consumer') {
+                // Log transaction
+                await transactionLog(payload?.message?.request);
+            }
+
+            await log(`Contract processing successful. ${payload?.message?.contractId}`);
+            return { success: true };
+        }
+        throw new Error('Asset signature verification failed');
+    } catch (error) {
+        await log(`Asset registration failed. ${error.toString()}`);
+        throw new Error(error);
+    }
+}
+
+export async function confirmEnergyProvision(): Promise<void> {
+    try {
+        
+    } catch (error) {
+        await log(`Asset registration failed. ${error.toString()}`);
+        throw new Error(error);
+    }
 }

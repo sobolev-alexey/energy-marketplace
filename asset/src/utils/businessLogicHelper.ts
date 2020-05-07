@@ -11,6 +11,8 @@ import { log, transactionLog } from './loggerHelper';
 import { publish } from './mamHelper';
 import { EncryptionService, IMessagePayload } from './encryptionHelper';
 import { sendRequest } from './communicationHelper';
+import { decryptVerify } from './routineHelper';
+import { provideEnergy } from './energyProvisionHelper';
 
 let energyProductionInterval;
 let energyConsumptionInterval;
@@ -61,7 +63,7 @@ export function BusinessLogic() {
                 await writeData('energy', { 
                     timestamp: Date.now().toString(), 
                     energyAvailable: energyAmount > 0 ? energyAmount : 0,
-                    energyReserved: energy.energyReserved
+                    energyReserved: (energy && energy.energyReserved || 0)
                 });
 
                 await log(`Consumed ${energyConsumptionAmount} W of energy`);
@@ -82,7 +84,7 @@ export function BusinessLogic() {
                 switch (asset.type) {
                     case 'consumer': {
                         if (energyData && energyData.energyAvailable <= asset.minOfferAmount * 2 ) {
-                            await createRequest();
+                            await createRequest(asset);
                         }
                         break; 
                     }
@@ -173,42 +175,81 @@ export function BusinessLogic() {
         }
     };
 
-    const createRequest = async (): Promise<void> => {
+    const createRequest = async (asset): Promise<void> => {
         try {
+            const status = 'Initial request';
+
+            // Retrieve encryption keys
+            const keys: any = await readData('keys');
+            if (!keys || !keys.privateKey) {
+                throw new Error('No keypair found in database');
+            }
+
             // Log event 
             await log('Creating request...');
 
+            const energyToRequest = Number(asset.minOfferAmount);
+
             // Create payload, specify price and amount
+            const payload: any = await generatePayload(asset, 'request', status, energyToRequest);
+            console.log(111, payload);
 
             // Sign payload
+            const encryptionService = new EncryptionService();
+            const signature: Buffer = encryptionService.signMessage(
+                keys?.privateKey, payload
+            );
+            console.log(222, signature);
 
             // Publish payload to MAM
+            const mam = await publish(payload.transactionId, { message: payload, signature });
+            console.log(333, mam);
 
             // Encrypt payload and signature with Marketplace public key
+            const messagePayload: IMessagePayload = { message: payload, signature, mam };
+            console.log(444, messagePayload);
+
+            const encrypted: string = encryptionService.publicEncrypt(
+                asset?.marketplacePublicKey, JSON.stringify(messagePayload)
+            );
 
             // Send encrypted payload and signature to Marketplace
+            const response = await sendRequest('/request', { encrypted });
+            console.log(555, response);
 
-            // Log transaction
+            if (response.success) {
+                // Log transaction
+                await transactionLog({
+                    transactionId: payload.transactionId,
+                    timestamp: payload.timestamp, 
+                    requesterId: payload.assetId,
+                    energyAmount: payload.energyAmount, 
+                    paymentAmount: payload.energyPrice, 
+                    status: payload.status, 
+                    contractId: '', 
+                    providerId: '', 
+                    additionalDetails: ''
+                });
+            } else {
+                await log(`createRequest Error ${response.message}`);
+            }
         } catch (error) {
             console.error('createRequest', error);
             await log(`createRequest Error ${error.toString()}`);
         }
     };
 
-    const generatePayload = async (asset, type, status, energyToOffer): Promise<object> => {
+    const generatePayload = async (asset, type, status, energy): Promise<object> => {
         try {
-            // asset ID, type, MAM channel details, public key in a local database
-            // replies with MAM root/DID, where public key is stored
-
             if (asset) {
                 return {
                     type,
                     timestamp: Date.now().toString(),
                     transactionId: randomstring.generate(20),
-                    assetId: asset.assetId,
-                    energyAmount: energyToOffer,
-                    energyPrice: asset.maxEnergyPrice,
-                    location: asset.location,
+                    assetId: asset?.assetId,
+                    energyAmount: energy,
+                    energyPrice: asset?.maxEnergyPrice,
+                    location: asset?.location,
                     status
                 };
             }
@@ -221,4 +262,42 @@ export function BusinessLogic() {
     energyProductionInterval = setInterval(produceEnergy, energyProductionSpeed * 1000);
     energyConsumptionInterval = setInterval(consumeEnergy, energyConsumptionSpeed * 1000);
     transactionInterval = setInterval(createMarketplaceTransaction, transactionCreationSpeed * 1000);
+}
+
+export async function processContract(request: any): Promise<any> {
+    try {
+        const payload = await decryptVerify(request);        
+        if (payload?.verificationResult) {
+            const asset: any = await readData('asset');
+            if (asset?.type === 'producer') {
+                // Log transaction
+                await transactionLog(payload?.message?.offer);
+
+                provideEnergy(
+                    payload?.message?.location, 
+                    payload?.message?.offer?.energyAmount,
+                    payload?.message?.offer
+                );
+            } else if (asset?.type === 'consumer') {
+                // Log transaction
+                await transactionLog(payload?.message?.request);
+            }
+
+            await log(`Contract processing successful. ${payload?.message?.contractId}`);
+            return { success: true };
+        }
+        throw new Error('Asset signature verification failed');
+    } catch (error) {
+        await log(`Asset registration failed. ${error.toString()}`);
+        throw new Error(error);
+    }
+}
+
+export async function confirmEnergyProvision(): Promise<void> {
+    try {
+        
+    } catch (error) {
+        await log(`Asset registration failed. ${error.toString()}`);
+        throw new Error(error);
+    }
 }
