@@ -10,7 +10,7 @@ const db = new sqlite3.Database(
         }
         await db.run('CREATE TABLE IF NOT EXISTS asset (assetId TEXT PRIMARY KEY, assetOwner TEXT, type TEXT, network TEXT, exchangeRate REAL, minWalletAmount INTEGER, maxEnergyPrice REAL, minOfferAmount REAL, assetOwnerAPI TEXT, marketplaceAPI TEXT, assetOwnerPublicKey TEXT, marketplacePublicKey TEXT, deviceUUID TEXT, assetName TEXT, location TEXT)');
         await db.run('CREATE TABLE IF NOT EXISTS wallet (seed TEXT PRIMARY KEY, address TEXT, keyIndex INTEGER, balance INTEGER)');
-        await db.run('CREATE TABLE IF NOT EXISTS transactionLog (transactionId TEXT, contractId TEXT, timestamp TEXT, requesterId TEXT, providerId TEXT, energyAmount REAL, paymentAmount REAL, status TEXT, additionalDetails TEXT)');
+        await db.run('CREATE TABLE IF NOT EXISTS transactionLog (transactionId TEXT, type TEXT, contractId TEXT, timestamp TEXT, requesterId TEXT, providerId TEXT, energyAmount REAL, energyPrice REAL, status TEXT, location TEXT, additionalDetails TEXT)');
         await db.run('CREATE TABLE IF NOT EXISTS keys (privateKey TEXT PRIMARY KEY, publicKey TEXT)');
         await db.run('CREATE TABLE IF NOT EXISTS paymentQueue (address TEXT, value INTEGER)');
         await db.run('CREATE TABLE IF NOT EXISTS log (timestamp TEXT, event TEXT)');
@@ -92,15 +92,18 @@ export const updateMAMChannel = async ({ transactionId, root, seed, mode, sideKe
 };
 
 export const updateTransactionStorage = async ({ 
-    transactionId, contractId = '', timestamp, requesterId, providerId, 
-    energyAmount, paymentAmount, status, additionalDetails 
+    transactionId, type, contractId = '', timestamp, requesterId = '', providerId = '', 
+    energyAmount, energyPrice, status, location = '', additionalDetails = ''
 }) => {
     const insert = `
         INSERT INTO transactionLog (
-            transactionId, contractId, timestamp, requesterId, providerId,
-            energyAmount, paymentAmount, status, additionalDetails
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-    await db.run(insert, [transactionId, contractId, timestamp, requesterId, providerId, energyAmount, paymentAmount, status, additionalDetails]);
+            transactionId, type, contractId, timestamp, requesterId, providerId,
+            energyAmount, energyPrice, status, location, additionalDetails
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+    await db.run(insert, [
+        transactionId, type, contractId, timestamp, requesterId, providerId, 
+        energyAmount, energyPrice, status, location, additionalDetails
+    ]);
 };
 
 export const updateLogStorage = async ({ timestamp, event }) => {
