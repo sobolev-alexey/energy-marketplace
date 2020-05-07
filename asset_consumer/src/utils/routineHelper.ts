@@ -7,8 +7,9 @@ import { sendRequest } from './communicationHelper';
 export async function decryptVerify(request: any): Promise<{ verificationResult: boolean, message?: any }> {
     try {
         if (request && request?.encrypted) {
+            const asset: any = await readData('asset');
             const keys: any = await readData('keys');
-            if (keys && keys.privateKey) {
+            if (asset && keys && keys.privateKey) {
                 const encryptionService = new EncryptionService();
 
                 const decrypted: IReceivedMessagePayload = encryptionService.privateDecrypt(
@@ -16,7 +17,7 @@ export async function decryptVerify(request: any): Promise<{ verificationResult:
                 );
     
                 const verificationResult: boolean = encryptionService.verifySignature(
-                    decrypted?.message?.assetPublicKey, decrypted?.message, decrypted?.signature
+                    asset?.marketplacePublicKey, decrypted?.message, decrypted?.signature
                 );  
                     
                 const assetId = decrypted?.message?.assetId;
