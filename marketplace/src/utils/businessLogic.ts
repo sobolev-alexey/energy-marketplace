@@ -1,6 +1,6 @@
 import randomstring from 'randomstring';
 import { log, transactionLog } from './loggerHelper';
-import { signPublishEncryptSend } from './routineHelper';
+import { decryptVerify, signPublishEncryptSend } from './routineHelper';
 import { readData } from '../utils/databaseHelper';
 
 export async function processMatch(requestPayload: any): Promise<{success: boolean}> {
@@ -36,7 +36,7 @@ export async function processMatch(requestPayload: any): Promise<{success: boole
             };
 
             const payload = { offer, request, contractId };
-            await log(`Match found. Request: ${request}, Offer: ${offer}, Contract: ${contractId}`);
+            await log(`Match found. Request: ${JSON.stringify(request)}, Offer: ${JSON.stringify(offer)}, Contract: ${contractId}`);
             
             console.log('MATCH 1', payload);
 
@@ -63,7 +63,7 @@ export async function processMatch(requestPayload: any): Promise<{success: boole
 
                 console.log('MATCH 4 DONE');
             } else {
-                await log(`Contract communication failure. Request: ${consumerResponse}, Offer: ${producerResponse}, Contract: ${contractId}`);
+                await log(`Contract communication failure. Request: ${JSON.stringify(consumerResponse)}, Offer: ${JSON.stringify(producerResponse)}, Contract: ${contractId}`);
             }
             return { success: true };
         } else {
