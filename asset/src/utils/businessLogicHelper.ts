@@ -261,9 +261,9 @@ export async function processContract(request: any): Promise<any> {
             await log(`Contract processing successful. ${payload?.message?.contractId}`);
             return { success: true };
         }
-        throw new Error('Asset signature verification failed');
+        throw new Error('Marketplace signature verification failed');
     } catch (error) {
-        await log(`Asset registration failed. ${error.toString()}`);
+        await log(`Contract processing failed. ${error.toString()}`);
         throw new Error(error);
     }
 }

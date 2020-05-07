@@ -21,14 +21,14 @@ export async function decryptVerify(request: any): Promise<{ verificationResult:
                     
                 const assetId = decrypted?.message?.assetId;
                 if (verificationResult) {
-                    await log(`Asset registration successful. ${assetId}`);
+                    await log(`Marketplace signature verification successful. ${assetId}`);
                     return { verificationResult: true, message: decrypted?.message };
                 }
-                await log(`Asset signature verification failed. ${assetId}`);
+                await log(`Marketplace signature verification failed. ${assetId}`);
                 return { verificationResult: false };
             }
-            await log(`No marketplace key`);
-            throw new Error('No marketplace key');
+            await log(`No asset key`);
+            throw new Error('No asset key');
         } else {
             await log(`No encrypted payload found`);
             throw new Error('No encrypted payload found');
