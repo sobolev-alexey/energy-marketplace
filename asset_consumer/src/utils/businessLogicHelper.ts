@@ -121,22 +121,22 @@ export function BusinessLogic() {
 
             // Create payload, specify price and amount
             const payload: any = await generatePayload(asset, 'offer', status, energyToOffer);
-            console.log(111, payload);
+            // console.log(111, payload);
 
             // Sign payload
             const encryptionService = new EncryptionService();
             const signature: Buffer = encryptionService.signMessage(
                 keys?.privateKey, payload
             );
-            console.log(222, signature);
+            // console.log(222, signature);
 
             // Publish payload to MAM
             const mam = await publish(payload.transactionId, { message: payload, signature });
-            console.log(333, mam);
+            // console.log(333, mam);
 
             // Encrypt payload and signature with Marketplace public key
             const messagePayload: IMessagePayload = { message: payload, signature, mam };
-            console.log(444, messagePayload);
+            // console.log(444, messagePayload);
 
             const encrypted: string = encryptionService.publicEncrypt(
                 asset?.marketplacePublicKey, JSON.stringify(messagePayload)
@@ -144,7 +144,7 @@ export function BusinessLogic() {
 
             // Send encrypted payload and signature to Marketplace
             const response = await sendRequest('/offer', { encrypted });
-            console.log(555, response);
+            // console.log(555, response);
 
             if (response.success) {
                 // Log transaction

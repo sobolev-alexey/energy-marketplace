@@ -61,19 +61,20 @@ export async function signPublishEncryptSend(payload: any, endpoint: string): Pr
 
             // Publish payload to MAM
             const mam = await publish(payload.transactionId, { message: payload, signature });
-            console.log(333, mam);
+            // console.log(333, mam);
 
             // Encrypt payload and signature with asset's public key
             const messagePayload: IMessagePayload = { message: payload, signature, mam };
-            console.log(444, messagePayload);
+            // console.log(444, messagePayload);
 
             const encrypted: string = encryptionService.publicEncrypt(
                 asset?.marketplacePublicKey, JSON.stringify(messagePayload)
             );
 
             // Send encrypted payload and signature to asset
+            // tslint:disable-next-line:no-unnecessary-local-variable
             const response = await sendRequest(endpoint, { encrypted });
-            console.log(555, response);
+            // console.log(555, response);
             return response;
         }
     } catch (error) {
