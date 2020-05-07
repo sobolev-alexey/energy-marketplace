@@ -11,7 +11,7 @@ app.use(bodyParser.json());
 
 app.post('/offer', async (req, res) => {
     try {
-        console.log('Got offer');
+        // console.log('Got offer');
         findMatch('request', req.body);
         res.json({ success: true });
     } catch (e) {
@@ -22,7 +22,7 @@ app.post('/offer', async (req, res) => {
 
 app.post('/request', async (req, res) => {
     try {
-        console.log('Got request');
+        // console.log('Got request');
         findMatch('offer', req.body);
         res.json({ success: true });
     } catch (e) {
@@ -34,7 +34,7 @@ app.post('/request', async (req, res) => {
 const findMatch = async (table, payload) => {
     const start = Date.now();
     try {
-        console.log('Looking for matching', table, payload);
+        // console.log('Looking for matching', table, payload);
         // Rules:
         // energy amount offered >= energy amount requested
         // energy price offered <= energy price requested
@@ -42,7 +42,7 @@ const findMatch = async (table, payload) => {
         switch (table) {
             case 'offer':
                 const matchingOffer = await findOffer(payload);
-                console.log('findOffer', matchingOffer);
+                // console.log('findOffer', matchingOffer);
 
                 if (matchingOffer) {
                     const response = await sendMatch({
@@ -53,7 +53,7 @@ const findMatch = async (table, payload) => {
                     if (response && response.success) {
                         await removeData('offer', 'transactionId', matchingOffer.transactionId);
                     }
-                    console.log(`<=== duration: ${Date.now() - start}ms`);
+                    // console.log(`<=== duration: ${Date.now() - start}ms`);
                 } else {
                     // if no match, store request
                     await createRequest(payload);
@@ -61,7 +61,7 @@ const findMatch = async (table, payload) => {
                 return null;
             case 'request':
                 const matchingRequest = await findRequest(payload);
-                console.log('findRequest', matchingRequest);
+                // console.log('findRequest', matchingRequest);
 
                 if (matchingRequest) {
                     const response = sendMatch({
@@ -72,7 +72,7 @@ const findMatch = async (table, payload) => {
                     if (response && response.success) {
                         await removeData('request', 'transactionId', matchingRequest.transactionId);
                     }
-                    console.log(`<=== duration: ${Date.now() - start}ms`);
+                    // console.log(`<=== duration: ${Date.now() - start}ms`);
                 } else {
                     // if no match, store offer
                     await createOffer(payload);
@@ -89,8 +89,9 @@ const findMatch = async (table, payload) => {
 
 const sendMatch = async payload => {
     try {
+        // console.log('sendMatch request', payload);
         const axiosResponse = await axios.post(marketplace, payload);
-        console.log('sendMatch response', axiosResponse.data);
+        // console.log('sendMatch response', axiosResponse.data);
         return axiosResponse.data;
     } catch (error) {
         return { success: false };
