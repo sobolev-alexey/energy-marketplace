@@ -12,7 +12,7 @@ import { publish } from './mamHelper';
 import { EncryptionService, IMessagePayload } from './encryptionHelper';
 import { sendRequest } from './communicationHelper';
 import { decryptVerify } from './routineHelper';
-import { provideEnergy } from './energyProvisionHelper';
+import { provideEnergy, receiveEnergy } from './energyProvisionHelper';
 
 let energyProductionInterval;
 let energyConsumptionInterval;
@@ -148,17 +148,7 @@ export function BusinessLogic() {
 
             if (response.success) {
                 // Log transaction
-                await transactionLog({
-                    transactionId: payload.transactionId,
-                    timestamp: payload.timestamp, 
-                    providerId: payload.assetId,
-                    energyAmount: payload.energyAmount, 
-                    paymentAmount: payload.energyPrice, 
-                    status: payload.status, 
-                    contractId: '', 
-                    requesterId: '', 
-                    additionalDetails: ''
-                });
+                await transactionLog(payload);
 
                 // Reserve energy
                 await writeData('energy', { 
@@ -219,17 +209,7 @@ export function BusinessLogic() {
 
             if (response.success) {
                 // Log transaction
-                await transactionLog({
-                    transactionId: payload.transactionId,
-                    timestamp: payload.timestamp, 
-                    requesterId: payload.assetId,
-                    energyAmount: payload.energyAmount, 
-                    paymentAmount: payload.energyPrice, 
-                    status: payload.status, 
-                    contractId: '', 
-                    providerId: '', 
-                    additionalDetails: ''
-                });
+                await transactionLog(payload);
             } else {
                 await log(`createRequest Error ${response.message}`);
             }
@@ -246,11 +226,14 @@ export function BusinessLogic() {
                     type,
                     timestamp: Date.now().toString(),
                     transactionId: randomstring.generate(20),
-                    assetId: asset?.assetId,
                     energyAmount: energy,
                     energyPrice: asset?.maxEnergyPrice,
                     location: asset?.location,
-                    status
+                    status,
+                    requesterId: type === 'request' ? asset?.assetId : '',
+                    providerId: type === 'offer' ? asset?.assetId : '',
+                    contractId: '',
+                    additionalDetails: ''
                 };
             }
         } catch (error) {
@@ -270,17 +253,9 @@ export async function processContract(request: any): Promise<any> {
         if (payload?.verificationResult) {
             const asset: any = await readData('asset');
             if (asset?.type === 'producer') {
-                // Log transaction
-                await transactionLog(payload?.message?.offer);
-
-                provideEnergy(
-                    payload?.message?.location, 
-                    payload?.message?.offer?.energyAmount,
-                    payload?.message?.offer
-                );
+                provideEnergy(payload?.message?.offer);
             } else if (asset?.type === 'consumer') {
-                // Log transaction
-                await transactionLog(payload?.message?.request);
+                receiveEnergy(payload?.message?.request);
             }
 
             await log(`Contract processing successful. ${payload?.message?.contractId}`);
@@ -295,6 +270,17 @@ export async function processContract(request: any): Promise<any> {
 
 export async function confirmEnergyProvision(): Promise<void> {
     try {
+        // Generate payload
+
+        // Sign payload
+
+        // Publish payload
+
+        // Encrypt payload
+
+        // Send payload
+
+
         
     } catch (error) {
         await log(`Asset registration failed. ${error.toString()}`);
