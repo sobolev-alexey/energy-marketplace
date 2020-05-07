@@ -39,14 +39,9 @@ export async function decryptVerify(request: any): Promise<{ verificationResult:
     }
 }
 
-export async function signPublishEncryptSend(
-    payload: object, 
-    assetId: string,
-    transactionId: string,
-    endpoint: string
-): Promise<{success: boolean}> {
+export async function signPublishEncryptSend(payload: any, endpoint: string): Promise<{success: boolean}> {
     try {
-        const asset: any = await readData('asset', 'assetId', assetId);
+        const asset: any = await readData('asset');
 
         if (asset) {
             // Retrieve encryption keys
@@ -55,6 +50,9 @@ export async function signPublishEncryptSend(
                 throw new Error('No keypair found in database');
             }
 
+            // Log event 
+            await log(`Creating provision confirmation for contract ${payload.contractId}`);
+
             // Sign payload
             const encryptionService = new EncryptionService();
             const signature: Buffer = encryptionService.signMessage(
@@ -62,7 +60,7 @@ export async function signPublishEncryptSend(
             );
 
             // Publish payload to MAM
-            const mam = await publish(transactionId, { message: payload, signature });
+            const mam = await publish(payload.transactionId, { message: payload, signature });
             console.log(333, mam);
 
             // Encrypt payload and signature with asset's public key
@@ -70,11 +68,11 @@ export async function signPublishEncryptSend(
             console.log(444, messagePayload);
 
             const encrypted: string = encryptionService.publicEncrypt(
-                asset?.assetPublicKey, JSON.stringify(messagePayload)
+                asset?.marketplacePublicKey, JSON.stringify(messagePayload)
             );
 
             // Send encrypted payload and signature to asset
-            const response = await sendRequest(`${asset?.assetURL}/${endpoint}`, { encrypted });
+            const response = await sendRequest(endpoint, { encrypted });
             console.log(555, response);
             return response;
         }
