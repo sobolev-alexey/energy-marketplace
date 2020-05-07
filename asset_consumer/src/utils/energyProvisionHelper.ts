@@ -3,7 +3,7 @@ import { log, transactionLog } from './loggerHelper';
 import { confirmEnergyProvision } from './businessLogicHelper';
 import { energyProvisionSpeed } from '../config.json';
 
-export const provideEnergy = async (transaction: any) => {
+export const provideEnergy = async (transaction: any): Promise<void> => {
     try {
         // Log transaction
         await transactionLog(transaction);
@@ -19,21 +19,22 @@ export const provideEnergy = async (transaction: any) => {
         });
 
         // Log transaction
-        await transactionLog({
+        const updatedTransactionPayload = {
             ...transaction,
             timestamp: Date.now().toString(), 
             status: 'Energy provision finished'
-        });
+        };
+        await transactionLog(updatedTransactionPayload);
 
         await log(`Energy provision of ${transaction?.energyAmount} finished to ${transaction?.location}`);
 
-        confirmEnergyProvision();
+        confirmEnergyProvision(updatedTransactionPayload);
     } catch (error) {
         console.error('provideEnergy', error);
     }
 };
 
-export const receiveEnergy = async (transaction: any) => {
+export const receiveEnergy = async (transaction: any): Promise<void> => {
     try {
         // Log transaction
         await transactionLog(transaction);
@@ -49,15 +50,16 @@ export const receiveEnergy = async (transaction: any) => {
         });
 
         // Log transaction
-        await transactionLog({
+        const updatedTransactionPayload = {
             ...transaction,
             timestamp: Date.now().toString(), 
             status: 'Energy provision finished'
-        });
+        };
+        await transactionLog(updatedTransactionPayload);
 
         await log(`Energy provision of ${transaction?.energyAmount} finished to ${transaction.location}`);
 
-        confirmEnergyProvision();
+        confirmEnergyProvision(updatedTransactionPayload);
     } catch (error) {
         console.error('receiveEnergy', error);
     }
