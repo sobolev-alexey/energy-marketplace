@@ -30,20 +30,20 @@ exports.close = async () => {
     });
 };
 
-exports.createOffer = async ({ assetId, transactionId, timestamp, energyAmount, energyPrice, type }) => {
+exports.createOffer = async ({ providerId, transactionId, timestamp, energyAmount, energyPrice, type }) => {
     const query = `
         REPLACE INTO offer (
             assetId, transactionId, timestamp, energyAmount, energyPrice, type
         ) VALUES (?, ?, ?, ?, ?, ?)`;
-    await db.run(query, [assetId, transactionId, timestamp, energyAmount, energyPrice, type]);
+    await db.run(query, [providerId, transactionId, timestamp, energyAmount, energyPrice, type]);
 };
 
-exports.createRequest = async ({ assetId, transactionId, timestamp, energyAmount, energyPrice, type }) => {
+exports.createRequest = async ({ requesterId, transactionId, timestamp, energyAmount, energyPrice, type }) => {
     const query = `
         REPLACE INTO request (
             assetId, transactionId, timestamp, energyAmount, energyPrice, type
         ) VALUES (?, ?, ?, ?, ?, ?)`;
-    await db.run(query, [assetId, transactionId, timestamp, energyAmount, energyPrice, type]);
+    await db.run(query, [requesterId, transactionId, timestamp, energyAmount, energyPrice, type]);
 };
 
 exports.findOffer = async (request) => {
@@ -51,7 +51,7 @@ exports.findOffer = async (request) => {
         try {
             db.get(`
                 SELECT * FROM offer 
-                WHERE assetId != '${request.assetId}'
+                WHERE assetId != '${request.requesterId}'
                 AND energyAmount >= ${request.energyAmount}
                 AND energyPrice <= ${request.energyPrice}
                 ORDER BY timestamp ASC
@@ -74,7 +74,7 @@ exports.findRequest = async (offer) => {
         try {
             db.get(`
                 SELECT * FROM request 
-                WHERE assetId != '${offer.assetId}'
+                WHERE assetId != '${offer.providerId}'
                 AND energyAmount >= ${offer.energyAmount}
                 AND energyPrice <= ${offer.energyPrice}
                 ORDER BY timestamp ASC
