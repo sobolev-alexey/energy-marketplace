@@ -75,3 +75,23 @@ export async function processMatch(requestPayload: any): Promise<{success: boole
         throw new Error(error);
     }
 }
+
+export async function processProvisionConfirmation(requestDetails: any): Promise<any> {
+    try {
+        const request = await decryptVerify(requestDetails);
+        // console.log('processProvisionConfirmation', request?.verificationResult, request?.message);
+
+        if (request?.verificationResult && request?.message) {
+            await transactionLog(request?.message);
+            // const payload = (({ assetId, transactionId, timestamp, energyAmount, energyPrice, type }) => 
+            //     ({ assetId, transactionId, timestamp, energyAmount, energyPrice, type }))(request?.message);
+            
+            await log(`Provision confirmation processing successful. ${request?.message?.contractId}`);
+            return { success: true };
+        }
+        throw new Error('Asset signature verification failed');
+    } catch (error) {
+        await log(`Provision confirmation failed. ${error.toString()}`);
+        throw new Error(error);
+    }
+}
