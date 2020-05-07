@@ -11,7 +11,7 @@ import { log, transactionLog } from './loggerHelper';
 import { publish } from './mamHelper';
 import { EncryptionService, IMessagePayload } from './encryptionHelper';
 import { sendRequest } from './communicationHelper';
-import { decryptVerify } from './routineHelper';
+import { decryptVerify, signPublishEncryptSend } from './routineHelper';
 import { provideEnergy, receiveEnergy } from './energyProvisionHelper';
 
 let energyProductionInterval;
@@ -268,22 +268,24 @@ export async function processContract(request: any): Promise<any> {
     }
 }
 
-export async function confirmEnergyProvision(): Promise<void> {
+export async function confirmEnergyProvision(payload: any): Promise<void> {
     try {
-        // Generate payload
+        console.log('confirmEnergyProvision 1', payload);
 
-        // Sign payload
+        const response = await signPublishEncryptSend(payload, 'provision');
+        console.log('confirmEnergyProvision 2', response);
 
-        // Publish payload
-
-        // Encrypt payload
-
-        // Send payload
-
-
-        
+        // Evaluate response
+        if (response?.success) {
+            // Update transaction log
+            await transactionLog(payload);
+            await log(`Provision confirmation sent to marketplace and stored. Contract: ${payload.contractId}`);
+            console.log('confirmEnergyProvision 3');
+        } else {
+            await log(`Provision confirmation failure. Request: ${payload}`);
+        }
     } catch (error) {
-        await log(`Asset registration failed. ${error.toString()}`);
+        await log(`Provision confirmation failed. ${error.toString()}`);
         throw new Error(error);
     }
 }
