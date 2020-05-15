@@ -75,14 +75,24 @@ export async function processMatch(requestPayload: any): Promise<{success: boole
 export async function processProvisionConfirmation(requestDetails: any): Promise<any> {
     try {
         const request = await decryptVerify(requestDetails);
-        // console.log('processProvisionConfirmation', request?.verificationResult, request?.message);
+        const paymentRequestPayload = request?.message;
+        paymentRequestPayload.timestamp = Date.now().toString();
+        paymentRequestPayload.status = 'Payment requested';
 
-        if (request?.verificationResult && request?.message) {
-            await transactionLog(request?.message);
-            // const payload = (({ assetId, transactionId, timestamp, energyAmount, energyPrice, type }) => 
-            //     ({ assetId, transactionId, timestamp, energyAmount, energyPrice, type }))(request?.message);
-            
-            await log(`Provision confirmation processing successful. ${request?.message?.contractId}`);
+        if (request?.verificationResult && paymentRequestPayload) {
+            // Log transaction
+            await transactionLog(paymentRequestPayload);
+
+            const paymentResponse = await signPublishEncryptSend(
+                paymentRequestPayload, paymentRequestPayload?.requesterId, paymentRequestPayload?.requesterTransactionId, 'payment'
+            );
+
+            // Evaluate responses 
+            if (paymentResponse?.success) {
+                await log(`Provision confirmation processing successful. ${request?.message?.contractId}`);
+            } else {
+                await log(`Payment request communication failure. Request: ${JSON.stringify(paymentRequestPayload)}, Response: ${JSON.stringify(paymentResponse)}, Contract: ${paymentRequestPayload.contractId}`);
+            }
             return { success: true };
         }
         throw new Error('Asset signature verification failed');
