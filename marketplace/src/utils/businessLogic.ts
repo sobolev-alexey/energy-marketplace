@@ -38,12 +38,12 @@ export async function processMatch(requestPayload: any): Promise<{success: boole
 
             // Send out contract confirmations
             const producerResponse = await signPublishEncryptSend(
-                payload, requestPayload?.offer?.assetId, requestPayload?.offer?.transactionId, 'contract'
+                payload, offer?.providerId, offer?.providerTransactionId, 'contract'
             );
             // console.log('MATCH 3', producerResponse);
             
             const consumerResponse = await signPublishEncryptSend(
-                payload, requestPayload?.request?.assetId, requestPayload?.request?.transactionId, 'contract'
+                payload, request?.requesterId, request?.requesterTransactionId, 'contract'
             );
             // console.log('MATCH 4', consumerResponse);
 
