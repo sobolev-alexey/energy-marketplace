@@ -79,22 +79,25 @@ const transferFunds = async (wallet, totalAmount, transfers) => {
 
                 let inclusions = 0;
                 let retries = 0;
+                let statuses;
                 while (retries++ < 40) {
-                    const statuses = await iota.getLatestInclusion(hashes);
-                    if (statuses.filter(status => status).length === 4) {
+                    statuses = await iota.getLatestInclusion(hashes);
+                    // if (statuses.filter(status => status).length === 4) {
+                    //     break;
+                    // }
+                    inclusions = statuses?.filter(status => status).length;
+                    console.log('Inclusions after transfer', retries, inclusions);
+                    if (inclusions > 3) {
+                        console.log(inclusions);
                         break;
                     }
-                    inclusions = statuses.filter(status => status).length;
-                    console.log('Inclusions after transfer', retries, inclusions);
-                    if (inclusions > 0) {
-                        console.log(inclusions);
-                    }
+                    statuses = null;
 
                     await new Promise(resolved => setTimeout(resolved, 5000));
                 }
 
                 if (inclusions > 3) {
-                    console.log('Inclusions after transfer FINAL', inclusions);
+                    console.log('Inclusions after transfer FINAL', inclusions, statuses);
                     // Once the payment is confirmed fetch the real wallet balance and update the wallet again
                     const newBalance = await getBalance(remainderAddress);
                     await updateWallet(seed, remainderAddress, Number(keyIndex) + 1, newBalance);
