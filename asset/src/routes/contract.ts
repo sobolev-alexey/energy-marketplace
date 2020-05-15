@@ -6,7 +6,7 @@ import { processContract } from '../utils/businessLogicHelper';
 export async function contract(_: any, request: any): Promise<any> {
     try {
         if (request) {
-            processContract(request);
+            await processContract(request);
             return { success: true };
         } else {
             await log(`No payload found in contract`);
