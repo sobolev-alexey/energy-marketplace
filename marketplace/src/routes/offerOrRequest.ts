@@ -10,12 +10,10 @@ export async function offerOrRequest(_: any, requestDetails: any): Promise<any> 
 
         if (request?.verificationResult && request?.message) {
             await transactionLog(request?.message);
-            // const payload = (({ assetId, transactionId, timestamp, energyAmount, energyPrice, type }) => 
-            //     ({ assetId, transactionId, timestamp, energyAmount, energyPrice, type }))(request?.message);
-            
-            // Synchronously send request to Bid manager, drop response
+
+            // send request to Bid manager, drop response
             const bidManagerEndpoint = `${bidManagerURL}/${request?.message.type}`;   
-            sendRequest(bidManagerEndpoint, request?.message);
+            await sendRequest(bidManagerEndpoint, request?.message);
 
             return { success: true };
         }
