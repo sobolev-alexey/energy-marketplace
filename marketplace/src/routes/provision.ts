@@ -6,7 +6,7 @@ import { processProvisionConfirmation } from '../utils/businessLogic';
 export async function provision(_: any, request: any): Promise<any> {
     try {
         if (request) {
-            processProvisionConfirmation(request);
+            await processProvisionConfirmation(request);
             return { success: true };
         } else {
             await log(`No payload found in provision confirmation`);
