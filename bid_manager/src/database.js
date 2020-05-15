@@ -11,10 +11,10 @@ const db = new sqlite3.Database(
             }
 
             await db.run(`CREATE TABLE IF NOT EXISTS offer (
-                assetId TEXT, transactionId TEXT, timestamp TEXT, energyAmount REAL, energyPrice REAL, type TEXT)`);
+                providerId TEXT, providerTransactionId TEXT, timestamp TEXT, energyAmount REAL, energyPrice REAL, type TEXT, walletAddress TEXT)`);
 
             await db.run(`CREATE TABLE IF NOT EXISTS request (
-                assetId TEXT, transactionId TEXT, timestamp TEXT, energyAmount REAL, energyPrice REAL, type TEXT)`);
+                requesterId TEXT, requesterTransactionId TEXT, timestamp TEXT, energyAmount REAL, energyPrice REAL, type TEXT)`);
         } catch (error) {
             console.log('create', error);
             return null;
@@ -30,20 +30,20 @@ exports.close = async () => {
     });
 };
 
-exports.createOffer = async ({ providerId, transactionId, timestamp, energyAmount, energyPrice, type }) => {
+exports.createOffer = async ({ providerId, providerTransactionId, timestamp, energyAmount, energyPrice, type, walletAddress = '' }) => {
     const query = `
         REPLACE INTO offer (
-            assetId, transactionId, timestamp, energyAmount, energyPrice, type
-        ) VALUES (?, ?, ?, ?, ?, ?)`;
-    await db.run(query, [providerId, transactionId, timestamp, energyAmount, energyPrice, type]);
+            providerId, providerTransactionId, timestamp, energyAmount, energyPrice, type, walletAddress
+        ) VALUES (?, ?, ?, ?, ?, ?, ?)`;
+    await db.run(query, [providerId, providerTransactionId, timestamp, energyAmount, energyPrice, type, walletAddress]);
 };
 
-exports.createRequest = async ({ requesterId, transactionId, timestamp, energyAmount, energyPrice, type }) => {
+exports.createRequest = async ({ requesterId, requesterTransactionId, timestamp, energyAmount, energyPrice, type }) => {
     const query = `
         REPLACE INTO request (
-            assetId, transactionId, timestamp, energyAmount, energyPrice, type
+            requesterId, requesterTransactionId, timestamp, energyAmount, energyPrice, type
         ) VALUES (?, ?, ?, ?, ?, ?)`;
-    await db.run(query, [requesterId, transactionId, timestamp, energyAmount, energyPrice, type]);
+    await db.run(query, [requesterId, requesterTransactionId, timestamp, energyAmount, energyPrice, type]);
 };
 
 exports.findOffer = async (request) => {
@@ -51,7 +51,7 @@ exports.findOffer = async (request) => {
         try {
             db.get(`
                 SELECT * FROM offer 
-                WHERE assetId != '${request.requesterId}'
+                WHERE providerId != '${request.requesterId}'
                 AND energyAmount >= ${request.energyAmount}
                 AND energyPrice <= ${request.energyPrice}
                 ORDER BY timestamp ASC
@@ -74,7 +74,7 @@ exports.findRequest = async (offer) => {
         try {
             db.get(`
                 SELECT * FROM request 
-                WHERE assetId != '${offer.providerId}'
+                WHERE requesterId != '${offer.providerId}'
                 AND energyAmount >= ${offer.energyAmount}
                 AND energyPrice <= ${offer.energyPrice}
                 ORDER BY timestamp ASC
