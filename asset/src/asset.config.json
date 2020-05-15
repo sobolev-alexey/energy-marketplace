@@ -1,7 +1,7 @@
 {
     "deviceUUID": "8ed69339-3887-4d77-b0af-1555871027e9",
     "exchangeRate": 0.00152,
-    "maxEnergyPrice": 3.7,
+    "maxEnergyPrice": 0.05,
     "minWalletAmount": 10,
     "minOfferAmount": 200,
     "assetOwnerAPI": "http://localhost:6000",
