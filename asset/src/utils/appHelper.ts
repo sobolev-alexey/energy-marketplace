@@ -142,9 +142,10 @@ export class AppHelper {
                         params = { ...params, ...req.query, ...bodyContent };
                     }
 
-                    const filteredParams = AppHelper.logParams(params);
+                    // const filteredParams = AppHelper.logParams(params);
 
-                    console.log(`===> ${routes[i].method.toUpperCase()} ${routes[i].path}`, filteredParams);
+                    // console.log(`===> ${routes[i].method.toUpperCase()} ${routes[i].path}`, filteredParams);
+                    console.log(`===> ${routes[i].method.toUpperCase()} ${routes[i].path}`);
                     if (routes[i].func) {
                         let modulePath = '../routes/';
                         if (routes[i].folder) {
