@@ -78,8 +78,7 @@ export const publish = async (transactionId, packet) => {
         if (bundle && bundle.length && bundle[0].hash) {
 
             // Check if the message was attached
-            const result = await checkAttachedMessage(api, root, secretKey);
-            console.log('checkAttachedMessage', result);
+            await checkAttachedMessage(api, root, secretKey);
 
             // Save new mamState
             await writeData('mam', { transactionId, root, ...mamState });
