@@ -28,7 +28,7 @@ export const provideEnergy = async (transaction: any): Promise<void> => {
 
         await log(`Energy provision of ${transaction?.energyAmount} finished to ${transaction?.location}`);
 
-        confirmEnergyProvision(updatedTransactionPayload);
+        await confirmEnergyProvision(updatedTransactionPayload);
     } catch (error) {
         console.error('provideEnergy', error);
     }
@@ -59,7 +59,7 @@ export const receiveEnergy = async (transaction: any): Promise<void> => {
 
         await log(`Energy provision of ${transaction?.energyAmount} finished to ${transaction.location}`);
 
-        confirmEnergyProvision(updatedTransactionPayload);
+        await confirmEnergyProvision(updatedTransactionPayload);
     } catch (error) {
         console.error('receiveEnergy', error);
     }
