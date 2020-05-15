@@ -19,7 +19,9 @@ export async function decryptVerify(request: any): Promise<{
                     keys.privateKey, request?.encrypted
                 );
     
-                const assetId = decrypted?.message?.type === 'request' ? decrypted?.message?.requesterId : decrypted?.message?.providerId ;
+                const assetId = decrypted?.message?.type === 'request' 
+                    ? decrypted?.message?.requesterId 
+                    : decrypted?.message?.providerId ;
                 const asset: any = await readData('asset', 'assetId', assetId);
 
                 if (asset) {
@@ -32,7 +34,10 @@ export async function decryptVerify(request: any): Promise<{
                     if (verificationResult) {
                         await log(`Asset signature verification successful. ${assetId}`);
 
-                        const mamFetchResults = await fetch(assetId, decrypted?.message.transactionId);
+                        const transactionId = decrypted?.message?.type === 'request' 
+                            ? decrypted?.message?.requesterTransactionId 
+                            : decrypted?.message?.providerTransactionId;
+                        const mamFetchResults = await fetch(assetId, transactionId);
                                                 
                         if (mamFetchResults.length > 0) {
                             let mamFetchLastMessage = mamFetchResults.length > 0 && mamFetchResults[mamFetchResults.length - 1];
@@ -42,16 +47,16 @@ export async function decryptVerify(request: any): Promise<{
                                 const mamVerificationResult: boolean = encryptionService.verifySignature(
                                     asset?.assetPublicKey, mamFetchLastMessage?.message, mamFetchLastMessage?.signature
                                 );
-                                if (!mamVerificationResult || mamFetchLastMessage?.message?.transactionId !== decrypted?.message?.transactionId) {
-                                    await log(`Asset signature verification from MAM failed. ${asset.assetId}`);
+                                if (!mamVerificationResult || mamFetchLastMessage?.message?.transactionId !== transactionId) {
+                                    await log(`Asset signature verification from MAM failed. ${assetId}`);
                                     // throw new Error('Asset signature verification from MAM failed');
                                 } 
                             } else {
-                                await log(`MAM signature not found. ${asset.assetId}`);
+                                await log(`MAM signature not found. ${assetId}`);
                                 throw new Error('MAM signature not found');
                             }
                         } else {
-                            await log(`MAM stream can't be fetched. ${asset.assetId}`);
+                            await log(`MAM stream can't be fetched. ${assetId}`);
                             throw new Error(`MAM stream can't be fetched`);
                         }
                         return { verificationResult: true, message: decrypted?.message };
