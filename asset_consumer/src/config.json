@@ -11,8 +11,9 @@
     "tag": "ENERGYBROKER",
     "energyProductionSpeed": 40,
     "energyProductionAmount": 50,
-    "energyConsumptionSpeed": 100,
-    "energyConsumptionAmount": 10,
+    "energyConsumptionSpeed": 20,
+    "energyConsumptionAmount": 30,
     "energyProvisionSpeed": 40,
-    "transactionCreationSpeed": 40
+    "transactionCreationSpeed": 40,
+    "paymentQueueProcessingSpeed": 300
 }
