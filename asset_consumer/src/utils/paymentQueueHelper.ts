@@ -1,4 +1,4 @@
-import { readData, writeData } from './databaseHelper';
+import { readAllData, writeData } from './databaseHelper';
 
 export const addToPaymentQueue = async (address, value) => {
     try {
@@ -8,11 +8,11 @@ export const addToPaymentQueue = async (address, value) => {
     }
 };
 
-export const processPaymentQueue = async () => {
+export const getPaymentQueue = async () => {
     try {
-        const currentUserObject = await readData('paymentQueue', null, null, 10);
-        return currentUserObject || [];
+        const paymentQueue = await readAllData('paymentQueue', 10);
+        return paymentQueue || [];
     } catch (error) {
-        console.error('processPaymentQueue', error);
+        console.error('getPaymentQueue', error);
     }
 };
