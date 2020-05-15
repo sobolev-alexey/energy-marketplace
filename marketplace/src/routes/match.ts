@@ -6,7 +6,7 @@ import { processMatch } from '../utils/businessLogic';
 export async function match(_: any, requestPayload: any): Promise<any> {
     try {
         if (requestPayload?.request && requestPayload?.offer) {
-            processMatch(requestPayload);
+            await processMatch(requestPayload);
             return { success: true };
         } else {
             await log(`No offer or request found in match`);
