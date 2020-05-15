@@ -1,11 +1,10 @@
 import { composeAPI, LoadBalancerSettings } from '@iota/client-load-balancer';
 import { generateAddress } from '@iota/core';
-import axios from 'axios';
 import crypto from 'crypto';
 import { defaultSecurity } from '../config.json';
 import { ServiceFactory } from '../factories/serviceFactory';
 import { readData, removeData, writeData } from './databaseHelper';
-import { processPaymentQueue } from './paymentQueueHelper';
+import { getPaymentQueue } from './paymentQueueHelper';
 
 export const generateSeed = (length = 81) => {
     const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ9';
@@ -17,17 +16,6 @@ export const generateSeed = (length = 81) => {
         }
     }
     return seed;
-};
-
-export const generateNewWallet = () => {
-    try {
-        const seed = generateSeed();
-        const address = generateAddress(seed, 0, defaultSecurity, true);
-        return { seed, address, keyIndex: 0, balance: 0 };
-    } catch (error) {
-        console.error('generateNewWallet error', error);
-        return {};
-    }
 };
 
 export const getBalance = async address => {
@@ -85,26 +73,39 @@ const transferFunds = async (wallet, totalAmount, transfers) => {
                 const transactions = await iota.sendTrytes(trytes, undefined, undefined);
 
                 // Before the payment is confirmed update the wallet with new address and index, calculate expected balance
-                await updateWallet(seed, remainderAddress, Number(keyIndex) + 1, balance - totalAmount);
+                // await updateWallet(seed, remainderAddress, Number(keyIndex) + 1, balance - totalAmount);
 
                 const hashes = transactions.map(transaction => transaction.hash);
 
+                let inclusions = 0;
                 let retries = 0;
+                let statuses;
                 while (retries++ < 40) {
-                    const statuses = await iota.getLatestInclusion(hashes);
-                    if (statuses.filter(status => status).length === 4) {
+                    statuses = await iota.getLatestInclusion(hashes);
+                    // if (statuses.filter(status => status).length === 4) {
+                    //     break;
+                    // }
+                    inclusions = statuses?.filter(status => status).length;
+                    console.log('Inclusions after transfer', retries, inclusions);
+                    if (inclusions > 3) {
+                        console.log(inclusions);
                         break;
                     }
+                    statuses = null;
+
                     await new Promise(resolved => setTimeout(resolved, 5000));
                 }
 
-                // Once the payment is confirmed fetch the real wallet balance and update the wallet again
-                const newBalance = await getBalance(remainderAddress);
-                await updateWallet(seed, remainderAddress, Number(keyIndex) + 1, newBalance);
-                
-                // remove transfer from the queue
-                for (const transfer of transfers) {
-                    await removeData('paymentQueue', 'address', transfer?.address);
+                if (inclusions > 3) {
+                    console.log('Inclusions after transfer FINAL', inclusions, statuses);
+                    // Once the payment is confirmed fetch the real wallet balance and update the wallet again
+                    const newBalance = await getBalance(remainderAddress);
+                    await updateWallet(seed, remainderAddress, Number(keyIndex) + 1, newBalance);
+                    
+                    // remove transfer from the queue
+                    for (const transfer of transfers) {
+                        await removeData('paymentQueue', 'address', transfer?.address);
+                    }
                 }
 
                 resolve(transactions);
@@ -124,7 +125,7 @@ const updateWallet = async (seed, address, keyIndex, balance) => {
     await writeData('wallet', { address, balance, keyIndex, seed });
 };
 
-export const processPayment = async () => {
+export const processPaymentQueue = async () => {
     let paymentQueue: any = [];
     try {
         console.log('processPayment start');
@@ -142,37 +143,21 @@ export const processPayment = async () => {
             return null;
         }
 
-        const config: any = await readData('asset');
         const walletBalance = await getBalance(wallet?.address);
         console.log('processPayment check wallet', wallet?.address, walletBalance);
-        if (walletBalance <= config.minWalletAmount) {
-          const newWallet = generateNewWallet();
-          console.log('processPayment generating new wallet', newWallet);
-          try {
-              const response = await axios.get(`${config.assetOwnerAPI}/faucet?address=${newWallet?.address}`);
-              const data = response?.data;
-              if (data?.success) {
-                  const balance = await getBalance(newWallet?.address);
-                  await writeData('wallet', { ...newWallet, balance });
-                  return null;
-              }
-          } catch (error) {
-              console.log('fund wallet error', error);
-              throw new Error('Wallet funding error');
-              return null;
-          }
-          console.log('processPayment funding new wallet', newWallet);
-          return null;
-        }
-
+        
         let totalAmount = 0;
-        paymentQueue = await processPaymentQueue();
+        paymentQueue = await getPaymentQueue();
         console.log('processPayment paymentQueue', paymentQueue);
         paymentQueue.forEach(data => totalAmount += Number(data?.value));
-        console.log('processPayment', totalAmount, wallet);
+        console.log('processPayment', totalAmount);
         
         if (paymentQueue?.length === 0 || totalAmount === 0) {
             return null;
+        }
+        
+        if (walletBalance < totalAmount) {
+          // Issue fund wallet request
         }
 
         return await transferFunds(

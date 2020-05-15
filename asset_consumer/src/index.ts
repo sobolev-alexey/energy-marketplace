@@ -10,9 +10,9 @@ import { AppHelper } from './utils/appHelper';
 import { BusinessLogic } from './utils/businessLogicHelper';
 
 const routes: IRoute[] = [
-    { path: '/init', method: 'get', func: 'init' },
-    { path: '/v0/publish', method: 'post', folder: 'v0', func: 'publish' },
-    { path: '/v0/fetch', method: 'post', folder: 'v0', func: 'fetch' }
+    { path: '/init', method: 'post', func: 'init' },
+    { path: '/contract', method: 'post', func: 'contract' },
+    { path: '/payment', method: 'post', func: 'payment' }
 ];
 
 AppHelper.build(routes, async (app, config, websocketPort) => {

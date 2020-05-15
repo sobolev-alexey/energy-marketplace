@@ -1,8 +1,5 @@
 import { composeAPI, LoadBalancerSettings } from '@iota/client-load-balancer';
-import { 
-    asciiToTrytes,
-    trytesToAscii 
-} from '@iota/converter';
+import { asciiToTrytes, trytesToAscii } from '@iota/converter';
 import {
     createChannel,
     createMessage,
@@ -65,13 +62,10 @@ export const publish = async (transactionId, packet) => {
             secretKey = mamStateFromDB?.sideKey;
             mamState = mamStateFromDB;
             mamState.index = mamStateFromDB?.keyIndex;
-            console.log('RETRIEVED MAM state', mamState);
         } else {
             // Set channel mode & update key
             secretKey = generateRandomKey(81);
             mamState = createChannel(generateRandomKey(81), defaultSecurity, MAM_MODE[mamMode], secretKey);
-            console.log('INITIAL MAM state', mamState);
-
         }
 
         // Create MAM Payload - STRING OF TRYTES
@@ -84,12 +78,11 @@ export const publish = async (transactionId, packet) => {
         if (bundle && bundle.length && bundle[0].hash) {
 
             // Check if the message was attached
-            const result = await checkAttachedMessage(api, root, secretKey);
-            console.log('checkAttachedMessage', result);
+            await checkAttachedMessage(api, root, secretKey);
 
             // Save new mamState
             await writeData('mam', { transactionId, root, ...mamState });
-            return { hash: bundle[0].hash, root, secretKey };
+            return { hash: bundle?.[0].hash, root, secretKey };
         }
         return null;
     } catch (error) {
@@ -136,6 +129,7 @@ export const fetch = async (assetId, transactionId) => {
                 result.push(trytesToAscii(fetched[i].message));
             }
         }
+
         return result;
     } catch (error) {
         console.error('MAM fetch', error);

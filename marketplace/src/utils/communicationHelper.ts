@@ -1,7 +1,6 @@
 import axios from 'axios';
 import io from 'socket.io-client';
 import { log } from './loggerHelper';
-import { bidManagerURL } from '../config.json';
 
 interface IResponse {
     success: boolean;
@@ -16,11 +15,10 @@ interface IResponse {
  * @returns The response from the request.
  */
 export const sendRequest = async (endpoint: string, payload: object): Promise<IResponse> => {
-    const ax = axios.create({ baseURL: bidManagerURL });
     let response: IResponse;
 
     try {
-        const axiosResponse = await ax.post<IResponse>(endpoint, payload);
+        const axiosResponse = await axios.post<IResponse>(endpoint, payload);
 
         response = axiosResponse.data;
     } catch (err) {

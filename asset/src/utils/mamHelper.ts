@@ -65,13 +65,10 @@ export const publish = async (transactionId, packet) => {
             secretKey = mamStateFromDB?.sideKey;
             mamState = mamStateFromDB;
             mamState.index = mamStateFromDB?.keyIndex;
-            console.log('RETRIEVED MAM state', mamState);
         } else {
             // Set channel mode & update key
             secretKey = generateRandomKey(81);
             mamState = createChannel(generateRandomKey(81), defaultSecurity, MAM_MODE[mamMode], secretKey);
-            console.log('INITIAL MAM state', mamState);
-
         }
 
         // Create MAM Payload - STRING OF TRYTES
@@ -81,11 +78,10 @@ export const publish = async (transactionId, packet) => {
         const root = mamStateFromDB && mamStateFromDB?.root ? mamStateFromDB.root : message.root;
 
         // Attach the payload
-        if (bundle && bundle.length && bundle[0].hash) {
+        if (bundle && bundle.length && bundle?.[0].hash) {
 
             // Check if the message was attached
-            const result = await checkAttachedMessage(api, root, secretKey);
-            console.log('checkAttachedMessage', result);
+            await checkAttachedMessage(api, root, secretKey);
 
             // Save new mamState
             await writeData('mam', { transactionId, root, ...mamState });
@@ -114,6 +110,7 @@ const checkAttachedMessage = async (api, root, secretKey) => {
         if (result.length > 0) {
             return result.length;
         }
+        console.log('In MAM loop');
         await new Promise(resolve => setTimeout(resolve, 2000));
     }
 };

@@ -15,7 +15,12 @@ interface IResponse {
 export const sendRequest = async (endpoint: string, request: { encrypted: string }): Promise<IResponse> => {
     const asset: any = await readData('asset');
     
-    const ax = axios.create({ baseURL: asset.marketplaceAPI });
+    let baseURL = asset?.marketplaceAPI;
+    if (endpoint === 'fund') {
+        baseURL = asset?.assetOwnerAPI;
+    }
+
+    const ax = axios.create({ baseURL });
     let response: IResponse;
 
     try {

@@ -1,15 +1,11 @@
-import { websocketURL, websocketPortNumber } from '../config.json';
+import { serverPortNumber, websocketURL, websocketPortNumber } from '../config.json';
 import assetConfig from '../asset.config.json';
 import { readData, readAllData, writeData } from '../utils/databaseHelper';
 import { EncryptionService, IMessagePayload } from '../utils/encryptionHelper';
 import { log } from '../utils/loggerHelper';
 import { sendRequest } from '../utils/communicationHelper';
 
-/**
- * Initialise the database.
- * @param config The configuration.
- */
-export async function init(): Promise<void> {
+export async function init(): Promise<any> {
     try {
         // Verify the config is received from user
         // Use trusted DID to verify
@@ -40,7 +36,8 @@ export async function init(): Promise<void> {
                 location: config.location,
                 type: config.type, 
                 network: config.network,
-                websocket: `${websocketURL}:${websocketPortNumber}`
+                websocket: `${websocketURL}:${websocketPortNumber}`,
+                assetURL: `${websocketURL}:${serverPortNumber}`
             };
 
             // Sign payload
@@ -61,6 +58,7 @@ export async function init(): Promise<void> {
                 throw new Error('Asset registration with marketplace failed');
             }
         }
+        return { success: true, publicKey: keys.publicKey };
     } catch (err) {
         await log(`Initialization Failed ${err.toString()}`);
         return;
