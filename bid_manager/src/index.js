@@ -47,11 +47,11 @@ const findMatch = async (table, payload) => {
                 if (matchingOffer) {
                     const response = await sendMatch({
                         offer: matchingOffer,
-                        request: { ...payload, assetId: payload.requesterId }
+                        request: payload
                     });
 
                     if (response && response.success) {
-                        await removeData('offer', 'transactionId', matchingOffer.transactionId);
+                        await removeData('offer', 'providerTransactionId', matchingOffer.providerTransactionId);
                     }
                     // console.log(`<=== duration: ${Date.now() - start}ms`);
                 } else {
@@ -65,12 +65,12 @@ const findMatch = async (table, payload) => {
 
                 if (matchingRequest) {
                     const response = sendMatch({
-                        offer: { ...payload, assetId: payload.providerId },
+                        offer: payload, assetId,
                         request: matchingRequest
                     });
 
                     if (response && response.success) {
-                        await removeData('request', 'transactionId', matchingRequest.transactionId);
+                        await removeData('request', 'requesterTransactionId', matchingRequest.requesterTransactionId);
                     }
                     // console.log(`<=== duration: ${Date.now() - start}ms`);
                 } else {
