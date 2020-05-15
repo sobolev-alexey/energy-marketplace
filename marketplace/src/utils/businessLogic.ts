@@ -9,33 +9,27 @@ export async function processMatch(requestPayload: any): Promise<{success: boole
             // Assign contract ID
             const contractId = randomstring.generate(20);
             const timestamp = Date.now().toString();
-            const consumerAsset: any = await readData('asset', 'assetId', requestPayload?.request?.assetId);
+            const consumerAsset: any = await readData('asset', 'assetId', requestPayload?.request?.requesterId);
 
             // console.log('MATCH 1', requestPayload);
 
             const transaction = {
                 contractId, 
                 timestamp,
-                providerId: requestPayload?.offer?.assetId,
+                providerTransactionId: requestPayload?.offer?.providerTransactionId,
+                requesterTransactionId: requestPayload?.request?.requesterTransactionId,
+                providerId: requestPayload?.offer?.providerId,
                 energyAmount: requestPayload?.request?.energyAmount, 
                 energyPrice: requestPayload?.offer?.energyPrice, 
-                requesterId: requestPayload?.request?.assetId,
+                requesterId: requestPayload?.request?.requesterId,
+                walletAddress: requestPayload?.offer?.walletAddress,
                 status: 'Contract created', 
                 location: consumerAsset?.location,
                 additionalDetails: ''
             };
 
-            const offer = {
-                ...transaction,
-                type: 'offer',
-                transactionId: requestPayload?.offer?.transactionId
-            };
-
-            const request = {
-                ...transaction,
-                type: 'request',
-                transactionId: requestPayload?.request?.transactionId
-            };
+            const offer = { ...transaction, type: 'offer' };
+            const request = { ...transaction, type: 'request' };
 
             const payload = { offer, request, contractId };
             await log(`Match found. Request: ${JSON.stringify(request)}, Offer: ${JSON.stringify(offer)}, Contract: ${contractId}`);
