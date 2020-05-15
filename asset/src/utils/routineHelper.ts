@@ -20,12 +20,12 @@ export async function decryptVerify(request: any): Promise<{ verificationResult:
                     asset?.marketplacePublicKey, decrypted?.message, decrypted?.signature
                 );  
                     
-                const assetId = decrypted?.message?.assetId;
+                const contractId = decrypted?.message?.contractId;
                 if (verificationResult) {
-                    await log(`Marketplace signature verification successful. ${assetId}`);
+                    await log(`Marketplace signature verification successful. ${contractId}`);
                     return { verificationResult: true, message: decrypted?.message };
                 }
-                await log(`Marketplace signature verification failed. ${assetId}`);
+                await log(`Marketplace signature verification failed. ${contractId}`);
                 return { verificationResult: false };
             }
             await log(`No asset key`);
@@ -61,15 +61,20 @@ export async function signPublishEncryptSend(payload: any, endpoint: string): Pr
             );
 
             // Publish payload to MAM
-            const mam = await publish(payload.transactionId, { message: payload, signature });
+            const transactionId = asset?.type === 'producer' ? payload.providerTransactionId : payload.requesterTransactionId;
+            const mam = await publish(transactionId, { message: payload, signature });
             // console.log(333, mam);
 
             // Encrypt payload and signature with asset's public key
             const messagePayload: IMessagePayload = { message: payload, signature, mam };
             // console.log(444, messagePayload);
 
+            let publicKey = asset?.marketplacePublicKey;
+            if (endpoint === 'fund') {
+                publicKey = asset?.assetOwnerPublicKey;
+            }
             const encrypted: string = encryptionService.publicEncrypt(
-                asset?.marketplacePublicKey, JSON.stringify(messagePayload)
+                publicKey, JSON.stringify(messagePayload)
             );
 
             // Send encrypted payload and signature to asset
