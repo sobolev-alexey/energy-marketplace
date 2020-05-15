@@ -10,7 +10,7 @@ const db = new sqlite3.Database(
         }
         await db.run('CREATE TABLE IF NOT EXISTS asset (assetId TEXT PRIMARY KEY, assetOwner TEXT, type TEXT, network TEXT, exchangeRate REAL, minWalletAmount INTEGER, maxEnergyPrice REAL, minOfferAmount REAL, assetOwnerAPI TEXT, marketplaceAPI TEXT, assetOwnerPublicKey TEXT, marketplacePublicKey TEXT, deviceUUID TEXT, assetName TEXT, location TEXT)');
         await db.run('CREATE TABLE IF NOT EXISTS wallet (seed TEXT PRIMARY KEY, address TEXT, keyIndex INTEGER, balance INTEGER)');
-        await db.run('CREATE TABLE IF NOT EXISTS transactionLog (transactionId TEXT, type TEXT, contractId TEXT, timestamp TEXT, requesterId TEXT, providerId TEXT, energyAmount REAL, energyPrice REAL, status TEXT, location TEXT, additionalDetails TEXT)');
+        await db.run('CREATE TABLE IF NOT EXISTS transactionLog (requesterTransactionId TEXT, providerTransactionId TEXT, type TEXT, contractId TEXT, timestamp TEXT, requesterId TEXT, providerId TEXT, energyAmount REAL, energyPrice REAL, status TEXT, location TEXT, walletAddress TEXT, additionalDetails TEXT)');
         await db.run('CREATE TABLE IF NOT EXISTS keys (privateKey TEXT PRIMARY KEY, publicKey TEXT)');
         await db.run('CREATE TABLE IF NOT EXISTS paymentQueue (address TEXT, value INTEGER)');
         await db.run('CREATE TABLE IF NOT EXISTS log (timestamp TEXT, event TEXT)');
@@ -92,17 +92,20 @@ export const updateMAMChannel = async ({ transactionId, root, seed, mode, sideKe
 };
 
 export const updateTransactionStorage = async ({ 
-    transactionId, type, contractId = '', timestamp, requesterId = '', providerId = '', 
-    energyAmount, energyPrice, status, location = '', additionalDetails = ''
+    requesterTransactionId = '', providerTransactionId = '', type, contractId = '', 
+    timestamp, requesterId = '', providerId = '', energyAmount, energyPrice, 
+    status, location = '', walletAddress = '', additionalDetails = ''
 }) => {
     const insert = `
         INSERT INTO transactionLog (
-            transactionId, type, contractId, timestamp, requesterId, providerId,
-            energyAmount, energyPrice, status, location, additionalDetails
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+            requesterTransactionId, providerTransactionId, type, contractId, 
+            timestamp, requesterId, providerId, energyAmount, energyPrice, 
+            status, location, walletAddress, additionalDetails
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
     await db.run(insert, [
-        transactionId, type, contractId, timestamp, requesterId, providerId, 
-        energyAmount, energyPrice, status, location, additionalDetails
+        requesterTransactionId, providerTransactionId, type, contractId, 
+        timestamp, requesterId, providerId, energyAmount, energyPrice, 
+        status, location, walletAddress, additionalDetails
     ]);
 };
 
@@ -116,9 +119,9 @@ export const updateLogStorage = async ({ timestamp, event }) => {
 
 export const writeData = async (table, data) => {
     try {
-        if (table !== 'keys' || table !== 'asset') {
-            console.log('writeData', table, data);
-        }
+        // if (table !== 'keys' || table !== 'asset') {
+        //     console.log('writeData', table, data);
+        // }
         switch (table) {
             case 'asset':
                 await createAsset(data);
@@ -176,10 +179,14 @@ export const readData = async (table, searchKey = null, searchValue = null, limi
     });
 };
 
-export const readAllData = async (table: string) => {
+export const readAllData = async (table: string, limit = null) => {
     return new Promise((resolve, reject) => {
         try {
-            db.all(`SELECT * FROM ${table}`, (err, rows) => {
+            let query = `SELECT * FROM ${table}`;
+            if (limit) {
+                query = `${query} LIMIT ${limit}`;
+            }
+            db.all(query, (err, rows) => {
                 if (err) {
                     return resolve(null);
                 } else {
