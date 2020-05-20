@@ -348,9 +348,9 @@ export async function processPayment(request: any): Promise<any> {
                     await log(`Wallet funding request failure. Request: ${fundWalletRequest}`);
                 }
             }
-            await addToPaymentQueue(payload?.message?.walletAddress, paymentAmount);
+            await addToPaymentQueue(message?.walletAddress, paymentAmount, JSON.stringify(message));
 
-            await log(`Payment request processing successful. ${payload?.message?.contractId}`);
+            await log(`Payment request processing successful. ${message?.contractId}`);
             return { success: true };
         }
         throw new Error('Marketplace signature verification failed');
