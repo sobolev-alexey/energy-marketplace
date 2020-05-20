@@ -179,10 +179,13 @@ export const readData = async (table, searchKey = null, searchValue = null, limi
     });
 };
 
-export const readAllData = async (table: string, limit = null) => {
+export const readAllData = async (table: string, limit = null, searchKey = null, searchValue = null) => {
     return new Promise((resolve, reject) => {
         try {
             let query = `SELECT * FROM ${table}`;
+            if (searchKey) {
+                query = `${query} WHERE ${searchKey} = '${searchValue}' ORDER BY rowid DESC`;
+            }
             if (limit) {
                 query = `${query} LIMIT ${limit}`;
             }
