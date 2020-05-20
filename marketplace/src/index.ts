@@ -10,7 +10,8 @@ const routes: IRoute[] = [
     { path: '/request', method: 'post', func: 'offerOrRequest' },
     { path: '/offer', method: 'post', func: 'offerOrRequest' },
     { path: '/match', method: 'post', func: 'match' },
-    { path: '/provision', method: 'post', func: 'provision' }
+    { path: '/provision', method: 'post', func: 'provision' },
+    { path: '/payment_processing', method: 'post', func: 'payment_processing' },
 ];
 
 AppHelper.build(routes, async (app, config, websocketPort) => {
