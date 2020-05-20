@@ -321,11 +321,15 @@ export async function processPayment(request: any): Promise<any> {
     try {
         const payload = await decryptVerify(request);        
         if (payload?.verificationResult) {
-            console.log('Payment request', payload?.message);
+            const message = payload?.message;
+            console.log('Payment request', message);
+
+            // Update transaction log
+            await transactionLog(message);
 
             // TODO: verify request
 
-            const paymentAmount = payload?.message?.energyAmount * payload?.message?.energyPrice;
+            const paymentAmount = message?.energyAmount * message?.energyPrice;
             const wallet: IWallet = await readData('wallet');
     
             if (!wallet || !wallet?.address) {
@@ -336,7 +340,7 @@ export async function processPayment(request: any): Promise<any> {
             const balance = await getBalance(wallet?.address);
             if (balance <= paymentAmount) {
                 const fundWalletRequest = {
-                    assetId: payload?.message?.requesterId,
+                    assetId: message?.requesterId,
                     walletAddress: wallet?.address,
                     minFundingAmount: paymentAmount
                 };
