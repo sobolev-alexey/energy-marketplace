@@ -101,3 +101,61 @@ export async function processProvisionConfirmation(requestDetails: any): Promise
         throw new Error(error);
     }
 }
+
+export async function processPaymentProcessingConfirmation(requestDetails: any): Promise<any> {
+    try {
+        const request = await decryptVerify(requestDetails);
+        const paymentConfirmationPayload = request?.message;
+
+        console.log('processPaymentProcessingConfirmation', request);
+        if (request?.verificationResult && paymentConfirmationPayload) {
+            // Log transaction
+            await transactionLog(paymentConfirmationPayload);
+
+            const paymentConfirmationResponse = await signPublishEncryptSend(
+                paymentConfirmationPayload, paymentConfirmationPayload?.providerId, paymentConfirmationPayload?.requesterTransactionId, 'payment_sent'
+            );
+
+            // Evaluate responses 
+            if (paymentConfirmationResponse?.success) {
+                await log(`Payment processing confirmation successful. ${request?.message?.contractId}`);
+            } else {
+                await log(`Payment processing confirmation request failure. Request: ${JSON.stringify(paymentConfirmationPayload)}, Response: ${JSON.stringify(paymentConfirmationResponse)}, Contract: ${paymentConfirmationPayload.contractId}`);
+            }
+            return { success: true };
+        }
+        throw new Error('Asset signature verification failed');
+    } catch (error) {
+        await log(`Payment processing confirmation failed. ${error.toString()}`);
+        throw new Error(error);
+    }
+}
+
+export async function processPaymentConfirmation(requestDetails: any): Promise<any> {
+    try {
+        const request = await decryptVerify(requestDetails);
+        const paymentConfirmationPayload = request?.message;
+
+        console.log('processPaymentConfirmation', request);
+        if (request?.verificationResult && paymentConfirmationPayload) {
+            // Log transaction
+            await transactionLog(paymentConfirmationPayload);
+
+            const paymentConfirmationResponse = await signPublishEncryptSend(
+                paymentConfirmationPayload, paymentConfirmationPayload?.requesterId, paymentConfirmationPayload?.requesterTransactionId, 'payment_confirmed'
+            );
+
+            // Evaluate responses 
+            if (paymentConfirmationResponse?.success) {
+                await log(`Payment confirmation successful. ${request?.message?.contractId}`);
+            } else {
+                await log(`Payment confirmation request failure. Request: ${JSON.stringify(paymentConfirmationPayload)}, Response: ${JSON.stringify(paymentConfirmationResponse)}, Contract: ${paymentConfirmationPayload.contractId}`);
+            }
+            return { success: true };
+        }
+        throw new Error('Asset signature verification failed');
+    } catch (error) {
+        await log(`Payment confirmation failed. ${error.toString()}`);
+        throw new Error(error);
+    }
+}

@@ -1,10 +1,12 @@
 import { composeAPI, LoadBalancerSettings } from '@iota/client-load-balancer';
 import { generateAddress } from '@iota/core';
+import { asciiToTrytes } from '@iota/converter';
 import crypto from 'crypto';
 import { defaultSecurity } from '../config.json';
 import { ServiceFactory } from '../factories/serviceFactory';
 import { readData, removeData, writeData } from './databaseHelper';
 import { getPaymentQueue } from './paymentQueueHelper';
+import { confirmPaymentProcessing } from './businessLogicHelper';
 
 export const generateSeed = (length = 81) => {
     const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ9';
@@ -36,7 +38,7 @@ export const getBalance = async address => {
     }
 };
 
-const transferFunds = async (wallet, totalAmount, transfers) => {
+const transferFunds = async (wallet, totalAmount, paymentQueue) => {
     try {
         const { address, keyIndex, seed } = wallet;
         const config: any = await readData('asset');
@@ -69,41 +71,43 @@ const transferFunds = async (wallet, totalAmount, transfers) => {
                     remainderAddress
                 };
 
+                const transfers = paymentQueue.map(transfer => ({ 
+                    address: transfer.address, 
+                    value: transfer.value,
+                    message: asciiToTrytes(JSON.parse(transfer?.transactionPayload)?.contractId)
+                }));
+                console.log('transfers', transfers);
                 const trytes = await iota.prepareTransfers(seed, transfers, options);
                 const transactions = await iota.sendTrytes(trytes, undefined, undefined);
-
-                // Before the payment is confirmed update the wallet with new address and index, calculate expected balance
-                // await updateWallet(seed, remainderAddress, Number(keyIndex) + 1, balance - totalAmount);
 
                 const hashes = transactions.map(transaction => transaction.hash);
 
                 let inclusions = 0;
                 let retries = 0;
                 let statuses;
-                while (retries++ < 40) {
+                while (retries++ < 60) {
                     statuses = await iota.getLatestInclusion(hashes);
-                    // if (statuses.filter(status => status).length === 4) {
-                    //     break;
-                    // }
                     inclusions = statuses?.filter(status => status).length;
                     console.log('Inclusions after transfer', retries, inclusions);
-                    if (inclusions > 3) {
+                    if (inclusions > transfers.length) {
                         console.log(inclusions);
                         break;
                     }
                     statuses = null;
-
+                    inclusions = 0;
+                    
                     await new Promise(resolved => setTimeout(resolved, 5000));
                 }
 
-                if (inclusions > 3) {
+                if (inclusions > transfers.length) {
                     console.log('Inclusions after transfer FINAL', inclusions, statuses);
                     // Once the payment is confirmed fetch the real wallet balance and update the wallet again
                     const newBalance = await getBalance(remainderAddress);
                     await updateWallet(seed, remainderAddress, Number(keyIndex) + 1, newBalance);
                     
                     // remove transfer from the queue
-                    for (const transfer of transfers) {
+                    for (const transfer of paymentQueue) {
+                        await confirmPaymentProcessing(transfer?.transactionPayload);
                         await removeData('paymentQueue', 'address', transfer?.address);
                     }
                 }
@@ -121,7 +125,7 @@ const transferFunds = async (wallet, totalAmount, transfers) => {
     }
 };
 
-const updateWallet = async (seed, address, keyIndex, balance) => {
+export const updateWallet = async (seed, address, keyIndex, balance) => {
     await writeData('wallet', { address, balance, keyIndex, seed });
 };
 
@@ -170,21 +174,3 @@ export const processPaymentQueue = async () => {
         return error;
     }
 };
-
-/*
-Example getBalance operation:
-
-import { getBalance } from './walletHelper';
-
-await getBalance(address);
-
-*/
-
-/*
-Example payment operation:
-
-import { processPayment } from './walletHelper';
-
-await processPayment();
-
-*/

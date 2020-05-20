@@ -16,6 +16,7 @@ import { decryptVerify, signPublishEncryptSend } from './routineHelper';
 import { provideEnergy, receiveEnergy } from './energyProvisionHelper';
 import { getBalance, processPaymentQueue } from './walletHelper';
 import { addToPaymentQueue } from './paymentQueueHelper';
+import { paymentConfirmation } from './paymentConfirmationHelper';
 
 let energyProductionInterval;
 let energyConsumptionInterval;
@@ -262,14 +263,21 @@ export function BusinessLogic() {
         }
     };
 
-    const _processPaymentQueue = async (): Promise<void> => {
-        await processPaymentQueue();
+    const processPayments = async (): Promise<void> => {
+        const asset: any = await readData('asset');
+
+        // Check asset type is consumer
+        if (asset?.type === 'consumer') { 
+            await processPaymentQueue();
+        } else {
+            await paymentConfirmation();
+        }
     };
 
     energyProductionInterval = setInterval(produceEnergy, energyProductionSpeed * 1000);
     energyConsumptionInterval = setInterval(consumeEnergy, energyConsumptionSpeed * 1000);
     transactionInterval = setInterval(createMarketplaceTransaction, transactionCreationSpeed * 1000);
-    setInterval(_processPaymentQueue, paymentQueueProcessingSpeed * 1000);
+    setInterval(processPayments, paymentQueueProcessingSpeed * 1000);
 }
 
 export async function processContract(request: any): Promise<any> {
@@ -299,8 +307,6 @@ export async function confirmEnergyProvision(payload: any): Promise<void> {
 
         // Evaluate response
         if (response?.success) {
-            // Update transaction log
-            await transactionLog(payload);
             await log(`Provision confirmation sent to marketplace and stored. Contract: ${payload.contractId}`);
         } else {
             await log(`Provision confirmation failure. Request: ${payload}`);
@@ -315,11 +321,15 @@ export async function processPayment(request: any): Promise<any> {
     try {
         const payload = await decryptVerify(request);        
         if (payload?.verificationResult) {
-            console.log('Payment request', payload?.message);
+            const message = payload?.message;
+            console.log('Payment request', message);
+
+            // Update transaction log
+            await transactionLog(message);
 
             // TODO: verify request
 
-            const paymentAmount = payload?.message?.energyAmount * payload?.message?.energyPrice;
+            const paymentAmount = message?.energyAmount * message?.energyPrice;
             const wallet: IWallet = await readData('wallet');
     
             if (!wallet || !wallet?.address) {
@@ -330,7 +340,7 @@ export async function processPayment(request: any): Promise<any> {
             const balance = await getBalance(wallet?.address);
             if (balance <= paymentAmount) {
                 const fundWalletRequest = {
-                    assetId: payload?.message?.requesterId,
+                    assetId: message?.requesterId,
                     walletAddress: wallet?.address,
                     minFundingAmount: paymentAmount
                 };
@@ -343,14 +353,93 @@ export async function processPayment(request: any): Promise<any> {
                     await log(`Wallet funding request failure. Request: ${fundWalletRequest}`);
                 }
             }
-            await addToPaymentQueue(payload?.message?.walletAddress, paymentAmount);
+            await addToPaymentQueue(message?.walletAddress, paymentAmount, JSON.stringify(message));
 
-            await log(`Payment request processing successful. ${payload?.message?.contractId}`);
+            await log(`Payment request processing successful. ${message?.contractId}`);
             return { success: true };
         }
         throw new Error('Marketplace signature verification failed');
     } catch (error) {
         await log(`Payment request processing failed. ${error.toString()}`);
+        throw new Error(error);
+    }
+}
+
+export async function confirmPaymentProcessing(transactionAsString: string): Promise<void> {
+    try {
+        const transaction = JSON.parse(transactionAsString);
+        const payload = {
+            ...transaction,
+            timestamp: Date.now().toString(), 
+            status: 'Payment processed'
+        };
+        await transactionLog(payload);
+
+        const response = await signPublishEncryptSend(payload, 'payment_processing');
+
+        // Evaluate response
+        if (response?.success) {
+            await log(`Payment processing confirmation sent to marketplace and stored. Contract: ${payload.contractId}`);
+        } else {
+            await log(`Payment processing confirmation failure. Request: ${payload}`);
+        }
+    } catch (error) {
+        await log(`Payment processing confirmation failed. ${error.toString()}`);
+        throw new Error(error);
+    }
+}
+
+export async function processPaymentProcessingConfirmation(request: any): Promise<any> {
+    try {
+        const payload = await decryptVerify(request);        
+        if (payload?.verificationResult) {
+            // Update transaction log
+            await transactionLog(payload?.message);
+            await log(`Payment processing confirmation successful. ${payload?.message?.contractId}`);
+            return { success: true };
+        }
+        throw new Error('Marketplace signature verification failed');
+    } catch (error) {
+        await log(`Payment processing confirmation failed. ${error.toString()}`);
+        throw new Error(error);
+    }
+}
+
+export async function confirmPayment(transaction: any): Promise<void> {
+    try {
+        const payload = {
+            ...transaction,
+            timestamp: Date.now().toString(), 
+            status: 'Payment confirmed'
+        };
+        await transactionLog(payload);
+
+        const response = await signPublishEncryptSend(payload, 'payment_confirmation');
+
+        // Evaluate response
+        if (response?.success) {
+            await log(`Payment confirmation sent to marketplace and stored. Contract: ${payload.contractId}`);
+        } else {
+            await log(`Payment confirmation failure. Request: ${payload}`);
+        }
+    } catch (error) {
+        await log(`Payment confirmation failed. ${error.toString()}`);
+        throw new Error(error);
+    }
+}
+
+export async function processPaymentConfirmation(request: any): Promise<any> {
+    try {
+        const payload = await decryptVerify(request);        
+        if (payload?.verificationResult) {
+            // Update transaction log
+            await transactionLog(payload?.message);
+            await log(`Payment confirmation successful. ${payload?.message?.contractId}`);
+            return { success: true };
+        }
+        throw new Error('Marketplace signature verification failed');
+    } catch (error) {
+        await log(`Payment confirmation failed. ${error.toString()}`);
         throw new Error(error);
     }
 }

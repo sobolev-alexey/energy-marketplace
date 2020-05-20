@@ -15,5 +15,5 @@
     "energyConsumptionAmount": 10,
     "energyProvisionSpeed": 40,
     "transactionCreationSpeed": 40,
-    "paymentQueueProcessingSpeed": 300
+    "paymentQueueProcessingSpeed": 310
 }
