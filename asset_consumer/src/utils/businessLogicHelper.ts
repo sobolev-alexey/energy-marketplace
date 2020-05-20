@@ -361,3 +361,27 @@ export async function processPayment(request: any): Promise<any> {
         throw new Error(error);
     }
 }
+
+export async function confirmPaymentProcessing(transactionAsString: string): Promise<void> {
+    try {
+        const transaction = JSON.parse(transactionAsString);
+        const payload = {
+            ...transaction,
+            timestamp: Date.now().toString(), 
+            status: 'Payment processed'
+        };
+        await transactionLog(payload);
+
+        const response = await signPublishEncryptSend(payload, 'payment_processing');
+
+        // Evaluate response
+        if (response?.success) {
+            await log(`Payment processing confirmation sent to marketplace and stored. Contract: ${payload.contractId}`);
+        } else {
+            await log(`Payment processing confirmation failure. Request: ${payload}`);
+        }
+    } catch (error) {
+        await log(`Payment processing confirmation failed. ${error.toString()}`);
+        throw new Error(error);
+    }
+}
