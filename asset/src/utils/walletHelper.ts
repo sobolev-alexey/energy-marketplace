@@ -125,7 +125,7 @@ const transferFunds = async (wallet, totalAmount, paymentQueue) => {
     }
 };
 
-const updateWallet = async (seed, address, keyIndex, balance) => {
+export const updateWallet = async (seed, address, keyIndex, balance) => {
     await writeData('wallet', { address, balance, keyIndex, seed });
 };
 
