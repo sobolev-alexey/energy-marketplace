@@ -424,3 +424,19 @@ export async function confirmPayment(transaction: any): Promise<void> {
         throw new Error(error);
     }
 }
+
+export async function processPaymentConfirmation(request: any): Promise<any> {
+    try {
+        const payload = await decryptVerify(request);        
+        if (payload?.verificationResult) {
+            // Update transaction log
+            await transactionLog(payload?.message);
+            await log(`Payment confirmation successful. ${payload?.message?.contractId}`);
+            return { success: true };
+        }
+        throw new Error('Marketplace signature verification failed');
+    } catch (error) {
+        await log(`Payment confirmation failed. ${error.toString()}`);
+        throw new Error(error);
+    }
+}
