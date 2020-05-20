@@ -306,8 +306,6 @@ export async function confirmEnergyProvision(payload: any): Promise<void> {
 
         // Evaluate response
         if (response?.success) {
-            // Update transaction log
-            await transactionLog(payload);
             await log(`Provision confirmation sent to marketplace and stored. Contract: ${payload.contractId}`);
         } else {
             await log(`Provision confirmation failure. Request: ${payload}`);
