@@ -385,3 +385,19 @@ export async function confirmPaymentProcessing(transactionAsString: string): Pro
         throw new Error(error);
     }
 }
+
+export async function processPaymentProcessingConfirmation(request: any): Promise<any> {
+    try {
+        const payload = await decryptVerify(request);        
+        if (payload?.verificationResult) {
+            // Update transaction log
+            await transactionLog(payload?.message);
+            await log(`Payment processing confirmation successful. ${payload?.message?.contractId}`);
+            return { success: true };
+        }
+        throw new Error('Marketplace signature verification failed');
+    } catch (error) {
+        await log(`Payment processing confirmation failed. ${error.toString()}`);
+        throw new Error(error);
+    }
+}
