@@ -1,16 +1,15 @@
 import { trytesToAscii } from '@iota/converter';
 import * as crypto from 'crypto';
 
-export const decodeMessage = transaction => {
+export const decodeMessage = fragment => {
     // Modify to consumable length
-    if (!transaction.length || !transaction?.[0].signatureMessageFragment) {
+    if (!fragment) {
         return null;
     }
-    const fragment = transaction?.[0].signatureMessageFragment;
     const trytes = fragment % 2 !== 0 ? `${fragment}9` : fragment;
 
     // Decode message
-    return trytesToAscii(trytes);
+    return trytesToAscii(trytes).replace(/\u0000/gi, '');
 };
 
 export const getNumberFromLetter = letter => {
