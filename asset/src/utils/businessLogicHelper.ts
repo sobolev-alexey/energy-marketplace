@@ -16,6 +16,7 @@ import { decryptVerify, signPublishEncryptSend } from './routineHelper';
 import { provideEnergy, receiveEnergy } from './energyProvisionHelper';
 import { getBalance, processPaymentQueue } from './walletHelper';
 import { addToPaymentQueue } from './paymentQueueHelper';
+import { paymentConfirmation } from './paymentConfirmationHelper';
 
 let energyProductionInterval;
 let energyConsumptionInterval;
