@@ -174,21 +174,3 @@ export const processPaymentQueue = async () => {
         return error;
     }
 };
-
-/*
-Example getBalance operation:
-
-import { getBalance } from './walletHelper';
-
-await getBalance(address);
-
-*/
-
-/*
-Example payment operation:
-
-import { processPayment } from './walletHelper';
-
-await processPayment();
-
-*/
