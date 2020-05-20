@@ -12,7 +12,7 @@ const db = new sqlite3.Database(
         await db.run('CREATE TABLE IF NOT EXISTS wallet (seed TEXT PRIMARY KEY, address TEXT, keyIndex INTEGER, balance INTEGER)');
         await db.run('CREATE TABLE IF NOT EXISTS transactionLog (requesterTransactionId TEXT, providerTransactionId TEXT, type TEXT, contractId TEXT, timestamp TEXT, requesterId TEXT, providerId TEXT, energyAmount REAL, energyPrice REAL, status TEXT, location TEXT, walletAddress TEXT, additionalDetails TEXT)');
         await db.run('CREATE TABLE IF NOT EXISTS keys (privateKey TEXT PRIMARY KEY, publicKey TEXT)');
-        await db.run('CREATE TABLE IF NOT EXISTS paymentQueue (address TEXT, value INTEGER)');
+        await db.run('CREATE TABLE IF NOT EXISTS paymentQueue (address TEXT, value INTEGER, transactionPayload TEXT)');
         await db.run('CREATE TABLE IF NOT EXISTS log (timestamp TEXT, event TEXT)');
         await db.run('CREATE TABLE IF NOT EXISTS energy (timestamp TEXT, energyAvailable REAL, energyReserved REAL)');
         await db.run('CREATE TABLE IF NOT EXISTS mam (transactionId TEXT PRIMARY KEY, root TEXT, seed TEXT, mode TEXT, sideKey TEXT, security INTEGER, start INTEGER, count INTEGER, nextCount INTEGER, keyIndex INTEGER, nextRoot TEXT)');
@@ -67,12 +67,12 @@ export const updateWallet = async ({ seed, address, balance = 0, keyIndex }) => 
     await db.run(replace, [seed, address, balance, keyIndex]);
 };
 
-export const updatePaymentQueue = async ({ address, value }) => {
+export const updatePaymentQueue = async ({ address, value, transactionPayload }) => {
     const replace = `
         REPLACE INTO paymentQueue (
-            address, value
-        ) VALUES (?, ?)`;
-    await db.run(replace, [address, value]);
+            address, value, transactionPayload
+        ) VALUES (?, ?, ?)`;
+    await db.run(replace, [address, value, transactionPayload]);
 };
 
 export const updateEnergyStorage = async ({ timestamp, energyAvailable = 0, energyReserved = 0 }) => {
