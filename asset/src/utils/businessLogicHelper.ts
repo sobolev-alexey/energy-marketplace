@@ -401,3 +401,28 @@ export async function processPaymentProcessingConfirmation(request: any): Promis
         throw new Error(error);
     }
 }
+
+export async function confirmPayment(transaction: any): Promise<void> {
+    try {
+        const payload = {
+            ...transaction,
+            timestamp: Date.now().toString(), 
+            status: 'Payment confirmed'
+        };
+        await transactionLog(payload);
+
+        console.log(131313, payload);
+
+        const response = await signPublishEncryptSend(payload, 'payment_confirmation');
+
+        // Evaluate response
+        if (response?.success) {
+            await log(`Payment confirmation sent to marketplace and stored. Contract: ${payload.contractId}`);
+        } else {
+            await log(`Payment confirmation failure. Request: ${payload}`);
+        }
+    } catch (error) {
+        await log(`Payment confirmation failed. ${error.toString()}`);
+        throw new Error(error);
+    }
+}
