@@ -262,14 +262,21 @@ export function BusinessLogic() {
         }
     };
 
-    const _processPaymentQueue = async (): Promise<void> => {
-        await processPaymentQueue();
+    const processPayments = async (): Promise<void> => {
+        const asset: any = await readData('asset');
+
+        // Check asset type is consumer
+        if (asset?.type === 'consumer') { 
+            await processPaymentQueue();
+        } else {
+            await paymentConfirmation();
+        }
     };
 
     energyProductionInterval = setInterval(produceEnergy, energyProductionSpeed * 1000);
     energyConsumptionInterval = setInterval(consumeEnergy, energyConsumptionSpeed * 1000);
     transactionInterval = setInterval(createMarketplaceTransaction, transactionCreationSpeed * 1000);
-    setInterval(_processPaymentQueue, paymentQueueProcessingSpeed * 1000);
+    setInterval(processPayments, paymentQueueProcessingSpeed * 1000);
 }
 
 export async function processContract(request: any): Promise<any> {
