@@ -75,7 +75,7 @@ export const publish = async (transactionId, packet) => {
         const trytes: string = asciiToTrytes(JSON.stringify(packet));
         const message: IMamMessage = createMessage(mamState, trytes);
         const bundle = await mamAttach(api, message, defaultDepth, defaultMwm, tag);
-        const root = mamStateFromDB && mamStateFromDB?.root ? mamStateFromDB.root : message.root;
+        const root = mamStateFromDB?.root ? mamStateFromDB?.root : message?.root;
 
         // Attach the payload
         if (bundle && bundle.length && bundle?.[0].hash) {
