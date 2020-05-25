@@ -109,7 +109,7 @@ const checkPaymentConfirmation = async contractId => {
     if (transaction?.status === 'Payment processed' || 
         transaction?.status === 'Energy provision finished'
     ) {
-        console.log(121212);
+        console.log(121212, contractId);
         await confirmPayment(transaction);
     }
 };
