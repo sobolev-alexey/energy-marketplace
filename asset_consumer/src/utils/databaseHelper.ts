@@ -179,11 +179,7 @@ export const readData = async (table, searchKey = null, searchValue = null, limi
                 query = `${query} LIMIT ${limit}`;
             }
             db.get(query, (err, row) => {
-                if (err) {
-                    return resolve(null);
-                } else {
-                    return resolve(row || null);
-                }
+                return resolve(err || !row ? null : row);
             });
         } catch (error) {
             console.log('readData', error);
@@ -203,11 +199,7 @@ export const readAllData = async (table: string, limit = null, searchKey = null,
                 query = `${query} LIMIT ${limit}`;
             }
             db.all(query, (err, rows) => {
-                if (err) {
-                    return resolve(null);
-                } else {
-                    return resolve(rows);
-                }
+                return resolve(err ? null : rows);
             });
         } catch (error) {
             console.log('readAllData', error);
