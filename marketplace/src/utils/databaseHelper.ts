@@ -173,38 +173,3 @@ export const removeData = async (table: string, searchKey = null, searchValue = 
         }
     });
 };
-
-/*
-Example write operation:
-
-import { writeData } from './databaseHelper';
-
-const data = {
-    address: 'CCCCCDDDDD',
-    seed: 'SSSSSSEEEEDDDD',
-    amount: 555
-};
-
-await writeData('wallet', data);
-*/
-
-/*
-Example read operation:
-
-import { readData } from './databaseHelper';
-
-const result = await readData(channelId);
-if (result) {
-    return result;
-}
-
-*/
-
-/*
-Example delete operation:
-
-import { removeData } from './databaseHelper';
-
-await removeData(entry);
-
-*/
