@@ -154,51 +154,21 @@ export function BusinessLogic() {
 
     const createRequest = async (asset): Promise<void> => {
         try {
-            const status = 'Initial request';
-
-            // Retrieve encryption keys
-            const keys: any = await readData('keys');
-            if (!keys || !keys.privateKey) {
-                throw new Error('No keypair found in database');
-            }
-
             // Log event 
             await log('Creating request...');
 
-            const energyToRequest = Number(asset.minOfferAmount);
-
             // Create payload, specify price and amount
+            const status = 'Initial request';
+            const energyToRequest = Number(asset.minOfferAmount);
             const payload: any = await generatePayload(asset, 'request', status, energyToRequest);
-            // console.log(111, payload);
-
-            // Sign payload
-            const encryptionService = new EncryptionService();
-            const signature: Buffer = encryptionService.signMessage(
-                keys?.privateKey, payload
-            );
-            // console.log(222, signature);
-
-            // Publish payload to MAM
-            const mam = await publish(payload.requesterTransactionId, { message: payload, signature });
-            // console.log(333, mam);
-
-            // Encrypt payload and signature with Marketplace public key
-            const messagePayload: IMessagePayload = { message: payload, signature, mam };
-            // console.log(444, messagePayload);
-
-            const encrypted: string = encryptionService.publicEncrypt(
-                asset?.marketplacePublicKey, JSON.stringify(messagePayload)
-            );
-
+            
             // Send encrypted payload and signature to Marketplace
-            const response = await sendRequest('/request', { encrypted });
-            // console.log(555, response);
-
+            const response = await signPublishEncryptSend(payload, 'request');
             if (response.success) {
                 // Log transaction
                 await transactionLog(payload);
             } else {
-                await log(`createRequest Error ${response.message}`);
+                await log(`createRequest Error ${response}`);
             }
         } catch (error) {
             console.error('createRequest', error);
