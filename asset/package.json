@@ -20,7 +20,7 @@
         "build-copy-docs": "copyfiles -u 1 ./src/docs/**/* ./dist",
         "build": "npm-run-all build-clean build-compile build-lint build-copy-docs build-copy-config",
         "serve-mon": "nodemon ./dist/index",
-        "start-dev": "run-p serve-mon build-watch",
+        "start-dev": "NODE_OPTIONS=--enable-source-maps run-p serve-mon build-watch",
         "start": "node ./dist/index",
         "docs-api": "api2html -o src/docs/index.html -l http,shell,javascript--nodejs spec/api.json -b -c spec/logo.png -u https://www.iota.org -i ../../../../spec/example,../../../../spec/changelog"
     },
