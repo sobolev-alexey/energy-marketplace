@@ -280,45 +280,19 @@ export async function confirmEnergyProvision(payload: any): Promise<void> {
     }
 }
 
-export async function processPayment(request: any): Promise<any> {
+export async function processPaymentRequest(request: any): Promise<any> {
     try {
         const payload = await decryptVerify(request);        
         if (payload?.verificationResult) {
-            const message = payload?.message;
-            console.log('Payment request', message);
+            const transaction = payload?.message;
+            console.log('Payment request', transaction);
 
             // Update transaction log
-            await transactionLog(message);
+            await transactionLog(transaction);
 
             // TODO: verify request
 
-            const paymentAmount = message?.energyAmount * message?.energyPrice;
-            const wallet: IWallet = await readData('wallet');
-    
-            if (!wallet || !wallet?.address) {
-                await log('Payment request error. No Wallet');
-                throw new Error('Payment request error. No Wallet');
-            }
-
-            const balance = await getBalance(wallet?.address);
-            if (balance <= paymentAmount) {
-                const fundWalletRequest = {
-                    assetId: message?.requesterId,
-                    walletAddress: wallet?.address,
-                    minFundingAmount: paymentAmount
-                };
-                const fundWalletResponse = await signPublishEncryptSend(fundWalletRequest, 'fund');
-
-                // Evaluate response
-                if (fundWalletResponse?.success) {
-                    await log(`Wallet funding request sent to asset owner.`);
-                } else {
-                    await log(`Wallet funding request failure. Request: ${fundWalletRequest}`);
-                }
-            }
-            await addToPaymentQueue(message?.walletAddress, paymentAmount, JSON.stringify(message));
-
-            await log(`Payment request processing successful. ${message?.contractId}`);
+            await processPayment(transaction);
             return { success: true };
         }
         throw new Error('Marketplace signature verification failed');
