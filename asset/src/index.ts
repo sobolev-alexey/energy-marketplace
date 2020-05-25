@@ -1,5 +1,5 @@
 
-import { LoadBalancerSettings, LinearWalkStrategy } from '@iota/client-load-balancer';
+import { LoadBalancerSettings, LinearWalkStrategy /*, SuccessMode */ } from '@iota/client-load-balancer';
 import { Server } from 'http';
 import SocketIO from 'socket.io';
 import { ServiceFactory } from './factories/serviceFactory';
@@ -28,6 +28,7 @@ AppHelper.build(routes, async (app, config, websocketPort) => {
 
     const devNetLoadBalancerSettings: LoadBalancerSettings = {
         nodeWalkStrategy: new LinearWalkStrategy(config.devNetNodes),
+        // successMode: SuccessMode.keep,
         timeoutMs: 10000
     };
     ServiceFactory.register('devnet-load-balancer-settings', () => devNetLoadBalancerSettings);
