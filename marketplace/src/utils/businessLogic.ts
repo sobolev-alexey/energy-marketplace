@@ -147,9 +147,9 @@ export async function processPaymentConfirmation(requestDetails: any): Promise<a
 
             // Evaluate responses 
             if (paymentConfirmationResponse?.success) {
-                await log(`Payment confirmation successful. ${request?.message?.contractId}`);
+                await log(`Payment confirmation successful. ${paymentConfirmationPayload?.contractId}`);
             } else {
-                await log(`Payment confirmation request failure. Request: ${JSON.stringify(paymentConfirmationPayload)}, Response: ${JSON.stringify(paymentConfirmationResponse)}, Contract: ${paymentConfirmationPayload.contractId}`);
+                await log(`Payment confirmation request failure. Request: ${JSON.stringify(paymentConfirmationPayload)}, Response: ${JSON.stringify(paymentConfirmationResponse)}, Contract: ${paymentConfirmationPayload?.contractId}`);
             }
             return { success: true };
         }
