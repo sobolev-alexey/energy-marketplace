@@ -415,6 +415,33 @@ export async function processPaymentConfirmation(request: any): Promise<any> {
         throw new Error(error);
     }
 }
+
+export async function cancelTransaction(transaction: any): Promise<any> {
+    try {
+        // Cancel own transaction
+        const timestamp = Date.now().toString();
+        const payload = {
+            ...transaction,
+            timestamp, 
+            status: 'Cancelled'
+        };
+        await transactionLog(payload);
+        await unreserveEnergy(payload);
+
+        // Send to Marketplace
+        const response = await signPublishEncryptSend(payload, 'cancel');
+
+        // Evaluate response
+        if (response?.success) {
+            await log(`Cancellation request sent to marketplace and stored. TransactionId: ${payload?.requesterTransactionId || payload?.providerTransactionId}`);
+        } else {
+            await log(`Cancellation request failure. Request: ${payload}`);
+        }
+    } catch (error) {
+        await log(`Cancellation failed. ${error.toString()}`);
+        throw new Error(error);
+    }
+}
 export async function processCancellationRequest(request: any): Promise<any> {
     try {
         const payload = await decryptVerify(request);        
