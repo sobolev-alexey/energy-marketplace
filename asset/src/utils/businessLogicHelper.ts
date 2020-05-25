@@ -5,15 +5,13 @@ import {
     energyProductionAmount, 
     energyProductionSpeed, 
     transactionCreationSpeed,
-    paymentQueueProcessingSpeed
+    paymentQueueProcessingSpeed,
+    pendingTransactionsProcessingSpeed
 } from '../config.json';
-import { readData, writeData } from './databaseHelper';
+import { readData, writeData, getAbandonedTransactions, getUnpaidTransactions } from './databaseHelper';
 import { log, transactionLog } from './loggerHelper';
-import { publish } from './mamHelper';
-import { EncryptionService, IMessagePayload } from './encryptionHelper';
-import { sendRequest } from './communicationHelper';
 import { decryptVerify, signPublishEncryptSend } from './routineHelper';
-import { provideEnergy, receiveEnergy } from './energyProvisionHelper';
+import { provideEnergy, receiveEnergy, unreserveEnergy } from './energyProvisionHelper';
 import { getBalance, processPaymentQueue } from './walletHelper';
 import { addToPaymentQueue } from './paymentQueueHelper';
 import { paymentConfirmation } from './paymentConfirmationHelper';
