@@ -460,3 +460,18 @@ export async function processCancellationRequest(request: any): Promise<any> {
     }
 }
 
+export async function processClaimRequest(request: any): Promise<any> {
+    try {
+        const payload = await decryptVerify(request);        
+        if (payload?.verificationResult) {
+            // Update transaction log
+            await transactionLog(payload?.message);
+            await log(`Contract claim successful. ${payload?.message?.contractId}`);
+            return { success: true };
+        }
+        throw new Error('Marketplace signature verification failed');
+    } catch (error) {
+        await log(`Contract claim failed. ${error.toString()}`);
+        throw new Error(error);
+    }
+}
