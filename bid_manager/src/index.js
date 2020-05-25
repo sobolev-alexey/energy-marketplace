@@ -47,7 +47,6 @@ app.post('/remove', async (req, res) => {
 });
 
 const findMatch = async (table, payload) => {
-    const start = Date.now();
     try {
         // console.log('Looking for matching', table, payload);
         // Rules:
@@ -57,18 +56,16 @@ const findMatch = async (table, payload) => {
         switch (table) {
             case 'offer':
                 const matchingOffer = await findOffer(payload);
-                // console.log('findOffer', matchingOffer);
 
                 if (matchingOffer) {
-                    const response = await sendMatch({
+                    // console.log('Matching offer found. Request', payload, 'offer', matchingOffer, Date.now())
+                    // console.log('Deleting offer', matchingOffer.providerTransactionId)
+                    await removeData('offer', 'providerTransactionId', matchingOffer.providerTransactionId);
+
+                    sendMatch({
                         offer: matchingOffer,
                         request: payload
                     });
-
-                    if (response && response.success) {
-                        await removeData('offer', 'providerTransactionId', matchingOffer.providerTransactionId);
-                    }
-                    // console.log(`<=== duration: ${Date.now() - start}ms`);
                 } else {
                     // if no match, store request
                     await createRequest(payload);
@@ -76,18 +73,16 @@ const findMatch = async (table, payload) => {
                 return null;
             case 'request':
                 const matchingRequest = await findRequest(payload);
-                // console.log('findRequest', matchingRequest);
 
                 if (matchingRequest) {
-                    const response = sendMatch({
-                        offer: payload, assetId,
+                    // console.log('Matching request found. Request', payload, 'request', matchingRequest, Date.now())
+                    // console.log('Deleting request', matchingRequest.requesterTransactionId)
+                    await removeData('request', 'requesterTransactionId', matchingRequest.requesterTransactionId);
+
+                    sendMatch({
+                        offer: payload,
                         request: matchingRequest
                     });
-
-                    if (response && response.success) {
-                        await removeData('request', 'requesterTransactionId', matchingRequest.requesterTransactionId);
-                    }
-                    // console.log(`<=== duration: ${Date.now() - start}ms`);
                 } else {
                     // if no match, store offer
                     await createOffer(payload);
