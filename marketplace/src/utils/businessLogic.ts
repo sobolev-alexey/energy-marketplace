@@ -204,3 +204,32 @@ export async function processCancellationRequest(requestDetails: any): Promise<a
         throw new Error(error);
     }
 }
+
+export async function processClaimRequest(requestDetails: any): Promise<any> {
+    try {
+        const request = await decryptVerify(requestDetails);
+        const claimPayload = request?.message;
+
+        console.log('processClaimRequest', request);
+        if (request?.verificationResult && claimPayload) {
+            // Log transaction
+            await transactionLog(claimPayload);
+
+            const claimResponse = await signPublishEncryptSend(
+                claimPayload, claimPayload?.requesterId, claimPayload?.requesterTransactionId, 'claim'
+            );
+
+            // Evaluate responses 
+            if (claimResponse?.success) {
+                await log(`Claim request successful. ${claimPayload?.contractId}`);
+            } else {
+                await log(`Claim request failure. Request: ${JSON.stringify(claimPayload)}, Response: ${JSON.stringify(claimResponse)}, Contract: ${claimPayload?.contractId}`);
+            }
+            return { success: true };
+        }
+        throw new Error('Asset signature verification failed');
+    } catch (error) {
+        await log(`Contract claim failed. ${error.toString()}`);
+        throw new Error(error);
+    }
+}
