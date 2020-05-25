@@ -117,54 +117,22 @@ export function BusinessLogic() {
 
     const createOffer = async(asset, energyData) => {
         try {
-            const status = 'Initial offer';
-
-            // Retrieve encryption keys
-            const keys: any = await readData('keys');
-            if (!keys || !keys.privateKey) {
-                throw new Error('No keypair found in database');
-            }
+            // Log event 
+            await log('Creating offer...');
 
             const wallet: IWallet = await readData('wallet');
-    
             if (!wallet) {
                 throw new Error('createOffer error. No Wallet');
             }
 
-            // Log event 
-            await log('Creating offer...');
-
-            const energyToOffer = Number(energyData.energyAvailable);
-
             // Create payload, specify price and amount
+            const status = 'Initial offer';
+            const energyToOffer = Number(energyData.energyAvailable);
             const payload: any = await generatePayload(asset, 'offer', status, energyToOffer);
             payload.walletAddress = wallet?.address;
 
-            // console.log(111, payload);
-
-            // Sign payload
-            const encryptionService = new EncryptionService();
-            const signature: Buffer = encryptionService.signMessage(
-                keys?.privateKey, payload
-            );
-            // console.log(222);
-
-            // Publish payload to MAM
-            const mam = await publish(payload.providerTransactionId, { message: payload, signature });
-            // console.log(333, mam);
-
-            // Encrypt payload and signature with Marketplace public key
-            const messagePayload: IMessagePayload = { message: payload, signature, mam };
-            // console.log(444, messagePayload);
-
-            const encrypted: string = encryptionService.publicEncrypt(
-                asset?.marketplacePublicKey, JSON.stringify(messagePayload)
-            );
-
             // Send encrypted payload and signature to Marketplace
-            const response = await sendRequest('/offer', { encrypted });
-            // console.log(555, response);
-
+            const response = await signPublishEncryptSend(payload, 'offer');
             if (response.success) {
                 // Log transaction
                 await transactionLog(payload);
@@ -176,7 +144,7 @@ export function BusinessLogic() {
                     energyReserved: Number(energyData.energyReserved) + energyToOffer
                 });
             } else {
-                await log(`createOffer Error ${response.message}`);
+                await log(`createOffer Error ${response}`);
             }
         } catch (error) {
             console.error('createOffer', error);
