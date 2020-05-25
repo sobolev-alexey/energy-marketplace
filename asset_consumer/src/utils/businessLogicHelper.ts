@@ -212,10 +212,37 @@ export function BusinessLogic() {
         }
     };
 
+    const processPendingTransactions = async (): Promise<void> => {
+        const abandonedTransactions: any = await getAbandonedTransactions();
+        const unpaidTransactions: any = await getUnpaidTransactions();
+        console.log('abandonedTransactions', abandonedTransactions);
+        console.log('unpaidTransactions', unpaidTransactions);
+
+        // Cancel abandoned transactions
+        abandonedTransactions.forEach(async transaction => 
+            await cancelTransaction(transaction));
+
+        if (unpaidTransactions.length > 0) {
+            const asset: any = await readData('asset');
+
+            // Check asset type is consumer
+            if (asset?.type === 'consumer') { 
+                // Process unpaid transactions
+                unpaidTransactions.forEach(async transaction => 
+                    await processPayment(transaction));
+            } else {
+                // Issue claim for unpaid contracts
+                unpaidTransactions.forEach(async transaction => 
+                    await issueClaim(transaction));
+            }
+        }
+    };
+
     energyProductionInterval = setInterval(produceEnergy, energyProductionSpeed * 1000);
     energyConsumptionInterval = setInterval(consumeEnergy, energyConsumptionSpeed * 1000);
     transactionInterval = setInterval(createMarketplaceTransaction, transactionCreationSpeed * 1000);
     setInterval(processPayments, paymentQueueProcessingSpeed * 1000);
+    setInterval(processPendingTransactions, pendingTransactionsProcessingSpeed * 1000);
 }
 
 export async function processContract(request: any): Promise<any> {
