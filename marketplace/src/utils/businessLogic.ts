@@ -159,3 +159,48 @@ export async function processPaymentConfirmation(requestDetails: any): Promise<a
         throw new Error(error);
     }
 }
+
+export async function processCancellationRequest(requestDetails: any): Promise<any> {
+    try {
+        const request = await decryptVerify(requestDetails);
+        const cancellationPayload = request?.message;
+
+        console.log('processCancellationRequest', request);
+        if (request?.verificationResult && cancellationPayload) {
+            // Log transaction
+            await transactionLog(cancellationPayload);
+
+            if (cancellationPayload?.contractId) {
+                let cancellationResponse;
+
+                if (cancellationPayload?.type === 'offer') {
+                    // Cancel for consumer
+                    cancellationResponse = await signPublishEncryptSend(
+                        cancellationPayload, cancellationPayload?.requesterId, cancellationPayload?.requesterTransactionId, 'cancel'
+                    );
+                } else if (cancellationPayload?.type === 'request') {
+                    // Cancel for producer
+                    cancellationResponse = await signPublishEncryptSend(
+                        cancellationPayload, cancellationPayload?.providerId, cancellationPayload?.providerTransactionId, 'cancel'
+                    );
+                }
+
+                // Evaluate response
+                if (cancellationResponse?.success) {
+                    await log(`Transaction cancellation successful. ${request?.message?.contractId}`);
+                } else {
+                    await log(`Transaction cancellation request failure. Request: ${JSON.stringify(cancellationPayload)}, Response: ${JSON.stringify(cancellationResponse)}`);
+                }
+            } else {
+                // Cancel with Bid manager
+                const bidManagerEndpoint = `${bidManagerURL}/remove`;   
+                await sendRequest(bidManagerEndpoint, cancellationPayload);
+            }
+            return { success: true };
+        }
+        throw new Error('Asset signature verification failed');
+    } catch (error) {
+        await log(`Transaction cancellation failed. ${error.toString()}`);
+        throw new Error(error);
+    }
+}
