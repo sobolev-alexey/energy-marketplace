@@ -1,6 +1,7 @@
 import path from 'path';
 import sqlite3 from 'sqlite3';
 import { database } from '../config.json';
+import { getMaxAllowedTimestamp } from './helpers';
 
 sqlite3.verbose();
 const db = new sqlite3.Database(
@@ -203,6 +204,29 @@ export const readAllData = async (table: string, limit = null, searchKey = null,
             });
         } catch (error) {
             console.log('readAllData', error);
+            return reject(null);
+        }
+    });
+};
+
+export const getAbandonedTransactions = async () => {
+    return new Promise((resolve, reject) => {
+        try {
+            const query = `
+                SELECT * FROM transactionLog 
+                WHERE timestamp < ${getMaxAllowedTimestamp()}
+                AND (
+                    status = 'Initial offer' OR 
+                    status = 'Initial request' OR 
+                    status = 'Contract created'
+                )
+                ORDER BY rowid DESC 
+                LIMIT 10`;
+            db.all(query, (err, rows) => {
+                return resolve(err ? null : rows);
+            });
+        } catch (error) {
+            console.log('getAbandonedTransactions', error);
             return reject(null);
         }
     });
