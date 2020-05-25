@@ -64,3 +64,20 @@ export const receiveEnergy = async (transaction: any): Promise<void> => {
         console.error('receiveEnergy', error);
     }
 };
+
+export const unreserveEnergy = async (transaction: any): Promise<void> => {
+    try {
+        // If producer - unreserve energy
+        const asset: any = await readData('asset');
+        if (asset?.type === 'producer') {
+            const energy: any = await readData('energy');
+            await writeData('energy', { 
+                timestamp: Date.now().toString(), 
+                energyAvailable: Number(energy && energy?.energyAvailable || 0) + Number(transaction?.energyAmount), 
+                energyReserved: Number(energy && energy?.energyReserved || 0) - Number(transaction?.energyAmount)
+            });
+        }
+    } catch (error) {
+        console.error('unreserveEnergy', error);
+    }
+};
