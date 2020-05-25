@@ -75,8 +75,8 @@ exports.findRequest = async (offer) => {
             db.get(`
                 SELECT * FROM request 
                 WHERE requesterId != '${offer.providerId}'
-                AND energyAmount >= ${offer.energyAmount}
-                AND energyPrice <= ${offer.energyPrice}
+                AND energyAmount <= ${offer.energyAmount}
+                AND energyPrice >= ${offer.energyPrice}
                 ORDER BY timestamp ASC
                 LIMIT 1`, (err, row) => {
                     if (err) {
