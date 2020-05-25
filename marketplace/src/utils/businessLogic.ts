@@ -1,7 +1,9 @@
 import randomstring from 'randomstring';
 import { log, transactionLog } from './loggerHelper';
 import { decryptVerify, signPublishEncryptSend } from './routineHelper';
-import { readData } from '../utils/databaseHelper';
+import { readData } from './databaseHelper';
+import { sendRequest } from './communicationHelper';
+import { bidManagerURL } from '../config.json';
 
 export async function processMatch(requestPayload: any): Promise<{success: boolean}> {
     try {
