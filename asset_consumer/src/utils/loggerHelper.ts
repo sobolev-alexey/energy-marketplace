@@ -9,10 +9,10 @@ export const log = async (event: string) => {
     }
 };
 
-export const transactionLog = async (params: object) => {
+export const transactionLog = async (payload: object) => {
     try {
-        await writeData('transaction', params);
-        // console.log('Transaction log:', params);
+        await writeData('transaction', payload);
+        // console.log('Transaction log:', payload);
     } catch (error) {
         console.error('logger', error);
     }
