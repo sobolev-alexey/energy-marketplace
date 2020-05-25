@@ -302,6 +302,41 @@ export async function processPaymentRequest(request: any): Promise<any> {
     }
 }
 
+async function processPayment(transaction: any): Promise<any> {
+    try {
+        const paymentAmount = transaction?.energyAmount * transaction?.energyPrice;
+        const wallet: IWallet = await readData('wallet');
+
+        if (!wallet || !wallet?.address) {
+            await log('Payment request error. No Wallet');
+            throw new Error('Payment request error. No Wallet');
+        }
+
+        const balance = await getBalance(wallet?.address);
+        if (balance <= paymentAmount) {
+            const fundWalletRequest = {
+                assetId: transaction?.requesterId,
+                walletAddress: wallet?.address,
+                minFundingAmount: paymentAmount
+            };
+            const fundWalletResponse = await signPublishEncryptSend(fundWalletRequest, 'fund');
+
+            // Evaluate response
+            if (fundWalletResponse?.success) {
+                await log(`Wallet funding request sent to asset owner.`);
+            } else {
+                await log(`Wallet funding request failure. Request: ${fundWalletRequest}`);
+            }
+        }
+        await addToPaymentQueue(transaction?.walletAddress, paymentAmount, JSON.stringify(transaction));
+
+        await log(`Payment request processing successful. ${transaction?.contractId}`);
+    } catch (error) {
+        await log(`Payment processing failed. ${error.toString()}`);
+        throw new Error(error);
+    }
+}
+
 export async function confirmPaymentProcessing(transactionAsString: string): Promise<void> {
     try {
         const transaction = JSON.parse(transactionAsString);
