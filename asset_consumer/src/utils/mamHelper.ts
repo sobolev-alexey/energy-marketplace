@@ -84,8 +84,8 @@ export const publish = async (transactionId, packet) => {
             await checkAttachedMessage(api, root, secretKey);
 
             // Save new mamState
-            await writeData('mam', { transactionId, root, ...mamState });
-            return { transactionId, root, ...mamState };
+            await writeData('mam', { ...mamState, transactionId, root });
+            return { ...mamState, transactionId, root };
         }
         return null;
     } catch (error) {
