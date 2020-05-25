@@ -232,6 +232,30 @@ export const getAbandonedTransactions = async () => {
     });
 };
 
+export const getUnpaidTransactions = async () => {
+    return new Promise((resolve, reject) => {
+        try {
+            const query = `
+                SELECT * FROM transactionLog 
+                WHERE timestamp < ${getMaxAllowedTimestamp()}
+                AND (
+                    status = 'Energy provision finished' OR 
+                    status = 'Payment requested' OR 
+                    status = 'Payment processed' OR 
+                    status = 'Claim issued'
+                )
+                ORDER BY rowid DESC 
+                LIMIT 10`;
+            db.all(query, (err, rows) => {
+                return resolve(err ? null : rows);
+            });
+        } catch (error) {
+            console.log('getUnpaidTransactions', error);
+            return reject(null);
+        }
+    });
+};
+
 export const removeData = async (table: string, searchKey = null, searchValue = null) => {
     return new Promise(async (resolve, reject) => {
         try {
