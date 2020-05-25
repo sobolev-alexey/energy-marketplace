@@ -4,7 +4,7 @@ import { readData, readAllData, writeData } from '../utils/databaseHelper';
 import { EncryptionService, IMessagePayload } from '../utils/encryptionHelper';
 import { log } from '../utils/loggerHelper';
 import { sendRequest } from '../utils/communicationHelper';
-import { getBalance } from '../utils/walletHelper';
+import { getBalance, repairWallet } from '../utils/walletHelper';
 
 export async function init(): Promise<any> {
     try {
@@ -15,9 +15,15 @@ export async function init(): Promise<any> {
         await new Promise(resolve => setTimeout(resolve, 2000));
         await log('Initializing...');
         const { assetWallet, ...config } = assetConfig;
-        const balance = await getBalance(assetWallet?.address);
-        // await writeData('wallet', { ...assetWallet, balance });
         await writeData('asset', config);
+
+        const walletBalance = await getBalance(assetWallet?.address);
+        console.log('walletBalance', walletBalance, assetWallet);
+        await writeData('wallet', { ...assetWallet, balance: walletBalance });
+
+        if (!walletBalance) {
+            await repairWallet();
+        }
 
         let keys: any = await readData('keys');
         if (!keys || !keys.privateKey) {
