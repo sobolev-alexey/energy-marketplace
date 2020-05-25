@@ -31,6 +31,21 @@ app.post('/request', async (req, res) => {
     }
 });
 
+app.post('/remove', async (req, res) => {
+    try {
+        // console.log('Remove transaction', req.body);
+        if (req.body.type === 'request') {
+            await removeData('request', 'requesterTransactionId', req.body.requesterTransactionId);
+        } else if (req.body.type === 'offer') {
+            await removeData('offer', 'providerTransactionId', req.body.providerTransactionId);
+        }
+        res.json({ success: true });
+    } catch (e) {
+        console.error(e);
+        res.json({ success: false, error: JSON.stringify(e) });
+    }
+});
+
 const findMatch = async (table, payload) => {
     const start = Date.now();
     try {
