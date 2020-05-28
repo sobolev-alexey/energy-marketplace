@@ -15,6 +15,7 @@ import { provideEnergy, receiveEnergy, unreserveEnergy } from './energyProvision
 import { getBalance, processPaymentQueue } from './walletHelper';
 import { addToPaymentQueue } from './paymentQueueHelper';
 import { paymentConfirmation } from './paymentConfirmationHelper';
+import { verifyRequest } from './verificationHelper';
 
 let energyProductionInterval;
 let energyConsumptionInterval;
@@ -285,14 +286,25 @@ export async function processPaymentRequest(request: any): Promise<any> {
         const payload = await decryptVerify(request);        
         if (payload?.verificationResult) {
             const transaction = payload?.message;
-            console.log('Payment request', transaction);
+            const isValidRequest = await verifyRequest(transaction);
+            if (isValidRequest) {
+                // Update transaction log
+                await transactionLog(transaction);
 
-            // Update transaction log
-            await transactionLog(transaction);
+                await processPayment(transaction);
+            } else {
+                const timestamp = Date.now().toString();
+                const invalidTransaction = {
+                    ...transaction,
+                    timestamp, 
+                    type: 'request',
+                    status: 'Invalid'
+                };
 
-            // TODO: verify request
-
-            await processPayment(transaction);
+                await transactionLog(invalidTransaction);
+                await log(`Payment request verification failed. ${transaction}`);
+                throw new Error(`Payment request verification failed. ${transaction}`);
+            }
             return { success: true };
         }
         throw new Error('Marketplace signature verification failed');
