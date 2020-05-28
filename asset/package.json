@@ -1,6 +1,6 @@
 {
     "name": "energy-prosumer",
-    "description": "Energy Producer/Consumer",
+    "description": "Energy Provider/Requester",
     "version": "1.0.0",
     "authors": [
         "Alexey Sobolev <alexey@iota.org>",

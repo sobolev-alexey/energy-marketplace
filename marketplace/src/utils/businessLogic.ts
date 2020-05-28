@@ -11,7 +11,7 @@ export async function processMatch(requestPayload: any): Promise<{success: boole
             // Assign contract ID
             const contractId = randomstring.generate(20);
             const timestamp = Date.now().toString();
-            const consumerAsset: any = await readData('asset', 'assetId', requestPayload?.request?.requesterId);
+            const requesterAsset: any = await readData('asset', 'assetId', requestPayload?.request?.requesterId);
 
             const transaction = {
                 contractId, 
@@ -24,7 +24,7 @@ export async function processMatch(requestPayload: any): Promise<{success: boole
                 requesterId: requestPayload?.request?.requesterId,
                 walletAddress: requestPayload?.offer?.walletAddress,
                 status: 'Contract created', 
-                location: consumerAsset?.location,
+                location: requesterAsset?.location,
                 additionalDetails: ''
             };
 
@@ -35,25 +35,25 @@ export async function processMatch(requestPayload: any): Promise<{success: boole
             await log(`Match found. Request: ${JSON.stringify(request)}, Offer: ${JSON.stringify(offer)}, Contract: ${contractId}`);
             
             // Send out contract confirmations
-            const producerResponse = await signPublishEncryptSend(
+            const providerResponse = await signPublishEncryptSend(
                 payload, offer?.providerId, offer?.providerTransactionId, 'contract'
             );
             
-            const consumerResponse = await signPublishEncryptSend(
+            const requesterResponse = await signPublishEncryptSend(
                 payload, request?.requesterId, request?.requesterTransactionId, 'contract'
             );
 
             // Evaluate responses 
-            if (producerResponse?.success && consumerResponse?.success) {
-                // Update transaction log for producer
+            if (providerResponse?.success && requesterResponse?.success) {
+                // Update transaction log for provider
                 await transactionLog(offer);
 
-                // Update transaction log for consumer
+                // Update transaction log for requester
                 await transactionLog(request);
 
                 await log(`Contract details sent to assets and stored. Contract: ${contractId}`);
             } else {
-                await log(`Contract communication failure. Request: ${JSON.stringify(consumerResponse)}, Offer: ${JSON.stringify(producerResponse)}, Contract: ${contractId}`);
+                await log(`Contract communication failure. Request: ${JSON.stringify(requesterResponse)}, Offer: ${JSON.stringify(providerResponse)}, Contract: ${contractId}`);
             }
             return { success: true };
         } else {
@@ -168,12 +168,12 @@ export async function processCancellationRequest(requestDetails: any): Promise<a
                 let cancellationResponse;
 
                 if (cancellationPayload?.type === 'offer') {
-                    // Cancel for consumer
+                    // Cancel for requester
                     cancellationResponse = await signPublishEncryptSend(
                         cancellationPayload, cancellationPayload?.requesterId, cancellationPayload?.requesterTransactionId, 'cancel'
                     );
                 } else if (cancellationPayload?.type === 'request') {
-                    // Cancel for producer
+                    // Cancel for provider
                     cancellationResponse = await signPublishEncryptSend(
                         cancellationPayload, cancellationPayload?.providerId, cancellationPayload?.providerTransactionId, 'cancel'
                     );

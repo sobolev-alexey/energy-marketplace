@@ -11,11 +11,11 @@ export async function verifyRequest(request: any): Promise<any> {
         }
 
         // Get transaction from transaction log
-        const transactionId = request?.type === 'producer' 
+        const transactionId = request?.type === 'provider' 
             ? request.providerTransactionId 
             : request.requesterTransactionId;
 
-        const transactions: any = request?.type === 'producer' 
+        const transactions: any = request?.type === 'provider' 
             ? await readAllData('transactionLog', null, 'providerTransactionId', transactionId)
             : await readAllData('transactionLog', null, 'requesterTransactionId', transactionId);
         

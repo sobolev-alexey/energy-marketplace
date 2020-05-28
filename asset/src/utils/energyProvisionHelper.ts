@@ -67,9 +67,9 @@ export const receiveEnergy = async (transaction: any): Promise<void> => {
 
 export const unreserveEnergy = async (transaction: any): Promise<void> => {
     try {
-        // If producer - unreserve energy
+        // If provider - unreserve energy
         const asset: any = await readData('asset');
-        if (asset?.type === 'producer') {
+        if (asset?.type === 'provider') {
             const energy: any = await readData('energy');
             await writeData('energy', { 
                 timestamp: Date.now().toString(), 

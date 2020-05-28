@@ -37,7 +37,7 @@ export function BusinessLogic() {
             const asset: any = await readData('asset');
 
             if (asset) {
-                if (asset.type !== 'producer') {
+                if (asset.type !== 'provider') {
                     clearInterval(energyProductionInterval);
                     return;
                 }
@@ -63,7 +63,7 @@ export function BusinessLogic() {
             const asset: any = await readData('asset');
 
             if (asset) {
-                if (asset.type !== 'consumer') {
+                if (asset.type !== 'requester') {
                     clearInterval(energyConsumptionInterval);
                     return;
                 }
@@ -92,13 +92,13 @@ export function BusinessLogic() {
                 const energyData: any = await readData('energy');
 
                 switch (asset.type) {
-                    case 'consumer': {
+                    case 'requester': {
                         if (energyData && energyData.energyAvailable <= asset.minOfferAmount * 2 ) {
                             await createRequest(asset);
                         }
                         break; 
                     }
-                    case 'producer':
+                    case 'provider':
                     default: {
                         if (energyData && energyData.energyAvailable >= asset.minOfferAmount ) {
                             await createOffer(asset, energyData);
@@ -203,8 +203,8 @@ export function BusinessLogic() {
     const processPayments = async (): Promise<void> => {
         const asset: any = await readData('asset');
 
-        // Check asset type is consumer
-        if (asset?.type === 'consumer') { 
+        // Check asset type is requester
+        if (asset?.type === 'requester') { 
             await processPaymentQueue();
         } else {
             await paymentConfirmation();
@@ -224,8 +224,8 @@ export function BusinessLogic() {
         if (unpaidTransactions.length > 0) {
             const asset: any = await readData('asset');
 
-            // Check asset type is consumer
-            if (asset?.type === 'consumer') { 
+            // Check asset type is requester
+            if (asset?.type === 'requester') { 
                 // Process unpaid transactions
                 unpaidTransactions.forEach(async transaction => 
                     await processPayment(transaction));
@@ -249,9 +249,9 @@ export async function processContract(request: any): Promise<any> {
         const payload = await decryptVerify(request);        
         if (payload?.verificationResult) {
             const asset: any = await readData('asset');
-            if (asset?.type === 'producer') {
+            if (asset?.type === 'provider') {
                 await provideEnergy(payload?.message?.offer);
-            } else if (asset?.type === 'consumer') {
+            } else if (asset?.type === 'requester') {
                 await receiveEnergy(payload?.message?.request);
             }
 
