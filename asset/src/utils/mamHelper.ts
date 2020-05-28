@@ -115,15 +115,15 @@ const checkAttachedMessage = async (api, root, secretKey) => {
     }
 };
 
-export const fetch = async (assetId, transactionId) => {
+export const fetch = async (transactionId: string) => {
     try {
-        const config: any = await readData('asset', 'assetId', assetId, 1);
+        const config: any = await readData('asset');
         const loadBalancerSettings = ServiceFactory.get<LoadBalancerSettings>(
             `${config?.network}-load-balancer-settings`
         );
         const api = composeAPI(loadBalancerSettings);
 
-        const channelState: any = await readData('mam', 'transactionId', transactionId, 1);
+        const channelState: any = await readData('mam', 'transactionId', transactionId);
         const fetched = await mamFetchAll(api, channelState.root, channelState.mode, channelState.sideKey, chunkSize);
         const result = [];
         
