@@ -1,6 +1,7 @@
 import path from 'path';
 import sqlite3 from 'sqlite3';
 import { database } from '../config.json';
+import { getMaxAllowedTimestamp } from './helpers';
 
 sqlite3.verbose();
 const db = new sqlite3.Database(
@@ -11,6 +12,7 @@ const db = new sqlite3.Database(
         await db.run('CREATE TABLE IF NOT EXISTS asset (assetId TEXT PRIMARY KEY, assetOwner TEXT, type TEXT, network TEXT, exchangeRate REAL, minWalletAmount INTEGER, maxEnergyPrice REAL, minOfferAmount REAL, assetOwnerAPI TEXT, marketplaceAPI TEXT, assetOwnerPublicKey TEXT, marketplacePublicKey TEXT, deviceUUID TEXT, assetName TEXT, location TEXT)');
         await db.run('CREATE TABLE IF NOT EXISTS wallet (seed TEXT PRIMARY KEY, address TEXT, keyIndex INTEGER, balance INTEGER)');
         await db.run('CREATE TABLE IF NOT EXISTS transactionLog (requesterTransactionId TEXT, providerTransactionId TEXT, type TEXT, contractId TEXT, timestamp TEXT, requesterId TEXT, providerId TEXT, energyAmount REAL, energyPrice REAL, status TEXT, location TEXT, walletAddress TEXT, additionalDetails TEXT)');
+        await db.run('CREATE TABLE IF NOT EXISTS transactionList (requesterTransactionId TEXT, providerTransactionId TEXT PRIMARY KEY, type TEXT, contractId TEXT, timestamp TEXT, requesterId TEXT, providerId TEXT, energyAmount REAL, energyPrice REAL, status TEXT, location TEXT, walletAddress TEXT, additionalDetails TEXT)');
         await db.run('CREATE TABLE IF NOT EXISTS keys (privateKey TEXT PRIMARY KEY, publicKey TEXT)');
         await db.run('CREATE TABLE IF NOT EXISTS paymentQueue (address TEXT, value INTEGER, transactionPayload TEXT)');
         await db.run('CREATE TABLE IF NOT EXISTS log (timestamp TEXT, event TEXT)');
@@ -107,6 +109,18 @@ export const updateTransactionStorage = async ({
         timestamp, requesterId, providerId, energyAmount, energyPrice, 
         status, location, walletAddress, additionalDetails
     ]);
+
+    const replace = `
+        REPLACE INTO transactionList (
+            requesterTransactionId, providerTransactionId, type, contractId, 
+            timestamp, requesterId, providerId, energyAmount, energyPrice, 
+            status, location, walletAddress, additionalDetails
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+    await db.run(replace, [
+        requesterTransactionId, providerTransactionId, type, contractId, 
+        timestamp, requesterId, providerId, energyAmount, energyPrice, 
+        status, location, walletAddress, additionalDetails
+    ]);
 };
 
 export const updateLogStorage = async ({ timestamp, event }) => {
@@ -166,11 +180,7 @@ export const readData = async (table, searchKey = null, searchValue = null, limi
                 query = `${query} LIMIT ${limit}`;
             }
             db.get(query, (err, row) => {
-                if (err) {
-                    return resolve(null);
-                } else {
-                    return resolve(row || null);
-                }
+                return resolve(err || !row ? null : row);
             });
         } catch (error) {
             console.log('readData', error);
@@ -190,14 +200,57 @@ export const readAllData = async (table: string, limit = null, searchKey = null,
                 query = `${query} LIMIT ${limit}`;
             }
             db.all(query, (err, rows) => {
-                if (err) {
-                    return resolve(null);
-                } else {
-                    return resolve(rows);
-                }
+                return resolve(err ? null : rows);
             });
         } catch (error) {
             console.log('readAllData', error);
+            return reject(null);
+        }
+    });
+};
+
+export const getAbandonedTransactions = async () => {
+    return new Promise((resolve, reject) => {
+        try {
+            const query = `
+                SELECT * FROM transactionLog 
+                WHERE timestamp < ${getMaxAllowedTimestamp()}
+                AND (
+                    status = 'Initial offer' OR 
+                    status = 'Initial request' OR 
+                    status = 'Contract created'
+                )
+                ORDER BY rowid DESC 
+                LIMIT 10`;
+            db.all(query, (err, rows) => {
+                return resolve(err ? null : rows);
+            });
+        } catch (error) {
+            console.log('getAbandonedTransactions', error);
+            return reject(null);
+        }
+    });
+};
+
+export const getUnpaidTransactions = async () => {
+    return new Promise((resolve, reject) => {
+        try {
+            const query = `
+                SELECT * FROM transactionLog 
+                WHERE timestamp < ${getMaxAllowedTimestamp()}
+                AND (
+                    status = 'Energy provision finished' OR 
+                    status = 'Payment requested' OR 
+                    status = 'Payment processed' OR 
+                    status = 'Claim issued'
+                )
+                ORDER BY rowid DESC 
+                LIMIT 10`;
+            db.all(query, (err, rows) => {
+                return resolve(err ? null : rows);
+            });
+        } catch (error) {
+            console.log('getUnpaidTransactions', error);
             return reject(null);
         }
     });

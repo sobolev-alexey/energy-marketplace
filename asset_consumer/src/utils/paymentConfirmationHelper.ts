@@ -18,8 +18,8 @@ export const paymentConfirmation = async () => {
     try {
         const asset: any = await readData('asset');
 
-        // Check asset type is producer, exit otherwise
-        if (asset.type === 'consumer') { return; }
+        // Check asset type is provider, exit otherwise
+        if (asset.type === 'requester') { return; }
         
         // Check presence of pending payment confirmations
         const pendingPaymentConfirmations: any = await readAllData('transactionLog', 10, 'status', 'Payment processed');

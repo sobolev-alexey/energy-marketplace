@@ -14,7 +14,9 @@ const routes: IRoute[] = [
     { path: '/contract', method: 'post', func: 'contract' },
     { path: '/payment', method: 'post', func: 'payment' },
     { path: '/payment_sent', method: 'post', func: 'payment_sent' },
-    { path: '/payment_confirmed', method: 'post', func: 'payment_confirmed' }
+    { path: '/payment_confirmed', method: 'post', func: 'payment_confirmed' },
+    { path: '/cancel', method: 'post', func: 'cancel' },
+    { path: '/claim', method: 'post', func: 'claim' }
 ];
 
 AppHelper.build(routes, async (app, config, websocketPort) => {

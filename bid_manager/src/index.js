@@ -31,8 +31,22 @@ app.post('/request', async (req, res) => {
     }
 });
 
+app.post('/remove', async (req, res) => {
+    try {
+        // console.log('Remove transaction', req.body);
+        if (req.body.type === 'request') {
+            await removeData('request', 'requesterTransactionId', req.body.requesterTransactionId);
+        } else if (req.body.type === 'offer') {
+            await removeData('offer', 'providerTransactionId', req.body.providerTransactionId);
+        }
+        res.json({ success: true });
+    } catch (e) {
+        console.error(e);
+        res.json({ success: false, error: JSON.stringify(e) });
+    }
+});
+
 const findMatch = async (table, payload) => {
-    const start = Date.now();
     try {
         // console.log('Looking for matching', table, payload);
         // Rules:
@@ -42,18 +56,16 @@ const findMatch = async (table, payload) => {
         switch (table) {
             case 'offer':
                 const matchingOffer = await findOffer(payload);
-                // console.log('findOffer', matchingOffer);
 
                 if (matchingOffer) {
-                    const response = await sendMatch({
+                    // console.log('Matching offer found. Request', payload, 'offer', matchingOffer, Date.now())
+                    // console.log('Deleting offer', matchingOffer.providerTransactionId)
+                    await removeData('offer', 'providerTransactionId', matchingOffer.providerTransactionId);
+
+                    sendMatch({
                         offer: matchingOffer,
                         request: payload
                     });
-
-                    if (response && response.success) {
-                        await removeData('offer', 'providerTransactionId', matchingOffer.providerTransactionId);
-                    }
-                    // console.log(`<=== duration: ${Date.now() - start}ms`);
                 } else {
                     // if no match, store request
                     await createRequest(payload);
@@ -61,18 +73,16 @@ const findMatch = async (table, payload) => {
                 return null;
             case 'request':
                 const matchingRequest = await findRequest(payload);
-                // console.log('findRequest', matchingRequest);
 
                 if (matchingRequest) {
-                    const response = sendMatch({
-                        offer: payload, assetId,
+                    // console.log('Matching request found. Request', payload, 'request', matchingRequest, Date.now())
+                    // console.log('Deleting request', matchingRequest.requesterTransactionId)
+                    await removeData('request', 'requesterTransactionId', matchingRequest.requesterTransactionId);
+
+                    sendMatch({
+                        offer: payload,
                         request: matchingRequest
                     });
-
-                    if (response && response.success) {
-                        await removeData('request', 'requesterTransactionId', matchingRequest.requesterTransactionId);
-                    }
-                    // console.log(`<=== duration: ${Date.now() - start}ms`);
                 } else {
                     // if no match, store offer
                     await createOffer(payload);

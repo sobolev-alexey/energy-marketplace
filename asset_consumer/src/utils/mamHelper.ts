@@ -75,7 +75,7 @@ export const publish = async (transactionId, packet) => {
         const trytes: string = asciiToTrytes(JSON.stringify(packet));
         const message: IMamMessage = createMessage(mamState, trytes);
         const bundle = await mamAttach(api, message, defaultDepth, defaultMwm, tag);
-        const root = mamStateFromDB && mamStateFromDB?.root ? mamStateFromDB.root : message.root;
+        const root = mamStateFromDB?.root ? mamStateFromDB?.root : message?.root;
 
         // Attach the payload
         if (bundle && bundle.length && bundle?.[0].hash) {
@@ -84,8 +84,8 @@ export const publish = async (transactionId, packet) => {
             await checkAttachedMessage(api, root, secretKey);
 
             // Save new mamState
-            await writeData('mam', { transactionId, root, ...mamState });
-            return { transactionId, root, ...mamState };
+            await writeData('mam', { ...mamState, transactionId, root });
+            return { ...mamState, transactionId, root };
         }
         return null;
     } catch (error) {
@@ -115,15 +115,15 @@ const checkAttachedMessage = async (api, root, secretKey) => {
     }
 };
 
-export const fetch = async (assetId, transactionId) => {
+export const fetch = async (transactionId: string) => {
     try {
-        const config: any = await readData('asset', 'assetId', assetId, 1);
+        const config: any = await readData('asset');
         const loadBalancerSettings = ServiceFactory.get<LoadBalancerSettings>(
             `${config?.network}-load-balancer-settings`
         );
         const api = composeAPI(loadBalancerSettings);
 
-        const channelState: any = await readData('mam', 'transactionId', transactionId, 1);
+        const channelState: any = await readData('mam', 'transactionId', transactionId);
         const fetched = await mamFetchAll(api, channelState.root, channelState.mode, channelState.sideKey, chunkSize);
         const result = [];
         

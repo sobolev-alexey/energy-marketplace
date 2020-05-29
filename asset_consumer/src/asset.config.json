@@ -7,16 +7,16 @@
     "assetOwnerAPI": "http://localhost:6000",
     "marketplaceAPI": "http://localhost:5000",
     "assetId": "z7C77DYZy9",
-    "assetName": "Energy Consumer 1",
-    "assetDescription": "First ever Energy Consumer",
-    "type": "consumer",
+    "assetName": "Energy Requester 1",
+    "assetDescription": "First ever Energy Requester",
+    "type": "requester",
     "assetOwner": "user1",
     "network": "devnet",
     "location": "Berlin",
     "assetWallet": {
         "seed": "WLPMJYRCDSPCHMTDRXLHRDODXHCOVYFWXDNKEVLKEQY9YKBXLLETCPKRHCRFUHZEHTILMFVKGMCSMIVCX",
-        "address": "NU9GETRZRKYARBWPLJJNWRCRIGYITOUQSRBCKNIHZNLIIQOASRIUSAMQCKPEXLXXLSSDNUBRRSX9XCLBC",
-        "keyIndex": 29
+        "address": "MCVTRIFBRJYCVSXFJZTHB9WNHDEGIPV9RVCHOVBIJTGNDBCRSSFNYCNKWHANGVBJZEJQGLUNPKFURTANW",
+        "keyIndex": 58
     },
     "marketplacePublicKey": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAkCDDKrj3bh+XQ4o2YMXn\nhdEv9Z680mOEbRJTiJX6XOHQZpx7WgIhXCthlCVFSLMnejGG5Zdl06zYm2gUYaKa\nNhgWc0I/f5gleL9jH3XFDVI4m6y8cW/q+PBHcIFlR9vBe8EWQS+pu8imC1N3n+5h\n9M7GcfOI56HbypRDR2VEp4stBpO30X/FVIyxA7S/F/Ib3fBa9xLk1s5U1IOeocLe\ncksWwcbKtWVPvu79QzwHc5XPC1o0r/MOQgdT+sM+xiRv6Dlsi+1v/eW7HU259A3b\n1zLR6F2kKLRegnl9+BgwFmiveY9zxGU5ke1YQppkwhGyVOovX5plglKt92LHNKP9\n4QIDAQAB\n-----END PUBLIC KEY-----",
     "assetOwnerPublicKey": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwalnCHyaV7Mvbz3lyCDr\nuhhPLi25kQXYAWGZdoU8zEb9uKjaJ/p+e3V9KuBOCo7rwIW8f7PQpuNpbHCIbk5x\nXt4L243U2NmB4l6kaHaKB8AjiItnl92+ZmsbKicToinYiVzUZduNdCF9OhjwYQRV\ncPE5oyqDgqiihyOaayPMiwdpfX3YhDFY49UY51CrQR72FhIgD/nulqsW0sWu/3Mq\nbrn/4p9FiKERwU50SS43vPfw2knBQHAXqZwSGSf0caKfUjsbj6tQY13G5TqTYZr6\nT/o48osfzCY43pOAsHITAXWjEAw91yWKGWhFZJRD0S8FKfGdiEUX/ESNvRDm33kt\nzQIDAQAB\n-----END PUBLIC KEY-----"

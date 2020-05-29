@@ -60,28 +60,30 @@ export async function signPublishEncryptSend(payload: any, endpoint: string): Pr
                 keys?.privateKey, payload
             );
 
-            // Publish payload to MAM
-            const transactionId = asset?.type === 'producer' ? payload.providerTransactionId : payload.requesterTransactionId;
-            const mam = await publish(transactionId, { message: payload, signature });
-            // console.log(333, mam);
+            const transactionId = asset?.type === 'provider' 
+                ? payload.providerTransactionId 
+                : payload.requesterTransactionId;
+
+            let mam;
+            let publicKey;
+            if (endpoint === 'fund' || endpoint === 'notify') {
+                // Get existing MAM channel details
+                mam = await readData('mam', 'transactionId', transactionId);
+                publicKey = asset?.assetOwnerPublicKey;
+            } else {
+                // Publish payload to MAM and return channel details
+                mam = await publish(transactionId, { message: payload, signature });
+                publicKey = asset?.marketplacePublicKey;
+            }
 
             // Encrypt payload and signature with asset's public key
             const messagePayload: IMessagePayload = { message: payload, signature, mam };
-            // console.log(444, messagePayload);
-
-            let publicKey = asset?.marketplacePublicKey;
-            if (endpoint === 'fund') {
-                publicKey = asset?.assetOwnerPublicKey;
-            }
             const encrypted: string = encryptionService.publicEncrypt(
                 publicKey, JSON.stringify(messagePayload)
             );
 
             // Send encrypted payload and signature to asset
-            // tslint:disable-next-line:no-unnecessary-local-variable
-            const response = await sendRequest(endpoint, { encrypted });
-            // console.log(555, response);
-            return response;
+            return await sendRequest(endpoint, { encrypted });
         }
     } catch (error) {
         console.error('signPublishEncryptSend', error);

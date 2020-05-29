@@ -1,7 +1,9 @@
 import randomstring from 'randomstring';
 import { log, transactionLog } from './loggerHelper';
 import { decryptVerify, signPublishEncryptSend } from './routineHelper';
-import { readData } from '../utils/databaseHelper';
+import { readData } from './databaseHelper';
+import { sendRequest } from './communicationHelper';
+import { bidManagerURL } from '../config.json';
 
 export async function processMatch(requestPayload: any): Promise<{success: boolean}> {
     try {
@@ -9,9 +11,7 @@ export async function processMatch(requestPayload: any): Promise<{success: boole
             // Assign contract ID
             const contractId = randomstring.generate(20);
             const timestamp = Date.now().toString();
-            const consumerAsset: any = await readData('asset', 'assetId', requestPayload?.request?.requesterId);
-
-            // console.log('MATCH 1', requestPayload);
+            const requesterAsset: any = await readData('asset', 'assetId', requestPayload?.request?.requesterId);
 
             const transaction = {
                 contractId, 
@@ -24,7 +24,7 @@ export async function processMatch(requestPayload: any): Promise<{success: boole
                 requesterId: requestPayload?.request?.requesterId,
                 walletAddress: requestPayload?.offer?.walletAddress,
                 status: 'Contract created', 
-                location: consumerAsset?.location,
+                location: requesterAsset?.location,
                 additionalDetails: ''
             };
 
@@ -34,32 +34,26 @@ export async function processMatch(requestPayload: any): Promise<{success: boole
             const payload = { offer, request, contractId };
             await log(`Match found. Request: ${JSON.stringify(request)}, Offer: ${JSON.stringify(offer)}, Contract: ${contractId}`);
             
-            // console.log('MATCH 2', payload);
-
             // Send out contract confirmations
-            const producerResponse = await signPublishEncryptSend(
+            const providerResponse = await signPublishEncryptSend(
                 payload, offer?.providerId, offer?.providerTransactionId, 'contract'
             );
-            // console.log('MATCH 3', producerResponse);
             
-            const consumerResponse = await signPublishEncryptSend(
+            const requesterResponse = await signPublishEncryptSend(
                 payload, request?.requesterId, request?.requesterTransactionId, 'contract'
             );
-            // console.log('MATCH 4', consumerResponse);
 
             // Evaluate responses 
-            if (producerResponse?.success && consumerResponse?.success) {
-                // Update transaction log for producer
+            if (providerResponse?.success && requesterResponse?.success) {
+                // Update transaction log for provider
                 await transactionLog(offer);
 
-                // Update transaction log for consumer
+                // Update transaction log for requester
                 await transactionLog(request);
 
                 await log(`Contract details sent to assets and stored. Contract: ${contractId}`);
-
-                // console.log('MATCH 5 DONE');
             } else {
-                await log(`Contract communication failure. Request: ${JSON.stringify(consumerResponse)}, Offer: ${JSON.stringify(producerResponse)}, Contract: ${contractId}`);
+                await log(`Contract communication failure. Request: ${JSON.stringify(requesterResponse)}, Offer: ${JSON.stringify(providerResponse)}, Contract: ${contractId}`);
             }
             return { success: true };
         } else {
@@ -147,15 +141,89 @@ export async function processPaymentConfirmation(requestDetails: any): Promise<a
 
             // Evaluate responses 
             if (paymentConfirmationResponse?.success) {
-                await log(`Payment confirmation successful. ${request?.message?.contractId}`);
+                await log(`Payment confirmation successful. ${paymentConfirmationPayload?.contractId}`);
             } else {
-                await log(`Payment confirmation request failure. Request: ${JSON.stringify(paymentConfirmationPayload)}, Response: ${JSON.stringify(paymentConfirmationResponse)}, Contract: ${paymentConfirmationPayload.contractId}`);
+                await log(`Payment confirmation request failure. Request: ${JSON.stringify(paymentConfirmationPayload)}, Response: ${JSON.stringify(paymentConfirmationResponse)}, Contract: ${paymentConfirmationPayload?.contractId}`);
             }
             return { success: true };
         }
         throw new Error('Asset signature verification failed');
     } catch (error) {
         await log(`Payment confirmation failed. ${error.toString()}`);
+        throw new Error(error);
+    }
+}
+
+export async function processCancellationRequest(requestDetails: any): Promise<any> {
+    try {
+        const request = await decryptVerify(requestDetails);
+        const cancellationPayload = request?.message;
+
+        console.log('processCancellationRequest', request);
+        if (request?.verificationResult && cancellationPayload) {
+            // Log transaction
+            await transactionLog(cancellationPayload);
+
+            if (cancellationPayload?.contractId) {
+                let cancellationResponse;
+
+                if (cancellationPayload?.type === 'offer') {
+                    // Cancel for requester
+                    cancellationResponse = await signPublishEncryptSend(
+                        cancellationPayload, cancellationPayload?.requesterId, cancellationPayload?.requesterTransactionId, 'cancel'
+                    );
+                } else if (cancellationPayload?.type === 'request') {
+                    // Cancel for provider
+                    cancellationResponse = await signPublishEncryptSend(
+                        cancellationPayload, cancellationPayload?.providerId, cancellationPayload?.providerTransactionId, 'cancel'
+                    );
+                }
+
+                // Evaluate response
+                if (cancellationResponse?.success) {
+                    await log(`Transaction cancellation successful. ${request?.message?.contractId}`);
+                } else {
+                    await log(`Transaction cancellation request failure. Request: ${JSON.stringify(cancellationPayload)}, Response: ${JSON.stringify(cancellationResponse)}`);
+                }
+            } else {
+                // Cancel with Bid manager
+                const bidManagerEndpoint = `${bidManagerURL}/remove`;   
+                await sendRequest(bidManagerEndpoint, cancellationPayload);
+            }
+            return { success: true };
+        }
+        throw new Error('Asset signature verification failed');
+    } catch (error) {
+        await log(`Transaction cancellation failed. ${error.toString()}`);
+        throw new Error(error);
+    }
+}
+
+export async function processClaimRequest(requestDetails: any): Promise<any> {
+    try {
+        const request = await decryptVerify(requestDetails);
+        const claimPayload = request?.message;
+
+        console.log('processClaimRequest', request);
+        if (request?.verificationResult && claimPayload) {
+            // Log transaction
+            await transactionLog(claimPayload);
+
+            const claimResponse = await signPublishEncryptSend(
+                claimPayload, claimPayload?.requesterId, claimPayload?.requesterTransactionId, 'claim'
+            );
+
+            // Evaluate responses 
+            if (claimResponse?.success) {
+                await log(`Claim request successful. ${claimPayload?.contractId}`);
+            } else {
+                await log(`Claim request failure. Request: ${JSON.stringify(claimPayload)}, Response: ${JSON.stringify(claimResponse)}, Contract: ${claimPayload?.contractId}`);
+            }
+            return { success: true };
+        }
+        throw new Error('Asset signature verification failed');
+    } catch (error) {
+        await log(`Contract claim failed. ${error.toString()}`);
         throw new Error(error);
     }
 }

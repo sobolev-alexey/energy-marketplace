@@ -8,6 +8,13 @@ import { readData, removeData, writeData } from './databaseHelper';
 import { getPaymentQueue } from './paymentQueueHelper';
 import { confirmPaymentProcessing } from './businessLogicHelper';
 
+interface IWallet {
+    address?: string;
+    balance?: number;
+    keyIndex?: number;
+    seed?: string;
+}
+
 export const generateSeed = (length = 81) => {
     const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ9';
     let seed = '';
@@ -100,7 +107,7 @@ const transferFunds = async (wallet, totalAmount, paymentQueue) => {
                 }
 
                 if (inclusions > transfers.length) {
-                    console.log('Inclusions after transfer FINAL', inclusions, statuses);
+                    console.log('Inclusions after transfer FINAL', inclusions, remainderAddress, Number(keyIndex) + 1);
                     // Once the payment is confirmed fetch the real wallet balance and update the wallet again
                     const newBalance = await getBalance(remainderAddress);
                     await updateWallet(seed, remainderAddress, Number(keyIndex) + 1, newBalance);
@@ -133,13 +140,6 @@ export const processPaymentQueue = async () => {
     let paymentQueue: any = [];
     try {
         console.log('processPayment start');
-        interface IWallet {
-            address?: string;
-            balance?: number;
-            keyIndex?: number;
-            seed?: string;
-        }
-
         const wallet: IWallet = await readData('wallet');
     
         if (!wallet) {
@@ -147,7 +147,7 @@ export const processPaymentQueue = async () => {
             return null;
         }
 
-        const walletBalance = await getBalance(wallet?.address);
+        let walletBalance = await getBalance(wallet?.address);
         console.log('processPayment check wallet', wallet?.address, walletBalance);
         
         let totalAmount = 0;
@@ -160,6 +160,10 @@ export const processPaymentQueue = async () => {
             return null;
         }
         
+        if (walletBalance === 0) {
+            // Try to repair wallet
+            walletBalance = await repairWallet();
+        } 
         if (walletBalance < totalAmount) {
           // Issue fund wallet request
         }
@@ -172,5 +176,32 @@ export const processPaymentQueue = async () => {
     } catch (error) {
         console.error('transferFunds catch', error);
         return error;
+    }
+};
+
+export const repairWallet = async () => {
+    try {
+        const wallet: IWallet = await readData('wallet');
+        // Iterating through keyIndexes
+        for (const value of [...Array.from(Array(50).keys()), ...Array.from(Array(10).keys()).map(val => -val)]) {
+            const newIndex = Number(wallet.keyIndex) + Number(value);
+            if (newIndex >= 0) {
+                const newAddress = generateAddress(wallet.seed, newIndex);
+                const newBalance = await getBalance(newAddress);
+                if (newBalance > 0) {
+                    console.log(`Repair wallet executed. Old keyIndex: ${wallet.keyIndex}, new keyIndex: ${newIndex}. New wallet balance: ${newBalance}. New address: ${newAddress}`);
+                    await writeData('wallet', { 
+                        seed: wallet.seed, 
+                        balance: newBalance,
+                        address: newAddress, 
+                        keyIndex: newIndex
+                    });
+                    return newBalance;
+                }
+            }
+        }
+    } catch (error) {
+        console.log('Repair wallet Error', error);
+        return 0;
     }
 };

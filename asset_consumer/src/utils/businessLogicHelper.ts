@@ -5,18 +5,17 @@ import {
     energyProductionAmount, 
     energyProductionSpeed, 
     transactionCreationSpeed,
-    paymentQueueProcessingSpeed
+    paymentQueueProcessingSpeed,
+    pendingTransactionsProcessingSpeed
 } from '../config.json';
-import { readData, writeData } from './databaseHelper';
+import { readData, writeData, getAbandonedTransactions, getUnpaidTransactions } from './databaseHelper';
 import { log, transactionLog } from './loggerHelper';
-import { publish } from './mamHelper';
-import { EncryptionService, IMessagePayload } from './encryptionHelper';
-import { sendRequest } from './communicationHelper';
 import { decryptVerify, signPublishEncryptSend } from './routineHelper';
-import { provideEnergy, receiveEnergy } from './energyProvisionHelper';
+import { provideEnergy, receiveEnergy, unreserveEnergy } from './energyProvisionHelper';
 import { getBalance, processPaymentQueue } from './walletHelper';
 import { addToPaymentQueue } from './paymentQueueHelper';
 import { paymentConfirmation } from './paymentConfirmationHelper';
+import { verifyRequest } from './verificationHelper';
 
 let energyProductionInterval;
 let energyConsumptionInterval;
@@ -38,7 +37,7 @@ export function BusinessLogic() {
             const asset: any = await readData('asset');
 
             if (asset) {
-                if (asset.type !== 'producer') {
+                if (asset.type !== 'provider') {
                     clearInterval(energyProductionInterval);
                     return;
                 }
@@ -64,7 +63,7 @@ export function BusinessLogic() {
             const asset: any = await readData('asset');
 
             if (asset) {
-                if (asset.type !== 'consumer') {
+                if (asset.type !== 'requester') {
                     clearInterval(energyConsumptionInterval);
                     return;
                 }
@@ -93,13 +92,13 @@ export function BusinessLogic() {
                 const energyData: any = await readData('energy');
 
                 switch (asset.type) {
-                    case 'consumer': {
+                    case 'requester': {
                         if (energyData && energyData.energyAvailable <= asset.minOfferAmount * 2 ) {
                             await createRequest(asset);
                         }
                         break; 
                     }
-                    case 'producer':
+                    case 'provider':
                     default: {
                         if (energyData && energyData.energyAvailable >= asset.minOfferAmount ) {
                             await createOffer(asset, energyData);
@@ -117,54 +116,22 @@ export function BusinessLogic() {
 
     const createOffer = async(asset, energyData) => {
         try {
-            const status = 'Initial offer';
-
-            // Retrieve encryption keys
-            const keys: any = await readData('keys');
-            if (!keys || !keys.privateKey) {
-                throw new Error('No keypair found in database');
-            }
+            // Log event 
+            await log('Creating offer...');
 
             const wallet: IWallet = await readData('wallet');
-    
             if (!wallet) {
                 throw new Error('createOffer error. No Wallet');
             }
 
-            // Log event 
-            await log('Creating offer...');
-
-            const energyToOffer = Number(energyData.energyAvailable);
-
             // Create payload, specify price and amount
+            const status = 'Initial offer';
+            const energyToOffer = Number(energyData.energyAvailable);
             const payload: any = await generatePayload(asset, 'offer', status, energyToOffer);
             payload.walletAddress = wallet?.address;
 
-            // console.log(111, payload);
-
-            // Sign payload
-            const encryptionService = new EncryptionService();
-            const signature: Buffer = encryptionService.signMessage(
-                keys?.privateKey, payload
-            );
-            // console.log(222);
-
-            // Publish payload to MAM
-            const mam = await publish(payload.providerTransactionId, { message: payload, signature });
-            // console.log(333, mam);
-
-            // Encrypt payload and signature with Marketplace public key
-            const messagePayload: IMessagePayload = { message: payload, signature, mam };
-            // console.log(444, messagePayload);
-
-            const encrypted: string = encryptionService.publicEncrypt(
-                asset?.marketplacePublicKey, JSON.stringify(messagePayload)
-            );
-
             // Send encrypted payload and signature to Marketplace
-            const response = await sendRequest('/offer', { encrypted });
-            // console.log(555, response);
-
+            const response = await signPublishEncryptSend(payload, 'offer');
             if (response.success) {
                 // Log transaction
                 await transactionLog(payload);
@@ -176,7 +143,7 @@ export function BusinessLogic() {
                     energyReserved: Number(energyData.energyReserved) + energyToOffer
                 });
             } else {
-                await log(`createOffer Error ${response.message}`);
+                await log(`createOffer Error ${response}`);
             }
         } catch (error) {
             console.error('createOffer', error);
@@ -186,51 +153,21 @@ export function BusinessLogic() {
 
     const createRequest = async (asset): Promise<void> => {
         try {
-            const status = 'Initial request';
-
-            // Retrieve encryption keys
-            const keys: any = await readData('keys');
-            if (!keys || !keys.privateKey) {
-                throw new Error('No keypair found in database');
-            }
-
             // Log event 
             await log('Creating request...');
 
-            const energyToRequest = Number(asset.minOfferAmount);
-
             // Create payload, specify price and amount
+            const status = 'Initial request';
+            const energyToRequest = Number(asset.minOfferAmount);
             const payload: any = await generatePayload(asset, 'request', status, energyToRequest);
-            // console.log(111, payload);
-
-            // Sign payload
-            const encryptionService = new EncryptionService();
-            const signature: Buffer = encryptionService.signMessage(
-                keys?.privateKey, payload
-            );
-            // console.log(222, signature);
-
-            // Publish payload to MAM
-            const mam = await publish(payload.requesterTransactionId, { message: payload, signature });
-            // console.log(333, mam);
-
-            // Encrypt payload and signature with Marketplace public key
-            const messagePayload: IMessagePayload = { message: payload, signature, mam };
-            // console.log(444, messagePayload);
-
-            const encrypted: string = encryptionService.publicEncrypt(
-                asset?.marketplacePublicKey, JSON.stringify(messagePayload)
-            );
-
+            
             // Send encrypted payload and signature to Marketplace
-            const response = await sendRequest('/request', { encrypted });
-            // console.log(555, response);
-
+            const response = await signPublishEncryptSend(payload, 'request');
             if (response.success) {
                 // Log transaction
                 await transactionLog(payload);
             } else {
-                await log(`createRequest Error ${response.message}`);
+                await log(`createRequest Error ${response}`);
             }
         } catch (error) {
             console.error('createRequest', error);
@@ -266,11 +203,37 @@ export function BusinessLogic() {
     const processPayments = async (): Promise<void> => {
         const asset: any = await readData('asset');
 
-        // Check asset type is consumer
-        if (asset?.type === 'consumer') { 
+        // Check asset type is requester
+        if (asset?.type === 'requester') { 
             await processPaymentQueue();
         } else {
             await paymentConfirmation();
+        }
+    };
+
+    const processPendingTransactions = async (): Promise<void> => {
+        const abandonedTransactions: any = await getAbandonedTransactions();
+        const unpaidTransactions: any = await getUnpaidTransactions();
+        console.log('abandonedTransactions', abandonedTransactions);
+        console.log('unpaidTransactions', unpaidTransactions);
+
+        // Cancel abandoned transactions
+        abandonedTransactions.forEach(async transaction => 
+            await cancelTransaction(transaction));
+
+        if (unpaidTransactions.length > 0) {
+            const asset: any = await readData('asset');
+
+            // Check asset type is requester
+            if (asset?.type === 'requester') { 
+                // Process unpaid transactions
+                unpaidTransactions.forEach(async transaction => 
+                    await processPayment(transaction));
+            } else {
+                // Issue claim for unpaid contracts
+                unpaidTransactions.forEach(async transaction => 
+                    await issueClaim(transaction));
+            }
         }
     };
 
@@ -278,6 +241,7 @@ export function BusinessLogic() {
     energyConsumptionInterval = setInterval(consumeEnergy, energyConsumptionSpeed * 1000);
     transactionInterval = setInterval(createMarketplaceTransaction, transactionCreationSpeed * 1000);
     setInterval(processPayments, paymentQueueProcessingSpeed * 1000);
+    setInterval(processPendingTransactions, pendingTransactionsProcessingSpeed * 1000);
 }
 
 export async function processContract(request: any): Promise<any> {
@@ -285,9 +249,9 @@ export async function processContract(request: any): Promise<any> {
         const payload = await decryptVerify(request);        
         if (payload?.verificationResult) {
             const asset: any = await readData('asset');
-            if (asset?.type === 'producer') {
+            if (asset?.type === 'provider') {
                 await provideEnergy(payload?.message?.offer);
-            } else if (asset?.type === 'consumer') {
+            } else if (asset?.type === 'requester') {
                 await receiveEnergy(payload?.message?.request);
             }
 
@@ -317,50 +281,70 @@ export async function confirmEnergyProvision(payload: any): Promise<void> {
     }
 }
 
-export async function processPayment(request: any): Promise<any> {
+export async function processPaymentRequest(request: any): Promise<any> {
     try {
         const payload = await decryptVerify(request);        
         if (payload?.verificationResult) {
-            const message = payload?.message;
-            console.log('Payment request', message);
+            const transaction = payload?.message;
+            const isValidRequest = await verifyRequest(transaction);
+            if (isValidRequest) {
+                // Update transaction log
+                await transactionLog(transaction);
 
-            // Update transaction log
-            await transactionLog(message);
-
-            // TODO: verify request
-
-            const paymentAmount = message?.energyAmount * message?.energyPrice;
-            const wallet: IWallet = await readData('wallet');
-    
-            if (!wallet || !wallet?.address) {
-                await log('Payment request error. No Wallet');
-                throw new Error('Payment request error. No Wallet');
-            }
-
-            const balance = await getBalance(wallet?.address);
-            if (balance <= paymentAmount) {
-                const fundWalletRequest = {
-                    assetId: message?.requesterId,
-                    walletAddress: wallet?.address,
-                    minFundingAmount: paymentAmount
+                await processPayment(transaction);
+            } else {
+                const timestamp = Date.now().toString();
+                const invalidTransaction = {
+                    ...transaction,
+                    timestamp, 
+                    type: 'request',
+                    status: 'Invalid'
                 };
-                const fundWalletResponse = await signPublishEncryptSend(fundWalletRequest, 'fund');
 
-                // Evaluate response
-                if (fundWalletResponse?.success) {
-                    await log(`Wallet funding request sent to asset owner.`);
-                } else {
-                    await log(`Wallet funding request failure. Request: ${fundWalletRequest}`);
-                }
+                await transactionLog(invalidTransaction);
+                await log(`Payment request verification failed. ${transaction}`);
+                throw new Error(`Payment request verification failed. ${transaction}`);
             }
-            await addToPaymentQueue(message?.walletAddress, paymentAmount, JSON.stringify(message));
-
-            await log(`Payment request processing successful. ${message?.contractId}`);
             return { success: true };
         }
         throw new Error('Marketplace signature verification failed');
     } catch (error) {
         await log(`Payment request processing failed. ${error.toString()}`);
+        throw new Error(error);
+    }
+}
+
+async function processPayment(transaction: any): Promise<any> {
+    try {
+        const paymentAmount = transaction?.energyAmount * transaction?.energyPrice;
+        const wallet: IWallet = await readData('wallet');
+
+        if (!wallet || !wallet?.address) {
+            await log('Payment request error. No Wallet');
+            throw new Error('Payment request error. No Wallet');
+        }
+
+        const balance = await getBalance(wallet?.address);
+        if (balance <= paymentAmount) {
+            const fundWalletRequest = {
+                assetId: transaction?.requesterId,
+                walletAddress: wallet?.address,
+                minFundingAmount: paymentAmount
+            };
+            const fundWalletResponse = await signPublishEncryptSend(fundWalletRequest, 'fund');
+
+            // Evaluate response
+            if (fundWalletResponse?.success) {
+                await log(`Wallet funding request sent to asset owner.`);
+            } else {
+                await log(`Wallet funding request failure. Request: ${fundWalletRequest}`);
+            }
+        }
+        await addToPaymentQueue(transaction?.walletAddress, paymentAmount, JSON.stringify(transaction));
+
+        await log(`Payment request processing successful. ${transaction?.contractId}`);
+    } catch (error) {
+        await log(`Payment processing failed. ${error.toString()}`);
         throw new Error(error);
     }
 }
@@ -440,6 +424,115 @@ export async function processPaymentConfirmation(request: any): Promise<any> {
         throw new Error('Marketplace signature verification failed');
     } catch (error) {
         await log(`Payment confirmation failed. ${error.toString()}`);
+        throw new Error(error);
+    }
+}
+
+export async function cancelTransaction(transaction: any): Promise<any> {
+    try {
+        // Cancel own transaction
+        const timestamp = Date.now().toString();
+        const payload = {
+            ...transaction,
+            timestamp, 
+            status: 'Cancelled'
+        };
+        await transactionLog(payload);
+        await unreserveEnergy(payload);
+
+        // Send to Marketplace
+        const response = await signPublishEncryptSend(payload, 'cancel');
+
+        // Evaluate response
+        if (response?.success) {
+            await log(`Cancellation request sent to marketplace and stored. TransactionId: ${payload?.requesterTransactionId || payload?.providerTransactionId}`);
+        } else {
+            await log(`Cancellation request failure. Request: ${payload}`);
+        }
+    } catch (error) {
+        await log(`Cancellation failed. ${error.toString()}`);
+        throw new Error(error);
+    }
+}
+
+export async function issueClaim(transaction: any): Promise<any> {
+    try {
+        let reminderNumber = 1;
+        if (transaction.additionalDetails.startsWith('Payment reminder #')) {
+            reminderNumber = Number(transaction.additionalDetails.replace('Payment reminder #', ''));
+        }
+        if (reminderNumber && reminderNumber <= 3) {
+            // Add note into additional details
+            const payload = {
+                ...transaction,
+                timestamp: Date.now().toString(), 
+                additionalDetails: `Payment reminder #${reminderNumber}`
+            };
+
+            // Log transaction
+            await transactionLog(payload);
+
+            // Re-send payment request
+            await confirmEnergyProvision(payload);
+        } else {
+            // Add note into additional details
+            const payload = {
+                ...transaction,
+                timestamp: Date.now().toString(), 
+                status: 'Claim issued',
+                additionalDetails: `Claim issued after ${reminderNumber} payment reminders`
+            };
+
+            // Log transaction
+            await transactionLog(payload);
+
+            await unreserveEnergy(payload);
+
+            // Issue claim
+            const response = await signPublishEncryptSend(payload, 'claim');
+
+            // Evaluate response
+            if (response?.success) {
+                await log(`Claim request sent to marketplace and stored. Contract: ${payload.contractId}`);
+            } else {
+                await log(`Claim request failure. Request: ${payload}`);
+            }
+        }
+    } catch (error) {
+        await log(`Claim failed. ${error.toString()}`);
+        throw new Error(error);
+    }
+}
+
+export async function processCancellationRequest(request: any): Promise<any> {
+    try {
+        const payload = await decryptVerify(request);        
+        if (payload?.verificationResult) {
+            // Update transaction log
+            await transactionLog(payload?.message);
+            await unreserveEnergy(payload?.message);
+            await log(`Transaction cancellation successful. TransactionId: ${payload?.message?.requesterTransactionId || payload?.message?.providerTransactionId}`);
+            return { success: true };
+        }
+        throw new Error('Marketplace signature verification failed');
+    } catch (error) {
+        await log(`Transaction cancellation failed. ${error.toString()}`);
+        throw new Error(error);
+    }
+}
+
+export async function processClaimRequest(request: any): Promise<any> {
+    try {
+        const payload = await decryptVerify(request);        
+        if (payload?.verificationResult) {
+            // Update transaction log
+            await transactionLog(payload?.message);
+            await log(`Contract claim successful. ${payload?.message?.contractId}`);
+            return { success: true };
+        }
+        throw new Error('Marketplace signature verification failed');
+    } catch (error) {
+        await log(`Contract claim failed. ${error.toString()}`);
         throw new Error(error);
     }
 }

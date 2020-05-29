@@ -1,12 +1,12 @@
 import { log } from '../utils/loggerHelper';
 import { HttpError } from '../errors/httpError';
-import { processPayment } from '../utils/businessLogicHelper';
+import { processPaymentRequest } from '../utils/businessLogicHelper';
 
 // Endpoint called by marketplace when payment is requested
 export async function payment(_: any, request: any): Promise<any> {
     try {
         if (request) {
-            await processPayment(request);
+            await processPaymentRequest(request);
             return { success: true };
         } else {
             await log(`No payload found in payment request`);

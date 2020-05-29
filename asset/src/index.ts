@@ -1,5 +1,5 @@
 
-import { LoadBalancerSettings, LinearWalkStrategy } from '@iota/client-load-balancer';
+import { LoadBalancerSettings, LinearWalkStrategy /*, SuccessMode */ } from '@iota/client-load-balancer';
 import { Server } from 'http';
 import SocketIO from 'socket.io';
 import { ServiceFactory } from './factories/serviceFactory';
@@ -14,7 +14,9 @@ const routes: IRoute[] = [
     { path: '/contract', method: 'post', func: 'contract' },
     { path: '/payment', method: 'post', func: 'payment' },
     { path: '/payment_sent', method: 'post', func: 'payment_sent' },
-    { path: '/payment_confirmed', method: 'post', func: 'payment_confirmed' }
+    { path: '/payment_confirmed', method: 'post', func: 'payment_confirmed' },
+    { path: '/cancel', method: 'post', func: 'cancel' },
+    { path: '/claim', method: 'post', func: 'claim' }
 ];
 
 AppHelper.build(routes, async (app, config, websocketPort) => {
@@ -26,6 +28,7 @@ AppHelper.build(routes, async (app, config, websocketPort) => {
 
     const devNetLoadBalancerSettings: LoadBalancerSettings = {
         nodeWalkStrategy: new LinearWalkStrategy(config.devNetNodes),
+        // successMode: SuccessMode.keep,
         timeoutMs: 10000
     };
     ServiceFactory.register('devnet-load-balancer-settings', () => devNetLoadBalancerSettings);

@@ -16,7 +16,7 @@ export const sendRequest = async (endpoint: string, request: { encrypted: string
     const asset: any = await readData('asset');
     
     let baseURL = asset?.marketplaceAPI;
-    if (endpoint === 'fund') {
+    if (endpoint === 'fund' || endpoint === 'notify') {
         baseURL = asset?.assetOwnerAPI;
     }
 

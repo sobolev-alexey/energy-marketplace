@@ -1,4 +1,5 @@
 import { writeData } from './databaseHelper';
+// import { signPublishEncryptSend } from './routineHelper';
 
 export const log = async (event: string) => {
     try {
@@ -9,10 +10,13 @@ export const log = async (event: string) => {
     }
 };
 
-export const transactionLog = async (params: object) => {
+export const transactionLog = async (payload: object) => {
     try {
-        await writeData('transaction', params);
-        // console.log('Transaction log:', params);
+        await writeData('transaction', payload);
+        // console.log('Transaction log:', payload);
+
+        // Notify asset owner about new transaction event
+        // await signPublishEncryptSend(payload, 'notify');
     } catch (error) {
         console.error('logger', error);
     }
