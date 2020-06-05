@@ -60,43 +60,6 @@ export function BusinessLogic() {
         }
     };
 
-    const createOffer = async(asset, energyData) => {
-        try {
-            // Log event 
-            await log('Creating offer...');
-
-            const wallet: IWallet = await readData('wallet');
-            if (!wallet) {
-                throw new Error('createOffer error. No Wallet');
-            }
-
-            // Create payload, specify price and amount
-            const status = 'Initial offer';
-            const energyToOffer = Number(energyData.energyAvailable);
-            const payload: any = await generatePayload(asset, 'offer', status, energyToOffer);
-            payload.walletAddress = wallet?.address;
-
-            // Send encrypted payload and signature to Marketplace
-            const response = await signPublishEncryptSend(payload, 'offer');
-            if (response.success) {
-                // Log transaction
-                await transactionLog(payload);
-
-                // Reserve energy
-                await writeData('energy', { 
-                    timestamp: Date.now().toString(), 
-                    energyAvailable: 0,
-                    energyReserved: Number(energyData.energyReserved) + energyToOffer
-                });
-            } else {
-                await log(`createOffer Error ${response}`);
-            }
-        } catch (error) {
-            console.error('createOffer', error);
-            await log(`createOffer Error ${error.toString()}`);
-        }
-    };
-
     const createRequest = async (asset): Promise<void> => {
         try {
             // Log event 
