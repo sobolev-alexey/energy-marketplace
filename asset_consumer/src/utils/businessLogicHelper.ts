@@ -27,6 +27,7 @@ interface IWallet {
     keyIndex?: number;
     seed?: string;
 }
+import { queues, options } from './queueHelper';
 
 // tslint:disable-next-line:typedef
 export function BusinessLogic() {
@@ -49,7 +50,7 @@ export function BusinessLogic() {
 
         // Cancel abandoned transactions
         abandonedTransactions.forEach(async transaction => 
-            await cancelTransaction(transaction));
+            queues.cancelTransaction.add(transaction, options));
 
         if (unpaidTransactions.length > 0) {
             const asset: any = await readData('asset');
@@ -58,11 +59,11 @@ export function BusinessLogic() {
             if (asset?.type === 'requester') { 
                 // Process unpaid transactions
                 unpaidTransactions.forEach(async transaction => 
-                    await processPayment(transaction));
+                    queues.processPayment.add(transaction, options));
             } else {
                 // Issue claim for unpaid contracts
                 unpaidTransactions.forEach(async transaction => 
-                    await issueClaim(transaction));
+                    queues.issueClaim.add(transaction, options));
             }
         }
     };
