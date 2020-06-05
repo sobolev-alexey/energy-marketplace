@@ -1,12 +1,12 @@
 import { log } from '../utils/loggerHelper';
 import { HttpError } from '../errors/httpError';
-import { processMatch } from '../utils/businessLogic';
+import { queues, options } from '../utils/queueHelper';
 
 // Endpoint called by bid manager when a match between offer and request is found
 export async function match(_: any, requestPayload: any): Promise<any> {
     try {
         if (requestPayload?.request && requestPayload?.offer) {
-            await processMatch(requestPayload);
+            queues.processMatch.add(requestPayload, options);
             return { success: true };
         } else {
             await log(`No offer or request found in match`);
