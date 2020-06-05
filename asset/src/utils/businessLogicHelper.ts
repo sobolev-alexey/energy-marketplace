@@ -244,22 +244,6 @@ export function BusinessLogic() {
     setInterval(processPendingTransactions, pendingTransactionsProcessingSpeed * 1000);
 }
 
-export async function confirmEnergyProvision(payload: any): Promise<void> {
-    try {
-        const response = await signPublishEncryptSend(payload, 'provision');
-
-        // Evaluate response
-        if (response?.success) {
-            await log(`Provision confirmation sent to marketplace and stored. Contract: ${payload.contractId}`);
-        } else {
-            await log(`Provision confirmation failure. Request: ${payload}`);
-        }
-    } catch (error) {
-        await log(`Provision confirmation failed. ${error.toString()}`);
-        throw new Error(error);
-    }
-}
-
 export async function confirmPaymentProcessing(transactionAsString: string): Promise<void> {
     try {
         const transaction = JSON.parse(transactionAsString);
