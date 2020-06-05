@@ -32,32 +32,6 @@ interface IWallet {
 export function BusinessLogic() {
     let energyAmount: number = 0;
  
-    const produceEnergy = async (): Promise<void> => {
-        try {
-            const asset: any = await readData('asset');
-
-            if (asset) {
-                if (asset.type !== 'provider') {
-                    clearInterval(energyProductionInterval);
-                    return;
-                }
-
-                const energy: any = await readData('energy');
-                energyAmount = Number(energy && energy.energyAvailable || 0) + energyProductionAmount;
-                await writeData('energy', { 
-                    timestamp: Date.now().toString(), 
-                    energyAvailable: energyAmount,
-                    energyReserved: (energy && energy.energyReserved || 0)
-                });
-
-                await log(`Produced ${energyProductionAmount} W of energy`);
-            }
-        } catch (error) {
-            console.error('produceEnergy', error);
-            await log(`produceEnergy Error ${error.toString()}`);
-        }
-    };
-
     const consumeEnergy = async (): Promise<void> => {
         try {
             const asset: any = await readData('asset');
