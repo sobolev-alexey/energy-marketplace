@@ -1,7 +1,9 @@
 {
     "websocketURL": "http://localhost",
+    "redisHost": "127.0.0.1",
     "serverPortNumber": 4001,
     "websocketPortNumber": 8001,
+    "redisPortNumber": 6379,
     "defaultSecurity": 2,
     "defaultDepth": 3,
     "defaultMwm": 9,
