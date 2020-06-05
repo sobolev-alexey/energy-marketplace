@@ -54,30 +54,6 @@ export function BusinessLogic() {
 
     setInterval(processPayments, paymentQueueProcessingSpeed * 1000);
     setInterval(processPendingTransactions, pendingTransactionsProcessingSpeed * 1000);
-}
-
-export async function confirmPaymentProcessing(transactionAsString: string): Promise<void> {
-    try {
-        const transaction = JSON.parse(transactionAsString);
-        const payload = {
-            ...transaction,
-            timestamp: Date.now().toString(), 
-            status: 'Payment processed'
-        };
-        await transactionLog(payload);
-
-        const response = await signPublishEncryptSend(payload, 'payment_processing');
-
-        // Evaluate response
-        if (response?.success) {
-            await log(`Payment processing confirmation sent to marketplace and stored. Contract: ${payload.contractId}`);
-        } else {
-            await log(`Payment processing confirmation failure. Request: ${payload}`);
-        }
-    } catch (error) {
-        await log(`Payment processing confirmation failed. ${error.toString()}`);
-        throw new Error(error);
-    }
     setInterval(() => queues.transaction.add({}, options), transactionCreationSpeed * 1000);
     setInterval(() => queues.consumeEnergy.add({}, options), energyConsumptionSpeed * 1000);
     setInterval(() => queues.produceEnergy.add({}, options), energyProductionSpeed * 1000);
