@@ -260,39 +260,6 @@ export async function confirmEnergyProvision(payload: any): Promise<void> {
     }
 }
 
-export async function processPaymentRequest(request: any): Promise<any> {
-    try {
-        const payload = await decryptVerify(request);        
-        if (payload?.verificationResult) {
-            const transaction = payload?.message;
-            const isValidRequest = await verifyRequest(transaction);
-            if (isValidRequest) {
-                // Update transaction log
-                await transactionLog(transaction);
-
-                await processPayment(transaction);
-            } else {
-                const timestamp = Date.now().toString();
-                const invalidTransaction = {
-                    ...transaction,
-                    timestamp, 
-                    type: 'request',
-                    status: 'Invalid'
-                };
-
-                await transactionLog(invalidTransaction);
-                await log(`Payment request verification failed. ${transaction}`);
-                throw new Error(`Payment request verification failed. ${transaction}`);
-            }
-            return { success: true };
-        }
-        throw new Error('Marketplace signature verification failed');
-    } catch (error) {
-        await log(`Payment request processing failed. ${error.toString()}`);
-        throw new Error(error);
-    }
-}
-
 export async function confirmPaymentProcessing(transactionAsString: string): Promise<void> {
     try {
         const transaction = JSON.parse(transactionAsString);
