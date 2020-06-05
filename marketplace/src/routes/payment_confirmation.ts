@@ -1,12 +1,12 @@
 import { log } from '../utils/loggerHelper';
 import { HttpError } from '../errors/httpError';
-import { processPaymentConfirmation } from '../utils/businessLogic';
+import { queues, options } from '../utils/queueHelper';
 
 // Endpoint called by asset when payment is confirmed
 export async function payment_confirmation(_: any, request: any): Promise<any> {
     try {
         if (request) {
-            await processPaymentConfirmation(request);
+            queues.paymentConfirmation.add(request, options);
             return { success: true };
         } else {
             await log(`No payload found in payment confirmation`);
