@@ -300,29 +300,6 @@ export async function processPaymentProcessingConfirmation(request: any): Promis
     }
 }
 
-export async function confirmPayment(transaction: any): Promise<void> {
-    try {
-        const payload = {
-            ...transaction,
-            timestamp: Date.now().toString(), 
-            status: 'Payment confirmed'
-        };
-        await transactionLog(payload);
-
-        const response = await signPublishEncryptSend(payload, 'payment_confirmation');
-
-        // Evaluate response
-        if (response?.success) {
-            await log(`Payment confirmation sent to marketplace and stored. Contract: ${payload.contractId}`);
-        } else {
-            await log(`Payment confirmation failure. Request: ${payload}`);
-        }
-    } catch (error) {
-        await log(`Payment confirmation failed. ${error.toString()}`);
-        throw new Error(error);
-    }
-}
-
 export async function processPaymentConfirmation(request: any): Promise<any> {
     try {
         const payload = await decryptVerify(request);        
