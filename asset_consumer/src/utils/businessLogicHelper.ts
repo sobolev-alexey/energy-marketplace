@@ -60,30 +60,6 @@ export function BusinessLogic() {
         }
     };
 
-    const createRequest = async (asset): Promise<void> => {
-        try {
-            // Log event 
-            await log('Creating request...');
-
-            // Create payload, specify price and amount
-            const status = 'Initial request';
-            const energyToRequest = Number(asset.minOfferAmount);
-            const payload: any = await generatePayload(asset, 'request', status, energyToRequest);
-            
-            // Send encrypted payload and signature to Marketplace
-            const response = await signPublishEncryptSend(payload, 'request');
-            if (response.success) {
-                // Log transaction
-                await transactionLog(payload);
-            } else {
-                await log(`createRequest Error ${response}`);
-            }
-        } catch (error) {
-            console.error('createRequest', error);
-            await log(`createRequest Error ${error.toString()}`);
-        }
-    };
-
     const generatePayload = async (asset, type, status, energy): Promise<object> => {
         try {
             if (asset) {
