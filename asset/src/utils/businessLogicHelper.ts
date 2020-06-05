@@ -1,32 +1,16 @@
-import randomstring from 'randomstring';
 import { 
-    energyConsumptionAmount, 
     energyConsumptionSpeed, 
-    energyProductionAmount, 
     energyProductionSpeed, 
     transactionCreationSpeed,
     paymentQueueProcessingSpeed,
     pendingTransactionsProcessingSpeed
 } from '../config.json';
-import { readData, writeData, getAbandonedTransactions, getUnpaidTransactions } from './databaseHelper';
+import { readData, getAbandonedTransactions, getUnpaidTransactions } from './databaseHelper';
 import { log, transactionLog } from './loggerHelper';
-import { decryptVerify, signPublishEncryptSend } from './routineHelper';
-import { provideEnergy, receiveEnergy, unreserveEnergy } from './energyProvisionHelper';
-import { getBalance, processPaymentQueue } from './walletHelper';
-import { addToPaymentQueue } from './paymentQueueHelper';
+import { decryptVerify } from './routineHelper';
+import { unreserveEnergy } from './energyProvisionHelper';
+import { processPaymentQueue } from './walletHelper';
 import { paymentConfirmation } from './paymentConfirmationHelper';
-import { verifyRequest } from './verificationHelper';
-
-let energyProductionInterval;
-let energyConsumptionInterval;
-let transactionInterval;
-
-interface IWallet {
-    address?: string;
-    balance?: number;
-    keyIndex?: number;
-    seed?: string;
-}
 import { queues, options } from './queueHelper';
 
 // tslint:disable-next-line:typedef
