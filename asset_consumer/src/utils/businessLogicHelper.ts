@@ -30,36 +30,6 @@ interface IWallet {
 
 // tslint:disable-next-line:typedef
 export function BusinessLogic() {
-    const createMarketplaceTransaction = async (): Promise<void> => {
-        try {
-            const asset: any = await readData('asset');
-
-            if (asset) {
-                const energyData: any = await readData('energy');
-
-                switch (asset.type) {
-                    case 'requester': {
-                        if (energyData && energyData.energyAvailable <= asset.minOfferAmount * 2 ) {
-                            await createRequest(asset);
-                        }
-                        break; 
-                    }
-                    case 'provider':
-                    default: {
-                        if (energyData && energyData.energyAvailable >= asset.minOfferAmount ) {
-                            await createOffer(asset, energyData);
-                        }
-                        break; 
-                    }
-                }
-            }
-        } catch (error) {
-            console.error('createMarketplaceTransaction', error);
-            await log(`createMarketplaceTransaction Error ${error.toString()}`);
-            clearInterval(transactionInterval);
-        }
-    };
-
     const processPayments = async (): Promise<void> => {
         const asset: any = await readData('asset');
 
