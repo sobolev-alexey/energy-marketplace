@@ -60,31 +60,6 @@ export function BusinessLogic() {
         }
     };
 
-    const generatePayload = async (asset, type, status, energy): Promise<object> => {
-        try {
-            if (asset) {
-                return {
-                    type,
-                    timestamp: Date.now().toString(),
-                    requesterTransactionId: type === 'request' ? randomstring.generate(20) : '',
-                    providerTransactionId: type === 'offer' ? randomstring.generate(20) : '',
-                    energyAmount: energy,
-                    energyPrice: asset?.maxEnergyPrice,
-                    location: asset?.location,
-                    status,
-                    requesterId: type === 'request' ? asset?.assetId : '',
-                    providerId: type === 'offer' ? asset?.assetId : '',
-                    contractId: '',
-                    walletAddress: '',
-                    additionalDetails: ''
-                };
-            }
-        } catch (error) {
-            console.error('generatePayload', error);
-            await log(`generatePayload Error ${error.toString()}`);
-        }
-    };
-
     const processPayments = async (): Promise<void> => {
         const asset: any = await readData('asset');
 
