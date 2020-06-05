@@ -73,48 +73,6 @@ export class AppHelper {
             }
         }
 
-        // try {
-        //     console.log('Encryption');
-        //     const encryptionService = new EncryptionService();
-        //     const aliceKeys: IKeys = encryptionService.generateKeys();
-        //     const bobKeys: IKeys = encryptionService.generateKeys();
-            // const messageJSON: any = {
-            //     name: 'Alice',
-            //     messageTo: 'Bob',
-            //     messageText: 'Hey, Bob!'
-            // };
-
-            // // Alice signs her message
-            // const signature: Buffer = encryptionService.signMessage(
-            //     aliceKeys?.privateKey, messageJSON
-            // );
-            // // console.log(222, signature);
-
-            // // Alice encrypts payload with Bobs public key
-            // const payload: IMessagePayload = { message: messageJSON, signature };
-            // console.log(333, payload);
-
-            // const encrypted: string = encryptionService.publicEncrypt(
-            //     bobKeys?.publicKey, JSON.stringify(payload)
-            // );
-            // // console.log(444, encrypted);
-
-            // // Bob decrypts message with his private key
-            // const decrypted: IReceivedMessagePayload = encryptionService.privateDecrypt(
-            //     bobKeys?.privateKey, encrypted
-            // );
-            // console.log(555, decrypted.message);
-
-            // // Bob verifies Alice signature
-            // const verificationResult: boolean = encryptionService.verifySignature(
-            //     aliceKeys?.publicKey, decrypted?.message, decrypted?.signature
-            // );
-        //     console.log(777, aliceKeys);            
-        //     console.log(888, bobKeys);            
-        // } catch (error) {
-        //     throw new Error(error);
-        // }
-
         return app;
     }
 
