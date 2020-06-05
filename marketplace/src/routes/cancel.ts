@@ -1,12 +1,12 @@
 import { log } from '../utils/loggerHelper';
 import { HttpError } from '../errors/httpError';
-import { processCancellationRequest } from '../utils/businessLogic';
+import { queues, options } from '../utils/queueHelper';
 
 // Endpoint called by asset when transaction needs to be cancelled
 export async function cancel(_: any, request: any): Promise<any> {
     try {
         if (request) {
-            await processCancellationRequest(request);
+            queues.cancelTransaction.add(request, options);
             return { success: true };
         } else {
             await log(`No payload found in cancellation request`);
