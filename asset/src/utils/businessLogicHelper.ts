@@ -52,9 +52,6 @@ export function BusinessLogic() {
         }
     };
 
-    energyProductionInterval = setInterval(produceEnergy, energyProductionSpeed * 1000);
-    energyConsumptionInterval = setInterval(consumeEnergy, energyConsumptionSpeed * 1000);
-    transactionInterval = setInterval(createMarketplaceTransaction, transactionCreationSpeed * 1000);
     setInterval(processPayments, paymentQueueProcessingSpeed * 1000);
     setInterval(processPendingTransactions, pendingTransactionsProcessingSpeed * 1000);
 }
@@ -81,6 +78,9 @@ export async function confirmPaymentProcessing(transactionAsString: string): Pro
         await log(`Payment processing confirmation failed. ${error.toString()}`);
         throw new Error(error);
     }
+    setInterval(() => queues.transaction.add({}, options), transactionCreationSpeed * 1000);
+    setInterval(() => queues.consumeEnergy.add({}, options), energyConsumptionSpeed * 1000);
+    setInterval(() => queues.produceEnergy.add({}, options), energyProductionSpeed * 1000);
 }
 
 export async function processPaymentProcessingConfirmation(request: any): Promise<any> {
