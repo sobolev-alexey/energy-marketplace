@@ -2,11 +2,12 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import express, { Application } from 'express';
 import isEmpty from 'lodash/isEmpty';
+import { UI } from 'bull-board';
 import { serverPortNumber, websocketPortNumber } from '../config.json';
 import { IDataResponse } from '../models/api/IDataResponse';
 import { IRoute } from '../models/app/IRoute';
 import { IConfiguration } from '../models/configuration/IConfiguration';
-// import { EncryptionService, IKeys, IMessagePayload, IReceivedMessagePayload } from './encryptionHelper';
+import { arenaConfig, queues } from './queueHelper';
 
 /**
  * Class to help with expressjs routing.
@@ -34,6 +35,11 @@ export class AppHelper {
         app.use(bodyParser.json({ limit: '10mb' }));
         app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
         app.use(bodyParser.json());
+
+        // Queue UI
+        app.use('/admin/board', UI);
+        app.use('/admin/arena', arenaConfig);
+        config.queues = queues;
 
         app.use(cors({
             origin: config.allowedDomains && config.allowedDomains.length > 0 ? config.allowedDomains : '*',
