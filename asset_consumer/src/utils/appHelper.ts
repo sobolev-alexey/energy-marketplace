@@ -7,7 +7,7 @@ import { serverPortNumber, websocketPortNumber } from '../config.json';
 import { IDataResponse } from '../models/api/IDataResponse';
 import { IRoute } from '../models/app/IRoute';
 import { IConfiguration } from '../models/configuration/IConfiguration';
-import { arenaConfig, queues } from './queueHelper';
+import { arenaConfig } from './queueHelper';
 
 /**
  * Class to help with expressjs routing.
@@ -39,7 +39,6 @@ export class AppHelper {
         // Queue UI
         app.use('/admin/board', UI);
         app.use('/admin/arena', arenaConfig);
-        config.queues = queues;
 
         app.use(cors({
             origin: config.allowedDomains && config.allowedDomains.length > 0 ? config.allowedDomains : '*',
