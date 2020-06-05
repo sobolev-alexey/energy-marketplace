@@ -316,55 +316,6 @@ export async function processPaymentConfirmation(request: any): Promise<any> {
     }
 }
 
-export async function issueClaim(transaction: any): Promise<any> {
-    try {
-        let reminderNumber = 1;
-        if (transaction.additionalDetails.startsWith('Payment reminder #')) {
-            reminderNumber = Number(transaction.additionalDetails.replace('Payment reminder #', ''));
-        }
-        if (reminderNumber && reminderNumber <= 3) {
-            // Add note into additional details
-            const payload = {
-                ...transaction,
-                timestamp: Date.now().toString(), 
-                additionalDetails: `Payment reminder #${reminderNumber}`
-            };
-
-            // Log transaction
-            await transactionLog(payload);
-
-            // Re-send payment request
-            await confirmEnergyProvision(payload);
-        } else {
-            // Add note into additional details
-            const payload = {
-                ...transaction,
-                timestamp: Date.now().toString(), 
-                status: 'Claim issued',
-                additionalDetails: `Claim issued after ${reminderNumber} payment reminders`
-            };
-
-            // Log transaction
-            await transactionLog(payload);
-
-            await unreserveEnergy(payload);
-
-            // Issue claim
-            const response = await signPublishEncryptSend(payload, 'claim');
-
-            // Evaluate response
-            if (response?.success) {
-                await log(`Claim request sent to marketplace and stored. Contract: ${payload.contractId}`);
-            } else {
-                await log(`Claim request failure. Request: ${payload}`);
-            }
-        }
-    } catch (error) {
-        await log(`Claim failed. ${error.toString()}`);
-        throw new Error(error);
-    }
-}
-
 export async function processCancellationRequest(request: any): Promise<any> {
     try {
         const payload = await decryptVerify(request);        
