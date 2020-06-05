@@ -244,27 +244,6 @@ export function BusinessLogic() {
     setInterval(processPendingTransactions, pendingTransactionsProcessingSpeed * 1000);
 }
 
-export async function processContract(request: any): Promise<any> {
-    try {
-        const payload = await decryptVerify(request);        
-        if (payload?.verificationResult) {
-            const asset: any = await readData('asset');
-            if (asset?.type === 'provider') {
-                await provideEnergy(payload?.message?.offer);
-            } else if (asset?.type === 'requester') {
-                await receiveEnergy(payload?.message?.request);
-            }
-
-            await log(`Contract processing successful. ${payload?.message?.contractId}`);
-            return { success: true };
-        }
-        throw new Error('Marketplace signature verification failed');
-    } catch (error) {
-        await log(`Contract processing failed. ${error.toString()}`);
-        throw new Error(error);
-    }
-}
-
 export async function confirmEnergyProvision(payload: any): Promise<void> {
     try {
         const response = await signPublishEncryptSend(payload, 'provision');
