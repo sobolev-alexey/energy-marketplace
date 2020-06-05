@@ -1,5 +1,5 @@
 
-import { LoadBalancerSettings, LinearWalkStrategy } from '@iota/client-load-balancer';
+import { LoadBalancerSettings, LinearWalkStrategy /*, SuccessMode */ } from '@iota/client-load-balancer';
 import { Server } from 'http';
 import SocketIO from 'socket.io';
 import { ServiceFactory } from './factories/serviceFactory';
@@ -8,7 +8,8 @@ import { init } from './routes/init';
 import { message } from './socketSubscriptions/message';
 import { AppHelper } from './utils/appHelper';
 import { BusinessLogic } from './utils/businessLogicHelper';
-
+import { redisStatus } from './utils/queueHelper';
+  
 const routes: IRoute[] = [
     { path: '/init', method: 'post', func: 'init' },
     { path: '/contract', method: 'post', func: 'contract' },
@@ -28,6 +29,7 @@ AppHelper.build(routes, async (app, config, websocketPort) => {
 
     const devNetLoadBalancerSettings: LoadBalancerSettings = {
         nodeWalkStrategy: new LinearWalkStrategy(config.devNetNodes),
+        // successMode: SuccessMode.keep,
         timeoutMs: 10000
     };
     ServiceFactory.register('devnet-load-balancer-settings', () => devNetLoadBalancerSettings);
@@ -48,4 +50,8 @@ AppHelper.build(routes, async (app, config, websocketPort) => {
     new BusinessLogic();
 });
 
-init();
+(async () => {
+    await new Promise(resolveSleep => setTimeout(resolveSleep, 5000));
+    console.log('INITIALIZING', redisStatus.connected);
+    init();
+})();

@@ -8,7 +8,8 @@ import { init } from './routes/init';
 import { message } from './socketSubscriptions/message';
 import { AppHelper } from './utils/appHelper';
 import { BusinessLogic } from './utils/businessLogicHelper';
-
+import { redisStatus } from './utils/queueHelper';
+  
 const routes: IRoute[] = [
     { path: '/init', method: 'post', func: 'init' },
     { path: '/contract', method: 'post', func: 'contract' },
@@ -49,4 +50,8 @@ AppHelper.build(routes, async (app, config, websocketPort) => {
     new BusinessLogic();
 });
 
-init();
+(async () => {
+    await new Promise(resolveSleep => setTimeout(resolveSleep, 5000));
+    console.log('INITIALIZING', redisStatus.connected);
+    init();
+})();
