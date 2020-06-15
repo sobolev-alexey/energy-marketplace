@@ -3,6 +3,7 @@ import cors from 'cors';
 import express, { Application } from 'express';
 import isEmpty from 'lodash/isEmpty';
 import { UI } from 'bull-board';
+// import logger from 'morgan';
 import { serverPortNumber, websocketPortNumber } from '../config.json';
 import { IDataResponse } from '../models/api/IDataResponse';
 import { IRoute } from '../models/app/IRoute';
@@ -35,6 +36,8 @@ export class AppHelper {
         app.use(bodyParser.json({ limit: '10mb' }));
         app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
         app.use(bodyParser.json());
+
+        // app.use(logger('dev'));
 
         // Queue UI
         app.use('/admin/board', UI);
