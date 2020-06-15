@@ -1,11 +1,7 @@
 const functions = require('firebase-functions');
 const cors = require('cors')({ origin: true });
 const isEmpty = require('lodash/isEmpty');
-
-const {
-  getSettings,
-  getChannelState
-} = require('./firebase');
+const { getSettings, getChannelState, storeChannelState, logMessage } = require('./firebase');
 const { fetch, publish } = require('./mam');
 const { getHash } = require('./helpers');
 
@@ -76,29 +72,31 @@ exports.location = functions.https.onRequest((req, res) => {
       const hash = getHash(packet.appId, packet.tripId);
       const settings = await getSettings();
       const channelState = await getChannelState(hash);
+      const newChannelState = await publish(packet.appId, packet.tripId, packet.location, channelState);
       
-      if (channelState && !isEmpty(channelState)) {
-        const data = await fetch(packet.appId, packet.tripId, channelState);
+      if (newChannelState && !isEmpty(newChannelState)) {
+        // Store updated channel state.
+        await storeChannelState(hash, newChannelState);
+
         if (settings.enableCloudLogs) {
-            // Log success
-            const message = `Fetched data for App ID ${packet.appId} and Trip ID ${packet.tripId}`;
-            await logMessage(packet.appId, packet.tripId, message);
-            console.log(message);
+          // Log success
+          const message = `Published new location data for App ID ${packet.appId} and Trip ID ${packet.tripId}`;
+          await logMessage(packet.appId, packet.tripId, message);
+          console.log(message);
         }
-        return res.json({
-          status: 'success',
-          data 
-        });
+
+        return res.json({ status: 'success' });
+
       }
 
+      // Log failure
       if (settings.enableCloudLogs) {
-        // Log no data
-        const message = `Tried to publish data for App ID ${packet.appId} and Trip ID ${packet.tripId}. This combination was not found`;
+        const message = `Tried to publish location data for App ID ${packet.appId} and Trip ID ${packet.tripId}.`;
         await logMessage(packet.appId, packet.tripId, message);
-        console.log(message);
+        console.error(message);
       }
 
-      return res.json({ status: 'no data' });
+      throw new Error('Data publishing error', newChannelState);
 
     } catch (error) {
       console.error('Location request failed. Error: ', error);

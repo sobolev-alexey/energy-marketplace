@@ -3,17 +3,13 @@ const isEmpty = require('lodash/isEmpty');
 const { composeAPI, FailMode, RandomWalkStrategy, SuccessMode } = require('@iota/client-load-balancer');
 const { asciiToTrytes, trytesToAscii } = require('@iota/converter')
 const { createChannel, createMessage, mamAttach, mamFetchAll } = require('@iota/mam.js');
-const {
-  getSettings,
-  storeChannelState,
-  logMessage
-} = require('./firebase');
+const { getSettings, logMessage } = require('./firebase');
 
 const generateSeed = (length = 81) => {
   const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ9';
   let seed = '';
   while (seed.length < length) {
-      const byte = crypto.randomBytes(1)
+      const byte = crypto.randomBytes(1);
       if (byte[0] < 243) {
           seed += charset.charAt(byte[0] % 27);
       }
@@ -38,6 +34,7 @@ const getApi = async settings => {
       console.error(`Failed node ${node.provider}, ${err.message}`);
     }
   });
+  
   return api;
 };
 
@@ -74,27 +71,19 @@ const publish = async (appId, tripId, payload, currentState = null) => {
     // Attach the message.    
     const api = getApi(settings);
     const bundle = await mamAttach(api, mamMessage, depth, mwm, tag);
+    const bundleHash = bundle && bundle.length && bundle[0].hash;
+    channelState.bundleHash = bundleHash;
+
     if (settings.enableCloudLogs) {
       // Log success
       const message = `You can view the MAM channel here https://utils.iota.org/mam/${root}/${mamMode}/${sideKey}/devnet`;
       await logMessage(appId, tripId, message);
       console.log(message);
 
-      if (bundle && bundle.length && bundle[0].hash) {
-        const bundleMessage = `Bundle hash: ${bundle[0].hash}`;
+      if (bundleHash) {
+        const bundleMessage = `Bundle hash: ${bundleHash}`;
         await logMessage(appId, tripId, bundleMessage);
         console.log(bundleMessage);
-      }
-    }
-
-    if (settings.enableCloudStorage) {
-      // Store the channel state.
-      try {
-        await storeChannelState(channelState);
-      } catch (storeError) {
-        const storeErrorMessage = `Store channel state failed`;
-        console.error(storeErrorMessage, storeError);
-        throw new Error(storeErrorMessage, storeError);
       }
     }
 
@@ -140,7 +129,9 @@ const fetch = async (appId, tripId, channelState) => {
         await logMessage(appId, tripId, message);
         console.log(message);
       } else {
-        console.log('Nothing was fetched from the MAM channel', root);
+        const message = `Nothing was fetched from the MAM channel ${root}`;
+        await logMessage(appId, tripId, message);
+        console.error(message);
       }
     }
 
