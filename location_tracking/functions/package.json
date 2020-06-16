@@ -1,8 +1,8 @@
 {
   "name": "functions",
   "scripts": {
-    "shell": "firebase experimental:functions:shell",
-    "start": "npm run shell",
+    "shell": "firebase functions:shell",
+    "start": "yarn shell",
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log"
   },
