@@ -27,7 +27,7 @@ exports.claim = functions.https.onRequest((req, res) => {
         if (settings.enableCloudLogs) {
             // Log success
             const message = `Fetched data for App ID ${packet.appId} and Trip ID ${packet.tripId}`;
-            await logMessage(packet.appId, packet.tripId, message);
+            await logMessage(packet.appId, packet.tripId, [message]);
             console.log(message);
         }
         return res.json({
@@ -39,7 +39,7 @@ exports.claim = functions.https.onRequest((req, res) => {
       if (settings.enableCloudLogs) {
         // Log no data
         const message = `Tried to fetch data for App ID ${packet.appId} and Trip ID ${packet.tripId}. This combination was not found`;
-        await logMessage(packet.appId, packet.tripId, message);
+        await logMessage(packet.appId, packet.tripId, [message]);
         console.log(message);
       }
 
@@ -81,7 +81,8 @@ exports.location = functions.https.onRequest((req, res) => {
         if (settings.enableCloudLogs) {
           // Log success
           const message = `Published new location data for App ID ${packet.appId} and Trip ID ${packet.tripId}`;
-          await logMessage(packet.appId, packet.tripId, message);
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          await logMessage(packet.appId, packet.tripId, [message]);
           console.log(message);
         }
 
@@ -92,7 +93,7 @@ exports.location = functions.https.onRequest((req, res) => {
       // Log failure
       if (settings.enableCloudLogs) {
         const message = `Tried to publish location data for App ID ${packet.appId} and Trip ID ${packet.tripId}.`;
-        await logMessage(packet.appId, packet.tripId, message);
+        await logMessage(packet.appId, packet.tripId, [message]);
         console.error(message);
       }
 
