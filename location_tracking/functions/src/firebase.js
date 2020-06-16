@@ -4,7 +4,7 @@ const admin = require('firebase-admin');
 admin.initializeApp(functions.config().firebase);
 
 exports.getSettings = async () => {
-  // Get data
+  // Get settings
   const doc = await admin
     .firestore()
     .collection('settings')
@@ -14,6 +14,7 @@ exports.getSettings = async () => {
     const { enableCloudLogs, nodes, tangle } = doc.data();
     return { enableCloudLogs, nodes, tangle };
   }
+  
   const message = 'getSettings failed. Setting does not exist';
   console.error(message, doc);
   throw Error(message);
@@ -26,10 +27,7 @@ exports.getChannelState = async hash => {
     .collection('mamChannelState')
     .doc(hash)
     .get();
-  if (doc.exists) return doc.data();
-  const message = 'getChannelState failed. Hash not found.';
-  console.error(message, key, doc);
-  throw Error(message);
+  return doc.exists ? doc.data() : null;
 };
 
 exports.storeChannelState = async (hash, newChannelState) => {
@@ -42,22 +40,21 @@ exports.storeChannelState = async (hash, newChannelState) => {
       timestamp: (new Date()).toLocaleString(),
       ...newChannelState
     }, { merge: true });
+
   return true;
 };
 
-exports.logMessage = async (appId, tripId, message) => {
+exports.logMessage = async (appId, tripId, messages) => {
+  const timestamp = (new Date()).toLocaleString().replace(/\//g, '.');
+
   // Save logs by user and trip
   await admin
     .firestore()
-    .collection('logs')
-    .doc(appId)
-    .collection('trips')
-    .doc(tripId)
-    .collection('logs')
-    .doc((new Date()).toLocaleString())
-    .set({
-      timestamp: (new Date()).toLocaleString(),
-      message
+    .collection(`logs/${appId}/trips/${tripId}/log`)
+    .doc(timestamp)
+    .set({ 
+      ...messages.map(message => message),
+      timestamp
     }, { merge: true });
 
   return true;
