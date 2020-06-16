@@ -1,0 +1,22 @@
+Test cases.txt
+firebase functions:shell
+
+1. Publish trip data for new trip
+location.post('/location').form({ appId: 'app1', tripId: 'trip1', location: 'Berlin 1' })
+
+2. Publish trip data for existing trip
+location.post('/location').form({ appId: 'app1', tripId: 'trip1', location: 'Berlin 2' })
+
+3. Fetch non-existing trip data
+claim.post('/claim').form({ appId: 'app0', tripId: 'trip0' })
+
+4. Fetch existing trip data
+claim.post('/claim').form({ appId: 'app1', tripId: 'trip1' })
+
+5. Fetch existing trip data from non-available node
+claim.post('/claim').form({ appId: 'app1', tripId: 'trip1' })
+
+6. Publish trip data for existing trip to non-available node
+location.post('/location').form({ appId: 'app1', tripId: 'trip1', location: 'Berlin 2' })
+
+
