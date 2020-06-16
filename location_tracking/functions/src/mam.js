@@ -18,7 +18,7 @@ const generateSeed = (length = 81) => {
 };
 
 const getApi = async settings => {
-  const api = composeAPI({
+  const api = await composeAPI({
     nodeWalkStrategy: new RandomWalkStrategy(
       settings.nodes.map(provider => ({ provider }))
     ),
@@ -62,14 +62,15 @@ const publish = async (appId, tripId, payload, currentState = null) => {
     const root = currentState ? currentState.root : mamMessage.root;
     channelState.root = root;
 
+    const messages = [];
     if (settings.enableCloudLogs) {
       const attachMessage = `Attaching to Tangle, please wait... ${root}`;
-      await logMessage(appId, tripId, attachMessage);
+      messages.push(attachMessage);
       console.log(attachMessage);
     }
 
     // Attach the message.    
-    const api = getApi(settings);
+    const api = await getApi(settings);
     const bundle = await mamAttach(api, mamMessage, depth, mwm, tag);
     const bundleHash = bundle && bundle.length && bundle[0].hash;
     channelState.bundleHash = bundleHash;
@@ -77,14 +78,16 @@ const publish = async (appId, tripId, payload, currentState = null) => {
     if (settings.enableCloudLogs) {
       // Log success
       const message = `You can view the MAM channel here https://utils.iota.org/mam/${root}/${mamMode}/${sideKey}/devnet`;
-      await logMessage(appId, tripId, message);
+      messages.push(message);
       console.log(message);
 
       if (bundleHash) {
         const bundleMessage = `Bundle hash: ${bundleHash}`;
-        await logMessage(appId, tripId, bundleMessage);
+        messages.push(bundleMessage);
         console.log(bundleMessage);
       }
+
+      await logMessage(appId, tripId, messages);
     }
 
     return channelState;
@@ -108,7 +111,7 @@ const fetch = async (appId, tripId, channelState) => {
     // Setup the details for the channel.
     const { mamMode, mamFetchStreams } = settings.tangle;
     const { root, sideKey } = channelState;
-    const api = getApi(settings);
+    const api = await getApi(settings);
 
     settings.enableCloudLogs && console.log('Fetching from Tangle, please wait...', root);
 
@@ -126,11 +129,11 @@ const fetch = async (appId, tripId, channelState) => {
       if (result.length) {
         // Log success
         const message = `Fetched from ${root}: ${result.length}`;
-        await logMessage(appId, tripId, message);
+        await logMessage(appId, tripId, [message]);
         console.log(message);
       } else {
         const message = `Nothing was fetched from the MAM channel ${root}`;
-        await logMessage(appId, tripId, message);
+        await logMessage(appId, tripId, [message]);
         console.error(message);
       }
     }
