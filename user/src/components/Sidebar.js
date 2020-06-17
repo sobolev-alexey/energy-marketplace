@@ -16,7 +16,7 @@ const Sidebar = () => {
                 <h1>
                     48.6 <p>Mi</p>
                 </h1>
-                <button className='cta' onClick={() => console.log('Add funds') }>
+                <button onClick={() => console.log('Add funds') }>
                     Add funds
                 </button>
                 <Link to='/wallet' className='cta'>

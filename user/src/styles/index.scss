@@ -95,6 +95,10 @@ button {
     overflow-x: hidden;
 }
 
+.page-wrapper {
+    background: #242529;
+}
+
 .main-section {
     width: 100%;
     display: flex;
@@ -104,6 +108,7 @@ button {
     overflow-x: auto;
     height: 100vh;
     background-color: #ffffff;
+    border-top-left-radius: 20px;
 
     .content {
         padding: 50px;
