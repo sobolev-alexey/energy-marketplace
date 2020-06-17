@@ -1,37 +1,38 @@
 button {
-    border-radius: 4px;
-    color: #ffffff;
+    color: #242529;
     font-weight: bold;
     font-size: 14px;
     line-height: 20px;
     text-align: center;
-    padding: 10px 30px;
+    padding: 10px 10px;
     letter-spacing: 0.04em;
     border: none;
+    border-radius: 32px;
+    height: 52px;
+    width: 120px;
+    background-color: #F4F8F9;  
 
-    background-color: #242529;  
-    height: 30px;
-    border-radius: 6px;
+    // &:hover {
+    //     background-color: #242529;
+    // }
 
-    &:hover {
-        background-color: #242529;
-    }
+    // &:disabled {
+    //     background-color: #242529;  
 
-    &:disabled {
-        background-color: #242529;  
-
-        &:hover {
-            background-color: #242529;
-        }
-    }
+    //     &:hover {
+    //         background-color: #242529;
+    //     }
+    // }
 }
 
 .cta {
     background: #242529;
+    border: 1px solid #F4F8F9;
     z-index: 10;
-    border-radius: 35px;
-    height: 55px;
-    padding: 10px 40px !important;
+    border-radius: 29px;
+    height: 52px;
+    width: 120px;
+    padding: 10px 10px;
 
     > span {
         color: #ffffff;
