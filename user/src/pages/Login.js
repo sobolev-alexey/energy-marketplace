@@ -57,8 +57,9 @@ const Login = ({ history }) => {
             <img
               src='https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg'
               alt='logo'
+              width={30}
             />
-            Login With Google
+            Login with Google
           </button>
           <button type='submit'>Login</button>
           <span>{error}</span>

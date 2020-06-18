@@ -1,4 +1,4 @@
-import firebase from 'firebase/app';
+import * as firebase from 'firebase/app';
 import 'firebase/auth';
 import firebaseConfig from '../firebase.config';
 
@@ -12,7 +12,7 @@ const signInWithCredentials = (action, email, password, callback, errorCallback)
         .then(() => {
             auth[`${action}WithEmailAndPassword`](email, password)
                 .then(res => res.user && callback(!!res.user))
-                .catch(e => errorCallback(e.message));
+                .catch(error => errorCallback(error.message));
         });
 }
 
@@ -24,6 +24,8 @@ async function logout(callback) {
 
 const signInWithGoogle = (callback, errorCallback) => {
     const provider = new firebase.auth.GoogleAuthProvider();
+    // provider.addScope('https://www.googleapis.com/auth/documents');
+    // provider.addScope('https://www.googleapis.com/auth/drive');
     firebase
         .auth()
         .setPersistence(firebase.auth.Auth.Persistence.SESSION)
@@ -32,13 +34,20 @@ const signInWithGoogle = (callback, errorCallback) => {
                 .auth()
                 .signInWithPopup(provider)
                 .then(result => callback(!!result))
-                .catch(e => errorCallback(e.message))
+                .catch(error => errorCallback(error.message))
         )
+}
+
+const resetPassword = (email, callback, errorCallback) => {
+    auth.sendPasswordResetEmail(email)
+        .then(result => callback(!!result))
+        .catch(error => errorCallback(error.message))
 }
 
 export {
     auth,
     logout,
+    resetPassword,
     signInWithGoogle,
     signInWithCredentials
 }
