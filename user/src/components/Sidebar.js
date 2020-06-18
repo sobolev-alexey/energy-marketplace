@@ -1,10 +1,11 @@
 import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { AppContext } from '../context/globalState';
+import { logout } from '../utils/firebase';
 import logo from '../assets/logo.svg';
 
 const Sidebar = () => {
-    const { logOut } = useContext(AppContext);
+    const { setLoggedIn } = useContext(AppContext);
 
     return (
         <div className='sidebar-wrapper'>
@@ -27,7 +28,7 @@ const Sidebar = () => {
                 </Link>
             </div>
             <div className='sidebar-footer'>
-                <button className="logout" onClick={() => logOut() }>
+                <button className="logout" onClick={() => logout(setLoggedIn)}>
                     Logout
                 </button>
             </div>

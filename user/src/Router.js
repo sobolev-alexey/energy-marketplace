@@ -61,9 +61,9 @@ const App = () => {
             />
           ))
         }
-        <Route path={'/'} component={Login} />
-        <Route path={'/register'} component={Register} />
-        <Route path={'/forgot'} component={ForgotPassword} />
+        <Route exact path={'/'} component={Login} />
+        <Route exact path={'/register'} component={Register} />
+        <Route exact path={'/forgot'} component={ForgotPassword} />
         <Route component={Login} />
       </Switch>
     </BrowserRouter>

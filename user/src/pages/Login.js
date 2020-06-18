@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
-import * as firebase from 'firebase'
 import { withRouter } from 'react-router-dom';
 import { AppContext } from '../context/globalState';
+import { signInWithGoogle, signInWithCredentials } from '../utils/firebase';
 // import { Form } from 'antd';
 
 // export default () => (
@@ -12,9 +12,9 @@ import { AppContext } from '../context/globalState';
 
 const Login = ({ history }) => {
     const { isLoggedIn, setLoggedIn } = useContext(AppContext);
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [error, setErrors] = useState("");
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setErrors] = useState('');
   
     useEffect(() => {
         console.log('Login', isLoggedIn);
@@ -23,50 +23,20 @@ const Login = ({ history }) => {
         };
     }, [isLoggedIn]); // eslint-disable-line react-hooks/exhaustive-deps
 
+    const callback = result => {
+      setLoggedIn(result);
+      result && history.push('/overview');
+    }
+
     const handleForm = e => {
-  
       e.preventDefault();
-  
-      firebase.auth().useDeviceLanguage();
-      
-      firebase
-      .auth()
-      .setPersistence(firebase.auth.Auth.Persistence.SESSION)
-        .then(() => {
-          firebase
-          .auth()
-          .signInWithEmailAndPassword(email, password)
-          .then(res => {
-            if (res.user) {
-                setLoggedIn(true);
-            };
-            history.push('/overview')
-          })
-          .catch(e => {
-            setErrors(e.message);
-          });
-        })
-  
+      signInWithCredentials('signIn', email, password, callback, setErrors);
     };
   
-    const signInWithGoogle = () => {
-      const provider = new firebase.auth.GoogleAuthProvider();
-      firebase
-      .auth()
-      .setPersistence(firebase.auth.Auth.Persistence.SESSION)
-      .then(() => {
-        firebase
-        .auth()
-        .signInWithPopup(provider)
-        .then(result => {
-          console.log('Google login', result)
-          setLoggedIn(true)
-          history.push('/overview')
-        })
-        .catch(e => setErrors(e.message))
-      })
-  
+    const handleGoogleLogin = () => {
+      signInWithGoogle(callback, setErrors);
     }
+
     return (
       <div>
         <h1>Login</h1>
@@ -74,26 +44,26 @@ const Login = ({ history }) => {
           <input
             value={email}
             onChange={e => setEmail(e.target.value)}
-            name="email"
-            type="email"
-            placeholder="email"
+            name='email'
+            type='email'
+            placeholder='email'
           />
           <input
             onChange={e => setPassword(e.target.value)}
-            name="password"
+            name='password'
             value={password}
-            type="password"
-            placeholder="password"
+            type='password'
+            placeholder='password'
           />
           <hr />
-          <button onClick={() => signInWithGoogle()} className="googleBtn" type="button">
+          <button onClick={() => handleGoogleLogin()} className='googleBtn' type='button'>
             <img
-              src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg"
-              alt="logo"
+              src='https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg'
+              alt='logo'
             />
             Login With Google
           </button>
-          <button type="submit">Login</button>
+          <button type='submit'>Login</button>
           <span>{error}</span>
         </form>
       </div>

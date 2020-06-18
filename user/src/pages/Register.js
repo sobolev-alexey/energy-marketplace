@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
-import * as firebase from 'firebase'
 import { withRouter } from 'react-router-dom';
 import { AppContext } from '../context/globalState';
+import { signInWithGoogle, signInWithCredentials } from '../utils/firebase';
 
 // import { Form } from 'antd';
 
@@ -13,9 +13,9 @@ import { AppContext } from '../context/globalState';
 
 const Register = ({history}) => {
     const { isLoggedIn, setLoggedIn } = useContext(AppContext);
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [error, setErrors] = useState("");
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setErrors] = useState('');
   
     useEffect(() => {
         console.log('Register', isLoggedIn);
@@ -24,48 +24,18 @@ const Register = ({history}) => {
         };
     }, [isLoggedIn]); // eslint-disable-line react-hooks/exhaustive-deps
 
+    const callback = result => {
+      setLoggedIn(result);
+      result && history.push('/overview');
+    }
+
     const handleForm = e => {
       e.preventDefault();
-  
-      firebase.auth().useDeviceLanguage();
-  
-      firebase
-      .auth()
-      .setPersistence(firebase.auth.Auth.Persistence.SESSION)
-        .then(() => {
-          firebase
-          .auth()
-          .createUserWithEmailAndPassword(email, password)
-          .then(res => {
-            console.log(res)
-            if (res.user) {
-              setLoggedIn(true);
-              history.push('/overview')
-            }
-          })
-          .catch(e => {
-            setErrors(e.message);
-          });
-        })
+      signInWithCredentials('createUser', email, password, callback, setErrors);
     };
   
     const handleGoogleLogin = () => {
-      const provider = new firebase.auth.GoogleAuthProvider();
-  
-      firebase
-      .auth()
-      .setPersistence(firebase.auth.Auth.Persistence.SESSION)
-        .then(() => {
-          firebase
-          .auth()
-          .signInWithPopup(provider)
-          .then(result => {
-            console.log('Google join', result)
-            setLoggedIn(true);
-            history.push('/overview')
-          })
-          .catch(e => setErrors(e.message))
-        })
+      signInWithGoogle(callback, setErrors);
     }
   
     return (
@@ -75,27 +45,27 @@ const Register = ({history}) => {
           <input
             value={email}
             onChange={e => setEmail(e.target.value)}
-            name="email"
-            type="email"
-            placeholder="email"
+            name='email'
+            type='email'
+            placeholder='email'
           />
           <input
             onChange={e => setPassword(e.target.value)}
-            name="password"
+            name='password'
             value={password}
-            type="password"
-            placeholder="password"
+            type='password'
+            placeholder='password'
           />
           <hr />
-          <button onClick={() => handleGoogleLogin()} className="googleBtn" type="button">
+          <button onClick={() => handleGoogleLogin()} className='googleBtn' type='button'>
             <img
-              src="https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg"
-              alt="logo"
+              src='https://upload.wikimedia.org/wikipedia/commons/5/53/Google_%22G%22_Logo.svg'
+              alt='logo'
             />
             Register with Google
           </button>
   
-          <button type="submit">Register</button>
+          <button type='submit'>Register</button>
   
           <span>{error}</span>
         </form>
