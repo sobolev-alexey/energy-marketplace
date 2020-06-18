@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
+import { AppContext } from '../context/globalState';
 import logo from '../assets/logo.svg';
 
 const Sidebar = () => {
+    const { logOut } = useContext(AppContext);
+
     return (
         <div className='sidebar-wrapper'>
             <Link to='/'>
@@ -24,9 +27,9 @@ const Sidebar = () => {
                 </Link>
             </div>
             <div className='sidebar-footer'>
-                <Link to='/'>
+                <button className="logout" onClick={() => logOut() }>
                     Logout
-                </Link>
+                </button>
             </div>
         </div>
     );
