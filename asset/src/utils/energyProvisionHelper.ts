@@ -1,7 +1,7 @@
 import { readData, writeData } from './databaseHelper';
 import { log, transactionLog } from './loggerHelper';
-import { confirmEnergyProvision } from './businessLogicHelper';
 import { energyProvisionSpeed } from '../config.json';
+import { queues, options } from './queueHelper';
 
 export const provideEnergy = async (transaction: any): Promise<void> => {
     try {
@@ -28,7 +28,7 @@ export const provideEnergy = async (transaction: any): Promise<void> => {
 
         await log(`Energy provision of ${transaction?.energyAmount} finished to ${transaction?.location}`);
 
-        await confirmEnergyProvision(updatedTransactionPayload);
+        queues.energyProvision.add(updatedTransactionPayload, options);
     } catch (error) {
         console.error('provideEnergy', error);
     }
@@ -59,7 +59,7 @@ export const receiveEnergy = async (transaction: any): Promise<void> => {
 
         await log(`Energy provision of ${transaction?.energyAmount} finished to ${transaction.location}`);
 
-        await confirmEnergyProvision(updatedTransactionPayload);
+        queues.energyProvision.add(updatedTransactionPayload, options);
     } catch (error) {
         console.error('receiveEnergy', error);
     }

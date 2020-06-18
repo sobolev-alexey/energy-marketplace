@@ -18,7 +18,6 @@ export async function init(): Promise<any> {
         await writeData('asset', config);
 
         const walletBalance = await getBalance(assetWallet?.address);
-        console.log('walletBalance', walletBalance, assetWallet);
         await writeData('wallet', { ...assetWallet, balance: walletBalance });
 
         if (!walletBalance) {

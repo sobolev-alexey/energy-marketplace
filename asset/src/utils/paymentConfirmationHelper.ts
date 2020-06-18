@@ -5,14 +5,8 @@ import { readData, readAllData } from './databaseHelper';
 import { log } from './loggerHelper';
 import { ServiceFactory } from '../factories/serviceFactory';
 import { updateWallet } from './walletHelper';
-import { confirmPayment } from './businessLogicHelper';
-
-interface IWallet {
-    address?: string;
-    balance?: number;
-    keyIndex?: number;
-    seed?: string;
-}
+import { IWallet } from '../models/wallet/IWallet';
+import { queues, options } from './queueHelper';
 
 export const paymentConfirmation = async () => {
     try {
@@ -110,6 +104,6 @@ const checkPaymentConfirmation = async contractId => {
         transaction?.status === 'Energy provision finished'
     ) {
         console.log(121212, contractId);
-        await confirmPayment(transaction);
+        queues.confirmPayment.add(transaction, options);
     }
 };

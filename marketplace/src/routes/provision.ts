@@ -1,12 +1,12 @@
 import { log } from '../utils/loggerHelper';
 import { HttpError } from '../errors/httpError';
-import { processProvisionConfirmation } from '../utils/businessLogic';
+import { queues, options } from '../utils/queueHelper';
 
 // Endpoint called by asset when energy provision is finished
 export async function provision(_: any, request: any): Promise<any> {
     try {
         if (request) {
-            await processProvisionConfirmation(request);
+            queues.provision.add(request, options);
             return { success: true };
         } else {
             await log(`No payload found in provision confirmation`);

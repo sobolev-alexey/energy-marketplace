@@ -6,14 +6,8 @@ import { defaultSecurity } from '../config.json';
 import { ServiceFactory } from '../factories/serviceFactory';
 import { readData, removeData, writeData } from './databaseHelper';
 import { getPaymentQueue } from './paymentQueueHelper';
-import { confirmPaymentProcessing } from './businessLogicHelper';
-
-interface IWallet {
-    address?: string;
-    balance?: number;
-    keyIndex?: number;
-    seed?: string;
-}
+import { queues, options } from './queueHelper';
+import { IWallet } from '../models/wallet/IWallet';
 
 export const generateSeed = (length = 81) => {
     const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ9';
@@ -67,7 +61,7 @@ const transferFunds = async (wallet, totalAmount, paymentQueue) => {
         return new Promise(async (resolve, reject) => {
             try {
                 const remainderAddress = generateAddress(seed, Number(keyIndex) + 1);
-                const options = {
+                const transactionOptions = {
                     inputs: [{
                         address,
                         keyIndex,
@@ -84,7 +78,7 @@ const transferFunds = async (wallet, totalAmount, paymentQueue) => {
                     message: asciiToTrytes(JSON.parse(transfer?.transactionPayload)?.contractId)
                 }));
                 console.log('transfers', transfers);
-                const trytes = await iota.prepareTransfers(seed, transfers, options);
+                const trytes = await iota.prepareTransfers(seed, transfers, transactionOptions);
                 const transactions = await iota.sendTrytes(trytes, undefined, undefined);
 
                 const hashes = transactions.map(transaction => transaction.hash);
@@ -114,7 +108,7 @@ const transferFunds = async (wallet, totalAmount, paymentQueue) => {
                     
                     // remove transfer from the queue
                     for (const transfer of paymentQueue) {
-                        await confirmPaymentProcessing(transfer?.transactionPayload);
+                        queues.confirmPaymentProcessing.add(transfer?.transactionPayload, options);
                         await removeData('paymentQueue', 'address', transfer?.address);
                     }
                 }

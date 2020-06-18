@@ -4,6 +4,7 @@ import { ServiceFactory } from './factories/serviceFactory';
 import { IRoute } from './models/app/IRoute';
 import { init } from './routes/init';
 import { AppHelper } from './utils/appHelper';
+import { redisStatus } from './utils/queueHelper';
 
 const routes: IRoute[] = [
     { path: '/register', method: 'post', func: 'register' },
@@ -33,4 +34,8 @@ AppHelper.build(routes, async (app, config, websocketPort) => {
     ServiceFactory.register('devnet-load-balancer-settings', () => devNetLoadBalancerSettings);
 });
 
-init();
+(async () => {
+    await new Promise(resolveSleep => setTimeout(resolveSleep, 5000));
+    console.log('INITIALIZING', redisStatus.connected);
+    init();
+})();
