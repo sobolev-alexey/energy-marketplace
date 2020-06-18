@@ -15,13 +15,10 @@ const signInWithCredentials = (action, email, password, callback, errorCallback)
         });
 }
 
-async function logout(setLoggedIn) {
-    auth.signOut().then(() => {
-        console.log('Sign-out successful.')
-        setLoggedIn(false);
-    }).catch(error => {
-        console.error('An error happened.', error)
-    });
+async function logout(callback) {
+    auth.signOut()
+        .then(() => callback)
+        .catch(error => console.error('An error happened', error));
 }
 
 const signInWithGoogle = (callback, errorCallback) => {

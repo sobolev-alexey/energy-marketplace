@@ -1,11 +1,19 @@
 import React, { useContext } from 'react';
 import { Link } from 'react-router-dom';
+import { withRouter } from 'react-router';
 import { AppContext } from '../context/globalState';
 import { logout } from '../utils/firebase';
+import { destroySession } from '../utils/storage';
 import logo from '../assets/logo.svg';
 
-const Sidebar = () => {
+const Sidebar = ({ history }) => {
     const { setLoggedIn } = useContext(AppContext);
+
+    const callback = async () => {
+        setLoggedIn(false);
+        await destroySession();
+        history.push('/');
+    }
 
     return (
         <div className='sidebar-wrapper'>
@@ -28,7 +36,7 @@ const Sidebar = () => {
                 </Link>
             </div>
             <div className='sidebar-footer'>
-                <button className="logout" onClick={() => logout(setLoggedIn)}>
+                <button className="logout" onClick={() => logout(callback)}>
                     Logout
                 </button>
             </div>
@@ -36,4 +44,4 @@ const Sidebar = () => {
     );
 };
 
-export default Sidebar;
+export default withRouter(Sidebar);

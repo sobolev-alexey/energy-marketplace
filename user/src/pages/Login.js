@@ -17,10 +17,7 @@ const Login = ({ history }) => {
     const [error, setErrors] = useState('');
   
     useEffect(() => {
-        console.log('Login', isLoggedIn);
-        if (isLoggedIn) {
-            history.push('/overview');
-        };
+        isLoggedIn && history.push('/overview');
     }, [isLoggedIn]); // eslint-disable-line react-hooks/exhaustive-deps
 
     const callback = result => {
