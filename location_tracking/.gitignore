@@ -1,0 +1,7 @@
+# Logs
+logs
+*.log
+.firebaserc
+
+# Dependency directory
+node_modules
