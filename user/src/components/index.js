@@ -3,7 +3,8 @@ import Table from './Table';
 import Layout from './Layout';
 import Loading from './Loading';
 import Form from './Form';
-import Disclaimer from './Disclaimer'
+import Disclaimer from './Disclaimer';
+import ProtectedRoute from './ProtectedRoute';
 
 export {
     Sidebar,
@@ -11,5 +12,6 @@ export {
     Layout,
     Loading,
     Form,
-    Disclaimer
+    Disclaimer,
+    ProtectedRoute
 };

@@ -1,0 +1,10 @@
+export default {
+    apiKey: "xxxxxxxxxxxxxxxxxxxx",
+    authDomain: "xxxxxxxxxxx.firebaseapp.com",
+    databaseURL: "https://xxxxxxxxxxx.firebaseio.com",
+    projectId: "xxxxxxxxxxx",
+    storageBucket: "xxxxxxxxxxx.appspot.com",
+    messagingSenderId: "xxxxxxxxxxx",
+    appId: "xxxxxxxxxxx"
+};
+  
