@@ -66,15 +66,30 @@ exports.notify_event = functions.https.onRequest((req, res) => {
   cors(req, res, async () => {
     // Check Fields
     const params = req.body;
-    if (!params || !params.userId || !params.deviceId || !params.transactionId || !params.event) {
+    if (!params || !params.userId || !params.encrypted) {
       console.error('Log event failed. Params: ', params);
       return res.status(400).json({ error: 'Ensure all fields are included' });
     }
 
     try {
-      // Store event
-      await logEvent(params.userId, params.deviceId, params.transactionId, params.event);
-      return res.json({ status: 'success' });
+      // Decrypt payload and verify signature
+      const result = await decryptVerify(encrypted, userId);
+      console.log('Verification', result);
+      if (result && result.verificationResult && result.message) {
+        const deviceId = result.message.type === 'offer' 
+          ? result.message.providerId 
+          : result.message.requesterId;
+
+        const transactionId = result.message.type === 'offer' 
+          ? result.message.providerTransactionId 
+          : result.message.requesterTransactionId;
+
+        // Store event
+        await logEvent(params.userId, deviceId, transactionId, result.message);
+        return res.json({ status: 'success' });
+      }
+
+      return res.json({ status: 'error' });
     } catch (e) {
       console.error('Log event failed. Error: ', e);
       return res.status(403).json({ status: 'error', error: e.message });
