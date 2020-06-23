@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { withRouter } from 'react-router-dom';
 import { AppContext } from '../context/globalState';
 import { signInWithGoogle, signInWithCredentials } from '../utils/firebase';
+
 // import { Form } from 'antd';
 
 // export default () => (
@@ -20,7 +21,7 @@ const Login = ({ history }) => {
         isLoggedIn && history.push('/overview');
     }, [isLoggedIn]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    const callback = result => {
+    const callback = async result => {
       setLoggedIn(result);
       result && history.push('/overview');
     }
