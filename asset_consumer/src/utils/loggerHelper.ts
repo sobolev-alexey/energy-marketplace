@@ -16,7 +16,7 @@ export const transactionLog = async (payload: object) => {
         // console.log('Transaction log:', payload);
 
         // Notify asset owner about new transaction event
-        // await signPublishEncryptSend(payload, 'notify');
+        await signPublishEncryptSend(payload, 'notify_event');
     } catch (error) {
         console.error('logger', error);
     }
