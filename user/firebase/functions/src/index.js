@@ -159,6 +159,7 @@ exports.device = functions.https.onRequest((req, res) => {
     // Check Fields
     const params = req.body;
     if (!params 
+      || !params.operation
       || !params.userId 
       || !params.apiKey
       || !params.deviceName 
@@ -180,48 +181,58 @@ exports.device = functions.https.onRequest((req, res) => {
       if (user && user.apiKey && user.apiKey === params.apiKey) {
         const settings = await getSettings();
 
-        // Create device wallet
-        const wallet = await getNewWallet();
+        let wallet;
+        let deviceId;
+        let image = '';
+        if (params.operation === 'create') {
+          // Create device wallet
+          wallet = await getNewWallet();
+          deviceId = randomstring.generate(16);
 
-        const deviceId = randomstring.generate(16);
+        } else if (params.operation === 'update' && params.deviceId) {
+          const existingDevice = user.devices.find(dev => dev.id === params.deviceId);
+          wallet = existingDevice && existingDevice.wallet;
+          deviceId = existingDevice && existingDevice.id;
+          image = existingDevice && existingDevice.image;
+        }
 
         // Compose payload
         const payload = {
-            exchangeRate: Number(settings.exchangeRate),
-            maxEnergyPrice: Number(params.maxEnergyPrice),
-            minWalletAmount: Number(params.minWalletAmount),
-            minOfferAmount: Number(params.minOfferAmount),
-            assetOwnerAPI: settings.assetOwnerAPI,
-            marketplaceAPI: settings.marketplaceAPI,
-            assetId: deviceId,
-            assetName: params.deviceName,
-            assetDescription: params.deviceDescription || '',
-            type: params.type,
-            assetOwner: user.userId,
-            network: settings.tangle.network,
-            location: params.location,
-            assetWallet: wallet,
-            marketplacePublicKey: settings.marketplacePublicKey,
-            assetOwnerPublicKey: user.publicKey
+          exchangeRate: Number(settings.exchangeRate),
+          maxEnergyPrice: Number(params.maxEnergyPrice),
+          minWalletAmount: Number(params.minWalletAmount),
+          minOfferAmount: Number(params.minOfferAmount),
+          assetOwnerAPI: settings.assetOwnerAPI,
+          marketplaceAPI: settings.marketplaceAPI,
+          assetId: deviceId,
+          assetName: params.deviceName,
+          assetDescription: params.deviceDescription || '',
+          type: params.type,
+          assetOwner: user.userId,
+          network: settings.tangle.network,
+          location: params.location,
+          assetWallet: wallet,
+          marketplacePublicKey: settings.marketplacePublicKey,
+          assetOwnerPublicKey: user.publicKey
         }
 
         // Send payload to device
         const headers = { 'Content-Type': 'application/json' };
-        const deviceResponse = await axios.post(`${params.deviceURL}`, payload, { headers });
+        const deviceResponse = await axios.post(`${params.deviceURL}/init`, payload, { headers });
         
         console.log('API', deviceResponse.data);
 
         // Receive public key
         if (deviceResponse 
-            && deviceResponse.data 
-            && deviceResponse.data.success 
-            && deviceResponse.data.publicKey 
+          && deviceResponse.data 
+          && deviceResponse.data.success 
+          && deviceResponse.data.publicKey 
         ) {
           const device = {
             id: deviceId,
             name: params.deviceName,
             description: params.deviceDescription || '',
-            image: '',
+            image: image || '',
             type: params.type,
             location: params.location,
             maxEnergyPrice: Number(params.maxEnergyPrice),
