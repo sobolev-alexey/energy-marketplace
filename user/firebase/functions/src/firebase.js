@@ -13,6 +13,16 @@ exports.setUser = async (uid, obj) => {
   return true;
 };
 
+exports.setDevice = async (userId, device) => {
+  await admin
+    .firestore()
+    .collection(`users/${userId}/devices`)
+    .doc(device.id)
+    .set(device, { merge: true });
+
+  return true;
+};
+
 exports.getUser = async (userId, internal = false) => {
   // Get user
   const userDocument = await admin
@@ -25,9 +35,10 @@ exports.getUser = async (userId, internal = false) => {
   if (userDocument.exists) {
     const user = userDocument.data();
 
-    delete user.publicKey;
     if (!internal) {
       delete user.privateKey;
+      delete user.publicKey;
+      delete user.userId;
     }
 
     if (user.wallet) {
