@@ -43,36 +43,10 @@
         "firebase_functions/**",
         ".git/**"
       ],
-      "redirects": [
+      "rewrites": [
         {
-          "source": "/register",
-          "destination": "/register",
-          "type": 301
-        },
-        {
-          "source": "/overview",
-          "destination": "/overview",
-          "type": 301
-        },
-        {
-          "source": "/new",
-          "destination": "/new",
-          "type": 301
-        },
-        {
-          "source": "/forgot",
-          "destination": "/forgot",
-          "type": 301
-        },
-        {
-          "source": "/wallet",
-          "destination": "/wallet",
-          "type": 301
-        },
-        {
-          "source": "/device/:deviceId",
-          "destination": "/device/:deviceId",
-          "type": 301
+          "source": "**",
+          "destination": "/index.html"
         }
       ]
     }

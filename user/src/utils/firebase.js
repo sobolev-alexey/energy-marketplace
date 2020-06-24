@@ -18,7 +18,7 @@ const signInWithCredentials = (action, email, password, callback, errorCallback)
 
 async function logout(callback) {
     auth.signOut()
-        .then(() => callback)
+        .then(callback)
         .catch(error => console.error('An error happened', error));
 }
 

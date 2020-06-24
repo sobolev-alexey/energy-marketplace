@@ -10,11 +10,10 @@ const Overview = () => {
             if (user) {
                 // User is signed in.
                 console.log('User 1', user.uid);
-                const { response, error, loading } = await callApi('user', { userId: user?.uid });
-                console.log('User 2', response, error, loading);
+                // const { response, error, loading } = await callApi('user', { userId: user?.uid });
+                // console.log('User 2', response, error, loading);
             } else {
-                // No user is signed in.
-                console.log('Oops')
+                console.log('No user is signed in')
             }
         });
 
