@@ -1,3 +1,5 @@
+const crypto = require('crypto');
+const { generateAddress } = require('@iota/core');
 const { getUser } = require('./firebase');
 const { EncryptionService } = require('./encryption');
 
@@ -32,6 +34,26 @@ const decryptVerify = async (encrypted, userId) => {
   }
 }
 
+const generateSeed = (length = 81) => {
+  const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ9';
+  let seed = '';
+  while (seed.length < length) {
+      const byte = crypto.randomBytes(1);
+      if (byte[0] < 243) {
+          seed += charset.charAt(byte[0] % 27);
+      }
+  }
+  return seed;
+};
+
+const getNewWallet = async () => {
+  const seed = generateSeed();
+  const address = generateAddress(seed, 0, 2, true);
+
+  return { seed, address, keyIndex: 0, balance: 0 }
+}
+
 module.exports = {
-  decryptVerify
+  decryptVerify,
+  getNewWallet
 }
