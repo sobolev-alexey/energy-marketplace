@@ -10,36 +10,23 @@ import {
   Wallet
 } from './pages';
 import { AppContext } from './context/globalState';
-import { ProtectedRoute } from './components';
 
 const protectedRoutes = [
 	{
-		name: 'overview',
-		exact: true,
 		path: '/overview',
 		main: props => <Overview {...props} />,
-		public: false,
   },
   {
-		name: 'new',
-		exact: true,
 		path: '/new',
 		main: props => <NewDevice {...props} />,
-		public: false,
   },
   {
-		name: 'wallet',
-		exact: true,
 		path: '/wallet',
 		main: props => <Wallet {...props} />,
-		public: false,
   },
   {
-		name: 'device',
-		exact: true,
 		path: '/device/:deviceId',
 		main: props => <Device {...props} />,
-		public: false,
 	},
 ];
 
@@ -51,14 +38,9 @@ const App = () => {
       <Switch>
         {
           protectedRoutes.map(route => (
-            <ProtectedRoute
-              key={route.path}
-              isLoggedIn={isLoggedIn}
-              path={route.path}
-              component={route.main}
-              exact={route.exact}
-              public={route.public}
-            />
+            isLoggedIn 
+              ? <Route key={route.path} path={route.path} component={route.main} />
+              : <Route exact key={route.path} path={route.path} component={Login} />
           ))
         }
         <Route exact path={'/'} component={Login} />

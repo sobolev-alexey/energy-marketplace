@@ -12,11 +12,11 @@ interface IResponse {
  * @param request The request to send.
  * @returns The response from the request.
  */
-export const sendRequest = async (endpoint: string, request: { encrypted: string }): Promise<IResponse> => {
+export const sendRequest = async (endpoint: string, request: { encrypted: string; userId?: string; }): Promise<IResponse> => {
     const asset: any = await readData('asset');
     
     let baseURL = asset?.marketplaceAPI;
-    if (endpoint === 'fund' || endpoint === 'notify') {
+    if (endpoint === 'fund' || endpoint === 'notify_event') {
         baseURL = asset?.assetOwnerAPI;
     }
 

@@ -4,7 +4,6 @@ import Layout from './Layout';
 import Loading from './Loading';
 import Form from './Form';
 import Disclaimer from './Disclaimer';
-import ProtectedRoute from './ProtectedRoute';
 
 export {
     Sidebar,
@@ -13,5 +12,4 @@ export {
     Loading,
     Form,
     Disclaimer,
-    ProtectedRoute
 };

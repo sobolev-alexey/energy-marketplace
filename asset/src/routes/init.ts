@@ -39,7 +39,6 @@ export async function init(): Promise<any> {
                 assetOwner: config.assetOwner, 
                 assetName: config.assetName, 
                 assetPublicKey: keys.publicKey, 
-                deviceUUID: config.deviceUUID, 
                 location: config.location,
                 type: config.type, 
                 network: config.network,

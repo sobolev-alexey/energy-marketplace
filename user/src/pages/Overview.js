@@ -1,25 +1,30 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import React, { useEffect } from 'react';
 import { Layout, Loading } from '../components';
-// import config from '../config.json';
+import callApi from '../utils/callApi';
+import { auth } from '../utils/firebase';
 
 const Overview = () => {
-    const [loading, setLoading] = useState(true);
-
+    const { response, error, loading } = { response: null, error: null, loading: true };
     useEffect(() => {
-        async function callApi() {
+        auth.onAuthStateChanged(async user => {
+            if (user) {
+                // User is signed in.
+                console.log('User 1', user.uid);
+                // const { response, error, loading } = await callApi('user', { userId: user?.uid });
+                // console.log('User 2', response, error, loading);
+            } else {
+                console.log('No user is signed in')
+            }
+        });
 
-            const response = await axios.get('https://randomuser.me/api/');
-            const devices = response?.data?.results;
-
-            // const response = await axios.get(`${config.serverAPI}/devices`);
-            // const devices = response?.data?.status === 'success' && response?.data?.devices;
-            // console.log('Devices', devices);
-            
-            await localStorage.setItem('devices', JSON.stringify(devices));
-            setLoading(false);
-        }
-        callApi();
+        // async function storeResponse() {
+        //     const devices = response?.devices;
+        //     console.log('Devices', devices);
+        //     await localStorage.setItem('devices', JSON.stringify(devices));
+        // }
+        // if (!error) {
+        //     storeResponse();
+        // }
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     return (
@@ -27,7 +32,7 @@ const Overview = () => {
             <div className='overview-page-wrapper'>
                 { loading && <Loading /> }
                 <h2>Title</h2>
-                <p className='bold'>text</p>
+                <p className='bold'>{response?.devices}</p>
             </div>
         </Layout>
     );

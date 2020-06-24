@@ -1,4 +1,5 @@
 import React from 'react';
+import { withRouter } from 'react-router';
 import { Tabs } from 'antd';
 import { Layout, Form, Table } from '../components';
 
@@ -10,8 +11,8 @@ const device = {
     image: 'https://firebasestorage.googleapis.com/v0/b/cityexchange-energymarketplace.appspot.com/o/temp%2Fsolar_panel_PNG126.png?alt=media&token=fc2c39fd-14c7-471c-9b27-c144eab9b88a'
 }
 
-export default () => {
-
+const Device = ({ match}) => {
+    console.log('Device page', match)
     const callback = key => {
         console.log(key);
     }
@@ -42,3 +43,5 @@ const DeviceInfo = () => (
         <img alt='' src={device.image} />
     </div>
 );
+
+export default withRouter(Device);

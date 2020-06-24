@@ -1,3 +1,4 @@
+import Bull from 'bull';
 import { INodeConfiguration } from './INodeConfiguration';
 
 /**
@@ -23,4 +24,14 @@ export interface IConfiguration {
      * A list of domains allowed to access the api.
      */
     allowedDomains: string[];
+
+    // Function name
+    func: string;
+
+    /**
+     * A list of queues.
+     */
+    queues?: {
+        [key: string]: Bull.Queue<any>;
+    };
 }

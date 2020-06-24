@@ -5,7 +5,7 @@ import Disclaimer from './Disclaimer';
 // import Header from './Header';
 import Sidebar from './Sidebar';
 
-const Layout = ({ children, match}) => {
+const Layout = ({ children, match }) => {
     ReactGA.pageview(match.url);
 
     return (
