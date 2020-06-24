@@ -1,19 +1,19 @@
 const functions = require('firebase-functions');
 const cors = require('cors')({ origin: true });
+const axios = require('axios');
 const { v4: uuid } = require('uuid');
+const randomstring = require('randomstring');
 const isEmpty = require('lodash/isEmpty');
 const { 
   getSettings, 
-  getChannelState, 
-  logMessage, 
   setUser, 
+  setDevice,
   getUser,
   getTransactions,
   getEvents,
   logEvent
 } = require('./firebase');
-const { fetch } = require('./mam');
-const { decryptVerify } = require('./helpers');
+const { decryptVerify, getNewWallet } = require('./helpers');
 const { EncryptionService } = require('./encryption');
 
 
@@ -31,7 +31,7 @@ exports.setupUser = functions.auth.user().onCreate(user => {
         const { privateKey, publicKey } = encryptionService.generateKeys();
         console.log('Keys', privateKey, publicKey);
 
-        await setUser(user.uid, { apiKey, privateKey, publicKey });
+        await setUser(user.uid, { apiKey, privateKey, publicKey, userId: user.uid });
         console.log('setupUser resolved for UID', user.uid);
         resolve();
       } catch (e) {
@@ -41,6 +41,7 @@ exports.setupUser = functions.auth.user().onCreate(user => {
     }
   });
 });
+
 
 exports.user = functions.https.onRequest((req, res) => {
   cors(req, res, async () => {
@@ -61,6 +62,7 @@ exports.user = functions.https.onRequest((req, res) => {
     }
   });
 });
+
 
 exports.notify_event = functions.https.onRequest((req, res) => {
   cors(req, res, async () => {
@@ -146,6 +148,97 @@ exports.events = functions.https.onRequest((req, res) => {
       return res.json({ status: 'wrong api key' });
     } catch (e) {
       console.error('Event request failed. Error: ', e);
+      return res.status(403).json({ status: 'error', error: e.message });
+    }
+  });
+});
+
+
+exports.device = functions.https.onRequest((req, res) => {
+  cors(req, res, async () => {
+    // Check Fields
+    const params = req.body;
+    if (!params 
+      || !params.userId 
+      || !params.apiKey
+      || !params.deviceName 
+      || !params.type 
+      || !params.location 
+      || !params.deviceURL
+      || !params.minWalletAmount 
+      || !params.minOfferAmount 
+      || !params.maxEnergyPrice 
+      ) {
+      console.error('Device creation request failed. Params: ', params);
+      return res.status(400).json({ error: 'Ensure all fields are included' });
+    }
+
+    try {
+      const user = await getUser(params.userId, true);
+      
+      // Check correct apiKey
+      if (user && user.apiKey && user.apiKey === params.apiKey) {
+        const settings = await getSettings();
+
+        // Create device wallet
+        const wallet = await getNewWallet();
+
+        const deviceId = randomstring.generate(16);
+
+        // Compose payload
+        const payload = {
+            exchangeRate: Number(settings.exchangeRate),
+            maxEnergyPrice: Number(params.maxEnergyPrice),
+            minWalletAmount: Number(params.minWalletAmount),
+            minOfferAmount: Number(params.minOfferAmount),
+            assetOwnerAPI: settings.assetOwnerAPI,
+            marketplaceAPI: settings.marketplaceAPI,
+            assetId: deviceId,
+            assetName: params.deviceName,
+            assetDescription: params.deviceDescription || '',
+            type: params.type,
+            assetOwner: user.userId,
+            network: settings.tangle.network,
+            location: params.location,
+            assetWallet: wallet,
+            marketplacePublicKey: settings.marketplacePublicKey,
+            assetOwnerPublicKey: user.publicKey
+        }
+
+        // Send payload to device
+        const headers = { 'Content-Type': 'application/json' };
+        const deviceResponse = await axios.post(`${params.deviceURL}`, payload, { headers });
+        
+        console.log('API', deviceResponse.data);
+
+        // Receive public key
+        if (deviceResponse 
+            && deviceResponse.data 
+            && deviceResponse.data.success 
+            && deviceResponse.data.publicKey 
+        ) {
+          const device = {
+            id: deviceId,
+            name: params.deviceName,
+            description: params.deviceDescription || '',
+            image: '',
+            type: params.type,
+            location: params.location,
+            maxEnergyPrice: Number(params.maxEnergyPrice),
+            minWalletAmount: Number(params.minWalletAmount),
+            minOfferAmount: Number(params.minOfferAmount),
+            wallet
+          }
+
+          // Store device info
+          await setDevice(params.userId, device);
+          return res.json({ status: 'success' });
+        }
+        return res.json({ status: 'something went wrong' });
+      }
+      return res.json({ status: 'wrong api key' });
+    } catch (e) {
+      console.error('Device creation request failed. Error: ', e);
       return res.status(403).json({ status: 'error', error: e.message });
     }
   });
