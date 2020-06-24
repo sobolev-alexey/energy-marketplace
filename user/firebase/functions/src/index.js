@@ -243,3 +243,39 @@ exports.device = functions.https.onRequest((req, res) => {
     }
   });
 });
+
+exports.image = functions.https.onRequest((req, res) => {
+  cors(req, res, async () => {
+    // Check Fields
+    const params = req.body;
+    if (!params 
+      || !params.userId 
+      || !params.apiKey
+      || !params.deviceId 
+      || !params.image
+      ) {
+      console.error('Image upload request failed. Params: ', params);
+      return res.status(400).json({ error: 'Ensure all fields are included' });
+    }
+
+    try {
+      const user = await getUser(params.userId, true);
+      
+      // Check correct apiKey
+      if (user && user.apiKey && user.apiKey === params.apiKey) {
+        const device = user.devices.find(dev => dev.id === params.deviceId);
+        // Receive public key
+        if (device) {
+          // Update device info
+          await setDevice(params.userId, { ...device, image: params.image });
+          return res.json({ status: 'success' });
+        }
+        return res.json({ status: 'no device found' });
+      }
+      return res.json({ status: 'wrong api key' });
+    } catch (e) {
+      console.error('Image upload request failed. Error: ', e);
+      return res.status(403).json({ status: 'error', error: e.message });
+    }
+  });
+});
