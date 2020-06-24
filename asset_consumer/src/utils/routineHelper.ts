@@ -83,7 +83,11 @@ export async function signPublishEncryptSend(payload: any, endpoint: string): Pr
             );
 
             // Send encrypted payload and signature to asset
-            return await sendRequest(endpoint, { encrypted });
+            const requestPayload: { encrypted: string; userId?: string; } = { encrypted };
+            if (endpoint === 'fund' || endpoint === 'notify_event') {
+                requestPayload.userId = asset.assetOwner;
+            }
+            return await sendRequest(endpoint, requestPayload);
         }
     } catch (error) {
         console.error('signPublishEncryptSend', error);
