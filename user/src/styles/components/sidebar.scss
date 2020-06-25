@@ -1,27 +1,23 @@
 .sidebar-wrapper {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     justify-content: space-between;
     width: 200px;
     padding: 60px;
     height: 100vh;
     background-color: #242529;
     position: relative;
-
     .sidebar-logo {
-        width: 84px;
+        width: 110px;
     }
-
     .sidebar-content {
         display: flex;
         flex-direction: column;
-        justify-content: space-between;
-        align-items: flex-start;
-        height: 110px;
+        align-items: center;
+        height: 230px;
         width: 156px;
         z-index: 2;
-    
         .sidebar-links {
             width: 100%;
             display: flex;
@@ -29,22 +25,18 @@
             justify-content: space-between;
             padding-bottom: 10px;
             margin-bottom: 15px;
-            border-bottom: 1px solid #EEF2FA;
-    
+            border-bottom: 1px solid #eef2fa;
             a {
-                color: #C3D0E4;
+                color: #c3d0e4;
                 font-weight: 500;
                 font-size: 11px;
                 line-height: 13px;
                 letter-spacing: 0.03em;
                 text-transform: uppercase;
-    
                 &:hover {
-                    color: #242529;  
+                    color: #242529;
                 }
             }
         }
     }
 }
-
-  

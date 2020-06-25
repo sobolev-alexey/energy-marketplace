@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@ant-design/icons": "^4.2.1",
     "antd": "^4.3.4",
     "axios": "^0.19.2",
     "firebase": "^7.15.1",
@@ -40,6 +41,9 @@
     "node": ">=13"
   },
   "devDependencies": {
-    "node-sass": "^4.14.1"
+    "babel-loader": "^8.1.0",
+    "less-loader": "^6.1.2",
+    "node-sass": "^4.14.1",
+    "webpack": "^4.43.0"
   }
 }

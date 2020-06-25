@@ -1,8 +1,8 @@
-import React from 'react';
-// import { Table, Input, Button, Space } from 'antd';
+import React from "react";
+import { Table } from "antd";
 
-export default () => (
-    <div className='table-wrapper'>
-        Table
-    </div>
-);
+const CustomTable = ({ devices, columns }) => {
+  return <Table className="ant-table-cell" columns={columns} dataSource={devices} />;
+};
+
+export default CustomTable;

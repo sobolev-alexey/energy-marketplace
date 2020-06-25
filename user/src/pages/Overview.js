@@ -1,36 +1,84 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { Layout, Loading } from '../components';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { Layout, Loading } from "../components";
+import { Input, Select, Divider } from "antd";
+
+import { set } from "react-ga";
 // import config from '../config.json';
 
+import CustomTable from "../components/Table";
+import { overviewTableColumns } from "../assets/table-columns-data";
+
+const { Search } = Input;
+const { Option } = Select;
+
 const Overview = () => {
-    const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [devices, setDevices] = useState([]);
+  const [filteredDevices, setFilteredDevices] = useState([]);
+  const [sortValue, setSortValue] = useState("");
 
-    useEffect(() => {
-        async function callApi() {
+  useEffect(() => {
+    async function callApi() {
+      const response = await axios.get(`https://jsonplaceholder.typicode.com/users`);
+      const devices = response.data;
+      setDevices(devices);
+      // const response = await axios.get(`${config.serverAPI}/devices`);
+      // const devices = response?.data?.status === 'success' && response?.data?.devices;
+      // console.log("Devices", devices);
 
-            const response = await axios.get('https://randomuser.me/api/');
-            const devices = response?.data?.results;
+      await localStorage.setItem("devices", JSON.stringify(devices));
+      setLoading(false);
+    }
+    callApi();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-            // const response = await axios.get(`${config.serverAPI}/devices`);
-            // const devices = response?.data?.status === 'success' && response?.data?.devices;
-            // console.log('Devices', devices);
-            
-            await localStorage.setItem('devices', JSON.stringify(devices));
-            setLoading(false);
-        }
-        callApi();
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    setFilteredDevices(devices.filter((device) => device.name.toLowerCase().includes(searchQuery.toLowerCase())));
+  }, [searchQuery, devices, sortValue]);
 
-    return (
-        <Layout>
-            <div className='overview-page-wrapper'>
-                { loading && <Loading /> }
-                <h2>Title</h2>
-                <p className='bold'>text</p>
+  const setDevicesSort = (value) => {
+    if (value === "A-Z") {
+      setSortValue("A-Z");
+      setFilteredDevices(devices.sort((a, b) => a.name.localeCompare(b.name)));
+    } else {
+      setSortValue("Z-A");
+      setFilteredDevices(devices.sort((a, b) => a.name.localeCompare(b.name)).reverse());
+    }
+  };
+
+  return (
+    <Layout>
+      <div className="overview-page-wrapper">
+        {loading ? (
+          <Loading />
+        ) : (
+          <div>
+            <div className="overview-sub-header-wrapper">
+              <Select defaultValue="A-Z" style={{ width: "188px" }} onChange={setDevicesSort}>
+                <Option value="A-Z">Sort by: A-Z</Option>
+                <Option value="Z-A">Sort by: Z-A</Option>
+              </Select>
+
+              <Search
+                placeholder="Search for devices"
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                }}
+                style={{ width: 300 }}
+              />
             </div>
-        </Layout>
-    );
+            {/* {console.log(searchQuery)} */}
+            <div>
+              <Divider style={{ boxShadow: "0 8px 6px -6px black" }} />
+              <CustomTable columns={overviewTableColumns} devices={filteredDevices} />
+            </div>
+          </div>
+        )}
+      </div>
+    </Layout>
+  );
 };
 
 export default Overview;

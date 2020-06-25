@@ -1,0 +1,22 @@
+.overview-page-wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.overview-sub-header-wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.customSelect {
+     :global {
+        .ant-select-selector {
+            height: 42px;
+            border-radius: 20px;
+        }
+    }
+}

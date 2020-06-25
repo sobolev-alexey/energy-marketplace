@@ -2,10 +2,18 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 0 7%; 
+    padding: 0 7%;
     z-index: 100;
     position: fixed;
     top: 0;
     width: calc(100% - 320px);
     right: 0;
+}
+
+.header-wrapper2 {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 60px 50px 20px 50px;
+    width: 100%;
 }
