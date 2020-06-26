@@ -13,7 +13,7 @@ export async function init(_: any, request: any): Promise<any> {
         await log('Initializing...');
 
         const { assetWallet, ...config } = request;
-        await writeData('asset', config);
+        await writeData('asset', { ...config, marketplacePublicKey: decodeURIComponent(request.marketplacePublicKey) });
         await writeData('wallet', assetWallet);
 
         let keys: any = await readData('keys');
