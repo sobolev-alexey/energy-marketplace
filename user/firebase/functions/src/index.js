@@ -75,8 +75,8 @@ exports.notify_event = functions.https.onRequest((req, res) => {
 
     try {
       // Decrypt payload and verify signature
-      const result = await decryptVerify(encrypted, userId);
-      console.log('Verification', result);
+      const result = await decryptVerify(params.encrypted, params.userId);
+
       if (result && result.verificationResult && result.message) {
         const deviceId = result.message.type === 'offer' 
           ? result.message.providerId 
