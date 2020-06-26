@@ -1,5 +1,5 @@
 {
-    "serverPortNumber": 5000,
+    "serverPortNumber": 5005,
     "websocketPortNumber": 9000,
     "redisPortNumber": 6379,
     "defaultSecurity": 2,
