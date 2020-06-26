@@ -17,8 +17,9 @@ export default async (job, done) => {
 
             await log(`Contract processing successful. ${payload?.message?.contractId}`);
             done(null);
+        } else {
+            throw new Error('Marketplace signature verification failed');
         }
-        throw new Error('Marketplace signature verification failed');
     } catch (error) {
         console.error('processContract', error);
         await log(`processContract Error ${error.toString()}`);

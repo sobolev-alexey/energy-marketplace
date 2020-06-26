@@ -29,8 +29,9 @@ export default async (job, done) => {
                 throw new Error(`Payment request verification failed. ${transaction}`);
             }
             done(null);
+        } else {
+            throw new Error('Marketplace signature verification failed');
         }
-        throw new Error('Marketplace signature verification failed');
     } catch (error) {
         console.error('processPaymentRequest', error);
         await log(`processPaymentRequest Error ${error.toString()}`);
