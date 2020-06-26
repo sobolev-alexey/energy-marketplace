@@ -75,8 +75,8 @@ exports.notify_event = functions.https.onRequest((req, res) => {
 
     try {
       // Decrypt payload and verify signature
-      const result = await decryptVerify(encrypted, userId);
-      console.log('Verification', result);
+      const result = await decryptVerify(params.encrypted, params.userId);
+
       if (result && result.verificationResult && result.message) {
         const deviceId = result.message.type === 'offer' 
           ? result.message.providerId 
@@ -93,7 +93,7 @@ exports.notify_event = functions.https.onRequest((req, res) => {
 
       return res.json({ status: 'error' });
     } catch (e) {
-      console.error('Log event failed. Error: ', e);
+      console.error('Log event failed.', e);
       return res.status(403).json({ status: 'error', error: e.message });
     }
   });
@@ -188,7 +188,6 @@ exports.device = functions.https.onRequest((req, res) => {
           // Create device wallet
           wallet = await getNewWallet();
           deviceId = randomstring.generate(16);
-
         } else if (params.operation === 'update' && params.deviceId) {
           const existingDevice = user.devices.find(dev => dev.id === params.deviceId);
           wallet = existingDevice && existingDevice.wallet;
@@ -232,6 +231,7 @@ exports.device = functions.https.onRequest((req, res) => {
             id: deviceId,
             name: params.deviceName,
             description: params.deviceDescription || '',
+            publicKey: deviceResponse.data.publicKey,
             image: image || '',
             type: params.type,
             location: params.location,

@@ -115,8 +115,7 @@ exports.getSettings = async () => {
     .doc('settings')
     .get();
   if (doc.exists) {
-    const { enableCloudLogs, nodes, tangle } = doc.data();
-    return { enableCloudLogs, nodes, tangle };
+    return doc.data();
   }
   
   const message = 'getSettings failed. Setting does not exist';
@@ -149,7 +148,7 @@ exports.logEvent = async (userId, deviceId, transactionId, event) => {
     .collection(`events/${userId}/devices/${deviceId}/transactions/${transactionId}/events`)
     .doc(timestamp)
     .set({ 
-      event,
+      ...event,
       timestamp
     }, { merge: true });
 

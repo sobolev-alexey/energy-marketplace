@@ -4,11 +4,9 @@ import { Server } from 'http';
 import SocketIO from 'socket.io';
 import { ServiceFactory } from './factories/serviceFactory';
 import { IRoute } from './models/app/IRoute';
-import { init } from './routes/init';
 import { message } from './socketSubscriptions/message';
 import { AppHelper } from './utils/appHelper';
 import { BusinessLogic } from './utils/businessLogicHelper';
-import { redisStatus } from './utils/queueHelper';
   
 const routes: IRoute[] = [
     { path: '/init', method: 'post', func: 'init' },
@@ -49,9 +47,3 @@ AppHelper.build(routes, async (app, config, websocketPort) => {
     // tslint:disable-next-line:no-unused-expression
     new BusinessLogic();
 });
-
-(async () => {
-    await new Promise(resolveSleep => setTimeout(resolveSleep, 5000));
-    console.log('INITIALIZING', redisStatus.connected);
-    init();
-})();

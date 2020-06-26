@@ -8,7 +8,7 @@ const decryptVerify = async (encrypted, userId) => {
       if (encrypted && userId) {
           const user = await getUser(userId, true);
           if (user && user.privateKey) {
-              const encryptionService = new EncryptionService();
+              const encryptionService = EncryptionService();
 
               const decrypted = encryptionService.privateDecrypt(
                 user.privateKey, encrypted
@@ -18,7 +18,8 @@ const decryptVerify = async (encrypted, userId) => {
                 ? decrypted.message && decrypted.message.providerId 
                 : decrypted.message && decrypted.message.requesterId;
 
-              const device = user.devices.find(asset => asset.assetId === assetId);
+              const device = user.devices.find(asset => asset.id === assetId);
+
               const verificationResult = encryptionService.verifySignature(
                 device.publicKey, decrypted.message, decrypted.signature
               );  
