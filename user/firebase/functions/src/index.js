@@ -188,7 +188,6 @@ exports.device = functions.https.onRequest((req, res) => {
           // Create device wallet
           wallet = await getNewWallet();
           deviceId = randomstring.generate(16);
-
         } else if (params.operation === 'update' && params.deviceId) {
           const existingDevice = user.devices.find(dev => dev.id === params.deviceId);
           wallet = existingDevice && existingDevice.wallet;
@@ -232,6 +231,7 @@ exports.device = functions.https.onRequest((req, res) => {
             id: deviceId,
             name: params.deviceName,
             description: params.deviceDescription || '',
+            publicKey: deviceResponse.data.publicKey,
             image: image || '',
             type: params.type,
             location: params.location,
