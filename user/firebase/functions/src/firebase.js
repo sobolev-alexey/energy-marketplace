@@ -115,8 +115,7 @@ exports.getSettings = async () => {
     .doc('settings')
     .get();
   if (doc.exists) {
-    const { enableCloudLogs, nodes, tangle } = doc.data();
-    return { enableCloudLogs, nodes, tangle };
+    return doc.data();
   }
   
   const message = 'getSettings failed. Setting does not exist';
