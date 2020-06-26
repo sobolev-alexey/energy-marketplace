@@ -7,6 +7,7 @@ import { set } from "react-ga";
 // import config from '../config.json';
 
 import CustomTable from "../components/Table";
+import OverviewHeader from "../components/OverviewHeader";
 import { overviewTableColumns } from "../assets/table-columns-data";
 
 const { Search } = Input;
@@ -50,6 +51,7 @@ const Overview = () => {
 
   return (
     <Layout>
+      <OverviewHeader />
       <div className="overview-page-wrapper">
         {loading ? (
           <Loading />
@@ -71,7 +73,7 @@ const Overview = () => {
             </div>
             {/* {console.log(searchQuery)} */}
             <div>
-              <Divider style={{ boxShadow: "0 8px 6px -6px black" }} />
+              <Divider className={"divider"} />
               <CustomTable columns={overviewTableColumns} devices={filteredDevices} />
             </div>
           </div>

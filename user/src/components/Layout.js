@@ -2,7 +2,6 @@ import React from "react";
 import ReactGA from "react-ga";
 import { withRouter } from "react-router";
 import Disclaimer from "./Disclaimer";
-import Header from "./Header";
 import Sidebar from "./Sidebar";
 
 const Layout = ({ children, match }) => {
@@ -13,7 +12,6 @@ const Layout = ({ children, match }) => {
     <div className="page-wrapper">
       <Sidebar />
       <div className="main-section">
-        <Header />
         <div className="content">{children}</div>
       </div>
       <Disclaimer />

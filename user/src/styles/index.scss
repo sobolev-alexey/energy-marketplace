@@ -71,6 +71,9 @@ th {
         font-size: 20px;
         vertical-align: text-bottom;
     }
+    .wallet-balance3 {
+        font-size: 20px;
+    }
 }
 
 body {}
@@ -126,6 +129,44 @@ table {
     border-spacing: 0 15px;
 }
 
+label {
+    font-weight: 500;
+}
+
+.divider {
+    -webkit-box-shadow: 0 8px 6px -6px black;
+    -moz-box-shadow: 0 8px 6px -6px black;
+    box-shadow: 0 8px 6px -6px black;
+}
+
+.icon-running {
+    color: #59ad9e;
+    font-size: 20px;
+    padding-right: 5px;
+}
+
+.text-running {
+    color: #59ad9e;
+    font-size: 14px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+}
+
+.icon-paused {
+    color: #dc817c;
+    font-size: 20px;
+    padding-right: 5px;
+}
+
+.text-paused {
+    color: #dc817c;
+    font-size: 14px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+}
+
 .hidden {
     display: none !important;
 }
@@ -165,7 +206,6 @@ button {
     border-top-left-radius: 20px;
     .content {
         background: #f4f8f9;
-        padding: 50px;
         min-width: 535px;
         width: 100%;
         display: flex;

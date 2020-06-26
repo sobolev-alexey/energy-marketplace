@@ -11,10 +11,11 @@ const Sidebar = () => {
         <img src={logo} alt="Logo" className="sidebar-logo" />
       </Link>
       <div className="sidebar-content">
-        <div>
-          <h5 className="main-wallet-text"> MAIN WALLLET </h5>
-          <h1 className="wallet-balance">48.6</h1> <p className="wallet-balance2"> Mi </p>
-        </div>
+        <h5 className="main-wallet-text"> MAIN WALLLET </h5>
+        <h1 className="wallet-balance">
+          48.6 <span className="wallet-balance3">Mi</span>
+        </h1>
+        <br />
         <button className="custom-button" onClick={() => console.log("Add funds")}>
           Add funds
         </button>

@@ -50,7 +50,7 @@ button {
     z-index: 10;
     border-radius: 29px;
     height: 48px;
-    padding: 10px 10px;
+    padding: 5px 5px;
     color: #ffffff;
     font-weight: 500;
     font-size: 14px;
@@ -58,5 +58,11 @@ button {
     width: 180px;
     display: flex;
     align-items: center;
-    justify-content: space-around;
+    justify-content: space-between;
+}
+
+.cta3 {
+    color: #242529;
+    font-size: 40px;
+    padding-bottom: 5px;
 }
