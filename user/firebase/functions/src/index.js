@@ -93,7 +93,7 @@ exports.notify_event = functions.https.onRequest((req, res) => {
 
       return res.json({ status: 'error' });
     } catch (e) {
-      console.error('Log event failed. Error: ', e);
+      console.error('Log event failed.', e);
       return res.status(403).json({ status: 'error', error: e.message });
     }
   });

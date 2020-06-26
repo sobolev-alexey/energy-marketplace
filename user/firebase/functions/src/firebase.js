@@ -148,7 +148,7 @@ exports.logEvent = async (userId, deviceId, transactionId, event) => {
     .collection(`events/${userId}/devices/${deviceId}/transactions/${transactionId}/events`)
     .doc(timestamp)
     .set({ 
-      event,
+      ...event,
       timestamp
     }, { merge: true });
 
