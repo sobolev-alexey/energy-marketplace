@@ -1,8 +1,8 @@
-import React from 'react';
-import { Spin } from 'antd';
+import React from "react";
+import { Spin } from "antd";
 
 export default () => (
-    <div className='spinner'>
-        <Spin size='large' />
-    </div>
+  <div className="spinner">
+    <Spin size="large" />
+  </div>
 );
