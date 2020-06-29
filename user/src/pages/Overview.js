@@ -3,7 +3,6 @@ import axios from "axios";
 import { Layout, Loading } from "../components";
 import { Input, Select, Divider } from "antd";
 
-import { set } from "react-ga";
 // import config from '../config.json';
 
 import CustomTable from "../components/Table";
@@ -24,7 +23,7 @@ const Overview = () => {
     async function callApi() {
       const response = await axios.get(`https://jsonplaceholder.typicode.com/users`);
       const devices = response.data;
-      setDevices(devices);
+      setDevices(devices.map(device => ({ ...device, key: device.id })));
       // const response = await axios.get(`${config.serverAPI}/devices`);
       // const devices = response?.data?.status === 'success' && response?.data?.devices;
       // console.log("Devices", devices);
