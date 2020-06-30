@@ -5,7 +5,7 @@ import { Space } from "antd";
 import { LeftCircleFilled } from "@ant-design/icons";
 
 const NewDeviceHeader = () => (
-  <div className="new-device-header-wrapper">
+  <div className="header-wrapper2">
     <Space size={40} align="center">
       <Link to="/">
         <LeftCircleFilled className={"cta3"} />

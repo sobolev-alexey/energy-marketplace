@@ -19,7 +19,7 @@ export const overviewTableColumns = [
       { text: "Producer", value: "producer" },
       { text: "Consumer", value: "consumer" },
     ],
-    onFilter: (value, record) => record.website.includes(value),
+    onFilter: (value, record) => record.username.includes(value),
   },
   {
     title: "Balance",
@@ -39,12 +39,57 @@ export const overviewTableColumns = [
     render: (value) =>
       value === "running" ? (
         <span className="text-running">
-          <PlayCircleOutlined className={"icon-running"} /> Running{" "}
+          <PlayCircleOutlined className={"icon-running"} /> Running
         </span>
       ) : (
         <span className="text-paused">
-          <PauseCircleOutlined className={"icon-paused"} /> Paused{" "}
+          <PauseCircleOutlined className={"icon-paused"} /> Paused
         </span>
+      ),
+  },
+  {
+    key: "x",
+    render: () => <DropdownButton />,
+  },
+];
+
+export const DeviceTableColumns = [
+  {
+    title: "Contract ID",
+    dataIndex: "name",
+    key: "name",
+  },
+  {
+    title: "Timestamp",
+    dataIndex: "username",
+    key: "type",
+  },
+  {
+    title: "Amount kWh",
+    dataIndex: "phone",
+    key: "balance",
+    sorter: (a, b) => a.phone - b.phone,
+  },
+  {
+    title: "Value Mi",
+    dataIndex: "phone",
+    key: "balance",
+    sorter: (a, b) => a.phone - b.phone,
+  },
+  {
+    title: "Status",
+    dataIndex: "website",
+    key: "status",
+    filters: [
+      { text: "Running", value: "running" },
+      { text: "Paused", value: "paused" },
+    ],
+    onFilter: (value, record) => record.website.includes(value),
+    render: (value) =>
+      value === "running" ? (
+        <span className="text-running">Confirmed</span>
+      ) : (
+        <span className="text-paused">Cancelled</span>
       ),
   },
   {

@@ -66,3 +66,66 @@ button {
     font-size: 40px;
     padding-bottom: 5px;
 }
+
+.cta4 {
+    background: #242529;
+    border: 1px solid #f4f8f9;
+    z-index: 10;
+    border-radius: 29px;
+    height: 48px;
+    padding: 5px 5px;
+    color: #ffffff;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 20px;
+    width: 191px;
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+}
+
+.delete-button {
+    color: #93959d;
+    background-color: transparent;
+    z-index: 10;
+    height: 48px;
+    padding: 5px 5px;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 20px;
+    width: 90px;
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+}
+
+.cta-device {
+    background: transparent;
+    border: 1px solid #242529;
+    z-index: 10;
+    border-radius: 29px;
+    height: 32px;
+    padding: 7px 12px;
+    color: #242529;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 16px;
+    width: 101px;
+    .cta-device-withdraw {
+        padding: 7px 18px;
+    }
+}
+
+.cta-device-withdraw {
+    background: transparent;
+    border: 1px solid #242529;
+    z-index: 10;
+    border-radius: 29px;
+    height: 32px;
+    padding: 6px 20px;
+    color: #242529;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 16px;
+    width: 101px;
+}

@@ -7,22 +7,14 @@
     position: fixed;
     top: 0;
     width: calc(100% - 320px);
-    right: 0;
 }
 
 .header-wrapper2 {
+    top: 0;
+    position: sticky;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
-    background-color: white;
-    padding: 53px 50px 25px 50px;
-    z-index: 100;
-    width: 100%;
-}
-
-.new-device-header-wrapper {
-    display: flex;
-    flex-direction: row;
     align-items: center;
     background-color: white;
     padding: 53px 50px 25px 50px;
