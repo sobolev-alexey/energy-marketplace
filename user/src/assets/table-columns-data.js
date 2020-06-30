@@ -20,12 +20,13 @@ export const overviewTableColumns = [
       { text: "Consumer", value: "consumer" },
     ],
     onFilter: (value, record) => record.username.includes(value),
+    sorter: (a, b) => a.username.localeCompare(b.username),
   },
   {
     title: "Balance",
-    dataIndex: "phone",
+    dataIndex: "id",
     key: "balance",
-    sorter: (a, b) => a.phone - b.phone,
+    sorter: (a, b) => a.id - b.id,
   },
   {
     title: "Status",

@@ -6,7 +6,6 @@ import Sidebar from "./Sidebar";
 
 const Layout = ({ children, match }) => {
   ReactGA.pageview(match.url);
-  console.log(111, match.url);
 
   return (
     <div className="page-wrapper">
