@@ -1,8 +1,6 @@
 @import './helpers/globals';
 @import './helpers/breakpoints';
-
 // components
-
 @import './components/button';
 @import './components/disclaimer';
 @import './components/form';
@@ -10,21 +8,18 @@
 @import './components/sidebar';
 @import './components/table';
 @import './components/text';
-
-
 // pages
 @import './pages/device';
 @import './pages/login';
 @import './pages/wallet';
 @import './pages/overview';
-
 html {
     // background: none !important;
     // font-size: unset !important;
     height: 100%;
     width: 100%;
 }
-  
+
 body {
     margin: 0;
     padding: 0;
@@ -34,8 +29,23 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
-  
-div, span, p, label, input, select, section, footer, header, nav, ul, li, button, tr, td, th {
+
+div,
+span,
+p,
+label,
+input,
+select,
+section,
+footer,
+header,
+nav,
+ul,
+li,
+button,
+tr,
+td,
+th {
     font-family: 'Roboto', sans-serif;
     font-style: normal;
     font-weight: normal;
@@ -43,34 +53,44 @@ div, span, p, label, input, select, section, footer, header, nav, ul, li, button
     line-height: 16px;
 }
 
-body {
-
+label {
+    font-weight: 500;
 }
+
+button:hover {
+    background-color: #141414;
+    border: none;
+}
+
+body {}
+
 * {
     box-sizing: border-box;
     -webkit-overflow-scrolling: touch;
 }
+
 #root {
     min-height: 100vh;
 }
+
 a {
     text-decoration: none;
     color: #108db8;
 }
+
 img {
     max-width: 100%;
 }
+
 code {
     user-select: text;
-    background: rgba(0,0,0,.05);
+    background: rgba(0, 0, 0, .05);
     padding: 2px 5px;
     border-radius: 5px;
-    border: 1px solid rgba(0,0,0,.05);
+    border: 1px solid rgba(0, 0, 0, .05);
     font-size: .8em;
     line-height: 1.5;
 }
-
-
 
 .hidden {
     display: none !important;
@@ -83,6 +103,11 @@ code {
 
 button {
     outline: none !important;
+}
+
+.rounded-input {
+    border-radius: 10px;
+    height: 45px;
 }
 
 .page-wrapper {
@@ -109,14 +134,12 @@ button {
     height: 100vh;
     background-color: #ffffff;
     border-top-left-radius: 20px;
-
     .content {
         padding: 50px;
         min-width: 535px;
         width: 100%;
         display: flex;
         justify-content: center;
-
         @include breakPoint(small) {
             min-width: unset;
         }
