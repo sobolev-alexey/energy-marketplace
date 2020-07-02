@@ -5,12 +5,13 @@ import { resetPassword } from "../utils/firebase";
 
 import { Form, Input, Alert } from "antd";
 
-import RegisterHeader from "../components/RegisterHeader";
+import CustomAuthHeader from "../components/CustomAuthHeader";
 
 const ForgotPassword = ({ history }) => {
   const { isLoggedIn, setLoggedIn } = useContext(AppContext);
   const [email, setEmail] = useState("");
   const [error, setErrors] = useState("");
+  const pathname = history.location.pathname;
 
   useEffect(() => {
     isLoggedIn && history.push("/overview");
@@ -36,7 +37,7 @@ const ForgotPassword = ({ history }) => {
 
   return (
     <div className="login-main-section">
-      <RegisterHeader />
+      <CustomAuthHeader pathname={pathname} />
       <div className="login-content">
         <h5> Forgot Password </h5> <br />
         <br />
@@ -60,8 +61,7 @@ const ForgotPassword = ({ history }) => {
             Reset Password
           </button>
           <br />
-          <br />
-          <span> {error} </span>
+          <span>{error}</span>
         </Form>
       </div>
     </div>

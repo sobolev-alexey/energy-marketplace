@@ -5,20 +5,15 @@ import { signInWithGoogle, signInWithCredentials } from "../utils/firebase";
 
 import { Form, Input, Space } from "antd";
 
-import LoginHeader from "../components/LoginHeader";
+import CustomAuthHeader from "../components/CustomAuthHeader";
 import googleLogo from "../assets/google-logo.svg";
-
-// export default () => (
-//     <div className='login-page-wrapper'>
-//         Login page
-//     </div>
-// );
 
 const Login = ({ history }) => {
   const { isLoggedIn, setLoggedIn } = useContext(AppContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setErrors] = useState("");
+  const pathname = history.location.pathname;
 
   useEffect(() => {
     isLoggedIn && history.push("/overview");
@@ -44,7 +39,7 @@ const Login = ({ history }) => {
 
   return (
     <div className="login-main-section">
-      <LoginHeader />
+      <CustomAuthHeader pathname={pathname} />
       <div className="login-content">
         <h5>Log in</h5>
         <br />
@@ -83,7 +78,6 @@ const Login = ({ history }) => {
             Forgot password?
           </Link>
           <br />
-
           <Space size={25}>
             <button onClick={() => handleGoogleLogin()} className="google-login-btn" type="button">
               <img className="google-logo" src={googleLogo} alt="logo" />
@@ -95,7 +89,7 @@ const Login = ({ history }) => {
           </Space>
           <br />
           <br />
-          <span>{error} </span>
+          <span>{error}</span>
         </Form>
       </div>
     </div>

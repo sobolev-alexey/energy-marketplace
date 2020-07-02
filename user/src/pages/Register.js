@@ -3,17 +3,9 @@ import { withRouter } from "react-router-dom";
 import { AppContext } from "../context/globalState";
 import { signInWithGoogle, signInWithCredentials } from "../utils/firebase";
 
-// import { Form } from 'antd';
-
-// export default () => (
-//     <div className='register-page-wrapper'>
-//         Register page
-//     </div>
-// );
-
 import { Form, Input, Space } from "antd";
 
-import RegisterHeader from "../components/RegisterHeader";
+import CustomAuthHeader from "../components/CustomAuthHeader";
 import googleLogo from "../assets/google-logo.svg";
 
 const Register = ({ history }) => {
@@ -22,6 +14,7 @@ const Register = ({ history }) => {
   const [password, setPassword] = useState("");
   const [error, setErrors] = useState("");
   const [revealFields, setRevealFields] = useState(false);
+  const pathname = history.location.pathname;
 
   useEffect(() => {
     isLoggedIn && history.push("/overview");
@@ -37,8 +30,6 @@ const Register = ({ history }) => {
   //   signInWithCredentials("createUser", email, password, callback, setErrors);
   // };
 
-  // let reveal = false;
-
   const handleGoogleLogin = () => {
     signInWithGoogle(callback, setErrors);
   };
@@ -51,7 +42,7 @@ const Register = ({ history }) => {
 
   return (
     <div className="login-main-section">
-      <RegisterHeader />
+      <CustomAuthHeader pathname={pathname} />
       <div className="login-content">
         <h5> Register </h5> <br />
         <br />
@@ -133,7 +124,7 @@ const Register = ({ history }) => {
           </Space>
           <br />
           <br />
-          <span>{error}</span>
+          <span> {error} </span>
         </Form>
       </div>
     </div>
