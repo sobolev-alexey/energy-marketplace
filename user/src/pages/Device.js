@@ -38,7 +38,7 @@ const Device = ({ history }) => {
       <div className="device-page-wrapper">
         <Tabs tabBarGutter={50} centered defaultActiveKey="1" onChange={callback}>
           <TabPane tab="Overview" key="1">
-            <DeviceInfo device={record} />
+            <DeviceInfo device={{ ...record, image: device2.image }} />
           </TabPane>
           <TabPane tab="Settings" key="2">
             <DeviceForm
