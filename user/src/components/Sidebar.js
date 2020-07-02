@@ -1,6 +1,7 @@
 import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 import { withRouter } from "react-router";
+import { LogoutOutlined } from "@ant-design/icons";
 import { AppContext } from "../context/globalState";
 import { logout } from "../utils/firebase";
 import { destroySession } from "../utils/storage";
@@ -20,24 +21,22 @@ const Sidebar = ({ history }) => {
       <Link to="/">
         <img src={logo} alt="Logo" className="sidebar-logo" />
       </Link>
-
       <div className="sidebar-content">
-        <h3>
-                    Main wallet
-        </h3>
-        <h1>
-                    48.6 <p>Mi</p>
+        <h5 className="main-wallet-text"> MAIN WALLLET </h5>
+        <h1 className="wallet-balance">
+          48.6 <span className="wallet-balance3">Mi</span>
         </h1>
-        <button onClick={() => console.log("Add funds") }>
-                    Add funds
+        <br />
+        <button className="custom-button" onClick={() => console.log("Add funds")}>
+          Add funds
         </button>
         <Link to="/wallet" className="cta">
-                    Withdraw
+          Withdraw
         </Link>
       </div>
       <div className="sidebar-footer">
-        <button className="logout" onClick={() => logout(callback)}>
-                    Logout
+        <button className="logout"  style={{ fontSize: "15px", color: "#aab8c2" }} onClick={() => logout(callback)}>
+          <LogoutOutlined rotate={180} style={{ fontSize: "15px", color: "#aab8c2" }} /> Logout
         </button>
       </div>
     </div>

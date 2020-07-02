@@ -1,8 +1,25 @@
 import React from "react";
-// import { Table, Input, Button, Space } from 'antd';
+import { withRouter } from "react-router-dom";
 
-export default () => (
-  <div className="table-wrapper">
-        Table
-  </div>
-);
+import { Table } from "antd";
+
+const CustomTable = ({ history, devices, columns }) => {
+  return (
+    <Table
+      onRow={(record) => {
+        return {
+          onClick: () => {
+            history.push(`/device/${record.id}`, { record });
+            // console.log("record", record);
+          },
+        };
+      }}
+      className="ant-table-cell"
+      columns={columns}
+      dataSource={devices}
+      pagination={{ hideOnSinglePage: true }}
+    />
+  );
+};
+
+export default withRouter(CustomTable);
