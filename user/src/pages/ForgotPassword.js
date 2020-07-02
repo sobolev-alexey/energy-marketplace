@@ -3,11 +3,12 @@ import { withRouter } from "react-router-dom";
 import { AppContext } from "../context/globalState";
 import { resetPassword } from "../utils/firebase";
 
-import { Form, Input, Alert } from "antd";
+import { Form, Input, Modal } from "antd";
 
 import CustomAuthHeader from "../components/CustomAuthHeader";
 
 const ForgotPassword = ({ history }) => {
+  const [modal, contextHolder] = Modal.useModal();
   const { isLoggedIn, setLoggedIn } = useContext(AppContext);
   const [email, setEmail] = useState("");
   const [error, setErrors] = useState("");
@@ -18,18 +19,20 @@ const ForgotPassword = ({ history }) => {
   }, [isLoggedIn]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const callback = (result) => {
-    setLoggedIn(false);
-    result && history.push("/");
+    const config = {
+      title: 'Password reset',
+      content: (
+        <div>
+          <p>We have sent a reset password email to your email</p>
+        </div>
+      ),
+      onOk: () => {
+        setLoggedIn(false);
+        history.push("/");
+      }
+    };
+    modal.info(config);
   };
-
-  // const handleForm = (e) => {
-  //   e.preventDefault();
-  //   resetPassword(email, callback, setErrors);
-  // };
-
-  // const resetConfirmation = (value) => {
-  //   <Alert message={`We have sent a reset password email to ${value}`} type="success" showIcon />;
-  // };
 
   const onFinish = () => {
     resetPassword(email, callback, setErrors);
@@ -49,12 +52,16 @@ const ForgotPassword = ({ history }) => {
             onChange={(e) => setEmail(e.target.value)}
             rules={[
               {
+                type: 'email',
+                message: 'This is not a valid email!',
+              },
+              {
                 required: true,
-                message: "Please enter your Email!",
+                message: 'Please provide your email!',
               },
             ]}
           >
-            <Input className="rounded-input" placeholder="email" />
+            <Input className="rounded-input" />
           </Form.Item>
           <br />
           <button className="reset-password-btn" type="submit">
@@ -63,6 +70,7 @@ const ForgotPassword = ({ history }) => {
           <br />
           <span>{error}</span>
         </Form>
+        {contextHolder}
       </div>
     </div>
   );
