@@ -83,7 +83,14 @@ th {
     }
 }
 
-body {}
+label {
+    font-weight: 500;
+}
+
+button:hover {
+    background-color: #141414;
+    border: none;
+}
 
 * {
     box-sizing: border-box;
@@ -174,6 +181,10 @@ label {
     align-items: center;
 }
 
+img {
+    max-width: 100%;
+}
+
 .hidden {
     display: none !important;
 }
@@ -185,6 +196,11 @@ label {
 
 button {
     outline: none !important;
+}
+
+.rounded-input {
+    border-radius: 10px;
+    height: 45px;
 }
 
 .page-wrapper {

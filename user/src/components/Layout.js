@@ -11,7 +11,9 @@ const Layout = ({ children, match }) => {
     <div className="page-wrapper">
       <Sidebar />
       <div className="main-section">
-        <div className="content">{children}</div>
+        <div className="content">
+          { children }
+        </div>
       </div>
       <Disclaimer />
     </div>

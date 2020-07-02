@@ -1,8 +1,7 @@
 import React from "react";
-import { BrowserRouter, Route, Switch } from "react-router-dom";
 import WebFontLoader from "webfontloader";
 import ReactGA from "react-ga";
-import { Device, ForgotPassword, Login, NewDevice, Overview, Register, Wallet } from "./pages";
+import Router from "./Router";
 import GlobalState from "./context/globalState";
 import "antd/dist/antd.css";
 import "./styles/index.scss";
@@ -19,17 +18,7 @@ ReactGA.set({ anonymizeIp: true });
 const App = () => {
   return (
     <GlobalState>
-      <BrowserRouter>
-        <Switch>
-          <Route path={"/"} component={Overview} exact />
-          <Route path={"/login"} component={Login} />
-          <Route path={"/register"} component={Register} />
-          <Route path={"/forgot"} component={ForgotPassword} />
-          <Route path={"/new"} component={NewDevice} />
-          <Route path={"/wallet"} component={Wallet} />
-          <Route path={"/device/:deviceId"} component={Device} />
-        </Switch>
-      </BrowserRouter>
+      <Router />
     </GlobalState>
   );
 };

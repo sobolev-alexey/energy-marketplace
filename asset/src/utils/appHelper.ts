@@ -2,11 +2,13 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import express, { Application } from 'express';
 import isEmpty from 'lodash/isEmpty';
+import { UI } from 'bull-board';
+// import logger from 'morgan';
 import { serverPortNumber, websocketPortNumber } from '../config.json';
 import { IDataResponse } from '../models/api/IDataResponse';
 import { IRoute } from '../models/app/IRoute';
 import { IConfiguration } from '../models/configuration/IConfiguration';
-// import { EncryptionService, IKeys, IMessagePayload, IReceivedMessagePayload } from './encryptionHelper';
+import { arenaConfig } from './queueHelper';
 
 /**
  * Class to help with expressjs routing.
@@ -34,6 +36,12 @@ export class AppHelper {
         app.use(bodyParser.json({ limit: '10mb' }));
         app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
         app.use(bodyParser.json());
+
+        // app.use(logger('dev'));
+
+        // Queue UI
+        app.use('/admin/board', UI);
+        app.use('/admin/arena', arenaConfig);
 
         app.use(cors({
             origin: config.allowedDomains && config.allowedDomains.length > 0 ? config.allowedDomains : '*',
@@ -72,48 +80,6 @@ export class AppHelper {
                 onComplete(app, config, websocketPort);
             }
         }
-
-        // try {
-        //     console.log('Encryption');
-        //     const encryptionService = new EncryptionService();
-        //     const aliceKeys: IKeys = encryptionService.generateKeys();
-        //     const bobKeys: IKeys = encryptionService.generateKeys();
-            // const messageJSON: any = {
-            //     name: 'Alice',
-            //     messageTo: 'Bob',
-            //     messageText: 'Hey, Bob!'
-            // };
-
-            // // Alice signs her message
-            // const signature: Buffer = encryptionService.signMessage(
-            //     aliceKeys?.privateKey, messageJSON
-            // );
-            // // console.log(222, signature);
-
-            // // Alice encrypts payload with Bobs public key
-            // const payload: IMessagePayload = { message: messageJSON, signature };
-            // console.log(333, payload);
-
-            // const encrypted: string = encryptionService.publicEncrypt(
-            //     bobKeys?.publicKey, JSON.stringify(payload)
-            // );
-            // // console.log(444, encrypted);
-
-            // // Bob decrypts message with his private key
-            // const decrypted: IReceivedMessagePayload = encryptionService.privateDecrypt(
-            //     bobKeys?.privateKey, encrypted
-            // );
-            // console.log(555, decrypted.message);
-
-            // // Bob verifies Alice signature
-            // const verificationResult: boolean = encryptionService.verifySignature(
-            //     aliceKeys?.publicKey, decrypted?.message, decrypted?.signature
-            // );
-        //     console.log(777, aliceKeys);            
-        //     console.log(888, bobKeys);            
-        // } catch (error) {
-        //     throw new Error(error);
-        // }
 
         return app;
     }

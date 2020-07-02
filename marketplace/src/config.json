@@ -1,6 +1,7 @@
 {
-    "serverPortNumber": 5000,
+    "serverPortNumber": 5005,
     "websocketPortNumber": 9000,
+    "redisPortNumber": 6379,
     "defaultSecurity": 2,
     "defaultDepth": 3,
     "defaultMwm": 9,
@@ -8,5 +9,6 @@
     "database": "../../db/marketplace.sqlite3",
     "mamMode": "RESTRICTED",
     "tag": "ENERGYBROKER",
-    "bidManagerURL": "http://localhost:5050"
+    "bidManagerURL": "http://localhost:5050",
+    "redisHost": "127.0.0.1"
 }

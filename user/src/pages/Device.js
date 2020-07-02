@@ -20,7 +20,7 @@ const device2 = {
     "https://firebasestorage.googleapis.com/v0/b/cityexchange-energymarketplace.appspot.com/o/temp%2Fsolar_panel_PNG126.png?alt=media&token=fc2c39fd-14c7-471c-9b27-c144eab9b88a",
 };
 
-const Device = ({ history, device2 }) => {
+const Device = ({ history }) => {
   const { record } = history.location.state;
   const [fields, setFields] = useState([
     {

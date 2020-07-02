@@ -4,11 +4,10 @@ import { Server } from 'http';
 import SocketIO from 'socket.io';
 import { ServiceFactory } from './factories/serviceFactory';
 import { IRoute } from './models/app/IRoute';
-import { init } from './routes/init';
 import { message } from './socketSubscriptions/message';
 import { AppHelper } from './utils/appHelper';
 import { BusinessLogic } from './utils/businessLogicHelper';
-
+  
 const routes: IRoute[] = [
     { path: '/init', method: 'post', func: 'init' },
     { path: '/contract', method: 'post', func: 'contract' },
@@ -48,5 +47,3 @@ AppHelper.build(routes, async (app, config, websocketPort) => {
     // tslint:disable-next-line:no-unused-expression
     new BusinessLogic();
 });
-
-init();

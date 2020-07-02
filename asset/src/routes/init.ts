@@ -1,28 +1,20 @@
 import { serverPortNumber, websocketURL, websocketPortNumber } from '../config.json';
-import assetConfig from '../asset.config.json';
 import { readData, readAllData, writeData } from '../utils/databaseHelper';
 import { EncryptionService, IMessagePayload } from '../utils/encryptionHelper';
 import { log } from '../utils/loggerHelper';
 import { sendRequest } from '../utils/communicationHelper';
-import { getBalance, repairWallet } from '../utils/walletHelper';
 
-export async function init(): Promise<any> {
+export async function init(_: any, request: any): Promise<any> {
     try {
-        // Verify the config is received from user
-        // Use trusted DID to verify
-        
+        // ToDo: Verify the config is received from user
+
         await readAllData('asset');
         await new Promise(resolve => setTimeout(resolve, 2000));
         await log('Initializing...');
-        const { assetWallet, ...config } = assetConfig;
-        await writeData('asset', config);
 
-        const walletBalance = await getBalance(assetWallet?.address);
-        await writeData('wallet', { ...assetWallet, balance: walletBalance });
-
-        if (!walletBalance) {
-            await repairWallet();
-        }
+        const { assetWallet, ...config } = request;
+        await writeData('asset', { ...config, marketplacePublicKey: decodeURIComponent(request.marketplacePublicKey) });
+        await writeData('wallet', assetWallet);
 
         let keys: any = await readData('keys');
         if (!keys || !keys.privateKey) {
@@ -39,7 +31,6 @@ export async function init(): Promise<any> {
                 assetOwner: config.assetOwner, 
                 assetName: config.assetName, 
                 assetPublicKey: keys.publicKey, 
-                deviceUUID: config.deviceUUID, 
                 location: config.location,
                 type: config.type, 
                 network: config.network,
@@ -57,7 +48,7 @@ export async function init(): Promise<any> {
             const messagePayload: IMessagePayload = { message: assetPayload, signature };
 
             const encrypted: string = encryptionService.publicEncrypt(
-                config.marketplacePublicKey, JSON.stringify(messagePayload)
+                decodeURIComponent(request.marketplacePublicKey), JSON.stringify(messagePayload)
             );
 
             const response = await sendRequest('/register', { encrypted });
@@ -65,11 +56,11 @@ export async function init(): Promise<any> {
                 throw new Error('Asset registration with marketplace failed');
             }
         }
+        await log('Initialization Succeeded');
+
         return { success: true, publicKey: keys.publicKey };
     } catch (err) {
         await log(`Initialization Failed ${err.toString()}`);
         return;
     }
-
-    await log('Initialization Succeeded');
 }
