@@ -24,11 +24,6 @@ const Login = ({ history }) => {
     result && history.push("/overview");
   };
 
-  // const handleForm = (e) => {
-  //   e.preventDefault();
-  //   signInWithCredentials("signIn", email, password, callback, setErrors);
-  // };
-
   const handleGoogleLogin = () => {
     signInWithGoogle(callback, setErrors);
   };
@@ -52,12 +47,16 @@ const Login = ({ history }) => {
             onChange={(e) => setEmail(e.target.value)}
             rules={[
               {
+                type: 'email',
+                message: 'This is not a valid email!',
+              },
+              {
                 required: true,
-                message: "Please enter your Email!",
+                message: 'Please provide your email!',
               },
             ]}
           >
-            <Input className="rounded-input" placeholder="email" />
+            <Input className="rounded-input" />
           </Form.Item>
           <Form.Item
             className="ant-form-item-mb"
@@ -66,13 +65,19 @@ const Login = ({ history }) => {
             hasFeedback
             onChange={(e) => setPassword(e.target.value)}
             rules={[
+              { 
+                validator: (_, value) => 
+                  (!value || (value.length > 7 && value.length < 33)) 
+                  ? Promise.resolve() 
+                  : Promise.reject(`Password must be between ${8} and ${32} characters`) 
+              },
               {
                 required: true,
-                message: "Please enter your Password!",
+                message: 'Please provide your password!',
               },
             ]}
           >
-            <Input.Password className="rounded-input" placeholder="password" />
+            <Input.Password className="rounded-input" />
           </Form.Item>
           <Link to="/forgot" className="forgot-link">
             Forgot password?
