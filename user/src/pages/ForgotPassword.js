@@ -3,32 +3,36 @@ import { withRouter } from "react-router-dom";
 import { AppContext } from "../context/globalState";
 import { resetPassword } from "../utils/firebase";
 
-import { Form, Input, Alert } from "antd";
+import { Form, Input, Modal } from "antd";
 
-import RegisterHeader from "../components/RegisterHeader";
+import CustomAuthHeader from "../components/CustomAuthHeader";
 
 const ForgotPassword = ({ history }) => {
+  const [modal, contextHolder] = Modal.useModal();
   const { isLoggedIn, setLoggedIn } = useContext(AppContext);
   const [email, setEmail] = useState("");
   const [error, setErrors] = useState("");
+  const pathname = history.location.pathname;
 
   useEffect(() => {
     isLoggedIn && history.push("/overview");
   }, [isLoggedIn]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const callback = (result) => {
-    setLoggedIn(false);
-    result && history.push("/");
+    const config = {
+      title: 'Password reset',
+      content: (
+        <div>
+          <p>We have sent a reset password email to your email</p>
+        </div>
+      ),
+      onOk: () => {
+        setLoggedIn(false);
+        history.push("/");
+      }
+    };
+    modal.info(config);
   };
-
-  // const handleForm = (e) => {
-  //   e.preventDefault();
-  //   resetPassword(email, callback, setErrors);
-  // };
-
-  // const resetConfirmation = (value) => {
-  //   <Alert message={`We have sent a reset password email to ${value}`} type="success" showIcon />;
-  // };
 
   const onFinish = () => {
     resetPassword(email, callback, setErrors);
@@ -36,7 +40,7 @@ const ForgotPassword = ({ history }) => {
 
   return (
     <div className="login-main-section">
-      <RegisterHeader />
+      <CustomAuthHeader pathname={pathname} />
       <div className="login-content">
         <h5> Forgot Password </h5> <br />
         <br />
@@ -48,21 +52,25 @@ const ForgotPassword = ({ history }) => {
             onChange={(e) => setEmail(e.target.value)}
             rules={[
               {
+                type: 'email',
+                message: 'This is not a valid email!',
+              },
+              {
                 required: true,
-                message: "Please enter your Email!",
+                message: 'Please provide your email!',
               },
             ]}
           >
-            <Input className="rounded-input" placeholder="email" />
+            <Input className="rounded-input" />
           </Form.Item>
           <br />
           <button className="reset-password-btn" type="submit">
             Reset Password
           </button>
           <br />
-          <br />
-          <span> {error} </span>
+          <span>{error}</span>
         </Form>
+        {contextHolder}
       </div>
     </div>
   );

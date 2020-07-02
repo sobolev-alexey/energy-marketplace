@@ -5,20 +5,15 @@ import { signInWithGoogle, signInWithCredentials } from "../utils/firebase";
 
 import { Form, Input, Space } from "antd";
 
-import LoginHeader from "../components/LoginHeader";
+import CustomAuthHeader from "../components/CustomAuthHeader";
 import googleLogo from "../assets/google-logo.svg";
-
-// export default () => (
-//     <div className='login-page-wrapper'>
-//         Login page
-//     </div>
-// );
 
 const Login = ({ history }) => {
   const { isLoggedIn, setLoggedIn } = useContext(AppContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setErrors] = useState("");
+  const pathname = history.location.pathname;
 
   useEffect(() => {
     isLoggedIn && history.push("/overview");
@@ -28,11 +23,6 @@ const Login = ({ history }) => {
     setLoggedIn(result);
     result && history.push("/overview");
   };
-
-  // const handleForm = (e) => {
-  //   e.preventDefault();
-  //   signInWithCredentials("signIn", email, password, callback, setErrors);
-  // };
 
   const handleGoogleLogin = () => {
     signInWithGoogle(callback, setErrors);
@@ -44,7 +34,7 @@ const Login = ({ history }) => {
 
   return (
     <div className="login-main-section">
-      <LoginHeader />
+      <CustomAuthHeader pathname={pathname} />
       <div className="login-content">
         <h5>Log in</h5>
         <br />
@@ -57,12 +47,16 @@ const Login = ({ history }) => {
             onChange={(e) => setEmail(e.target.value)}
             rules={[
               {
+                type: 'email',
+                message: 'This is not a valid email!',
+              },
+              {
                 required: true,
-                message: "Please enter your Email!",
+                message: 'Please provide your email!',
               },
             ]}
           >
-            <Input className="rounded-input" placeholder="email" />
+            <Input className="rounded-input" />
           </Form.Item>
           <Form.Item
             className="ant-form-item-mb"
@@ -71,19 +65,24 @@ const Login = ({ history }) => {
             hasFeedback
             onChange={(e) => setPassword(e.target.value)}
             rules={[
+              { 
+                validator: (_, value) => 
+                  (!value || (value.length > 7 && value.length < 33)) 
+                  ? Promise.resolve() 
+                  : Promise.reject(`Password must be between ${8} and ${32} characters`) 
+              },
               {
                 required: true,
-                message: "Please enter your Password!",
+                message: 'Please provide your password!',
               },
             ]}
           >
-            <Input.Password className="rounded-input" placeholder="password" />
+            <Input.Password className="rounded-input" />
           </Form.Item>
           <Link to="/forgot" className="forgot-link">
             Forgot password?
           </Link>
           <br />
-
           <Space size={25}>
             <button onClick={() => handleGoogleLogin()} className="google-login-btn" type="button">
               <img className="google-logo" src={googleLogo} alt="logo" />
@@ -95,7 +94,7 @@ const Login = ({ history }) => {
           </Space>
           <br />
           <br />
-          <span>{error} </span>
+          <span>{error}</span>
         </Form>
       </div>
     </div>
