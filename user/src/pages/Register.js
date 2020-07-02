@@ -12,6 +12,7 @@ const Register = ({ history }) => {
   const { isLoggedIn, setLoggedIn } = useContext(AppContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
   const [error, setErrors] = useState("");
   const [revealFields, setRevealFields] = useState(false);
   const pathname = history.location.pathname;
@@ -24,11 +25,6 @@ const Register = ({ history }) => {
     setLoggedIn(result);
     result && history.push("/overview");
   };
-
-  // const handleForm = (e) => {
-  //   e.preventDefault();
-  //   signInWithCredentials("createUser", email, password, callback, setErrors);
-  // };
 
   const handleGoogleLogin = () => {
     signInWithGoogle(callback, setErrors);
@@ -60,13 +56,19 @@ const Register = ({ history }) => {
             hasFeedback
             onChange={() => setRevealFields(true)}
             rules={[
+              { 
+                validator: (_, value) => 
+                  (value.length < 50) 
+                  ? Promise.resolve() 
+                  : Promise.reject(`Please shorten the provided value to less than 50 characters`) 
+              },
               {
                 required: true,
-                message: "Please enter your Name!",
+                message: "Please provide your name!",
               },
             ]}
           >
-            <Input className="rounded-input" placeholder="name" />
+            <Input className="rounded-input" />
           </Form.Item>
           <div className={revealFields ? "reveal-fields" : "hide-fields"}>
             <Form.Item
@@ -76,12 +78,16 @@ const Register = ({ history }) => {
               onChange={(e) => setEmail(e.target.value)}
               rules={[
                 {
+                  type: 'email',
+                  message: 'This is not a valid email!',
+                },
+                {
                   required: true,
-                  message: "Please enter your Email!",
+                  message: 'Please provide your email!',
                 },
               ]}
             >
-              <Input className="rounded-input" placeholder="email" />
+              <Input className="rounded-input" />
             </Form.Item>
             <Form.Item
               name={["password"]}
@@ -89,13 +95,48 @@ const Register = ({ history }) => {
               hasFeedback
               onChange={(e) => setPassword(e.target.value)}
               rules={[
+                { 
+                  validator: (_, value) => 
+                    (!value || (value.length > 7 && value.length < 33)) 
+                    ? Promise.resolve() 
+                    : Promise.reject(`Password must be between ${8} and ${32} characters`) 
+                },
                 {
                   required: true,
-                  message: "Please enter your Password!",
+                  message: 'Please provide your password!',
                 },
               ]}
             >
-              <Input.Password className="rounded-input" placeholder="password" />
+              <Input.Password className="rounded-input" />
+            </Form.Item>
+            <Form.Item
+              name={["confirm"]}
+              label="Confirm Password"
+              dependencies={['password']}
+              hasFeedback
+              onChange={(e) => setConfirm(e.target.value)}
+              rules={[
+                {
+                  required: true,
+                  message: 'Please provide your password!',
+                },
+                { 
+                  validator: (_, value) => 
+                    (!value || (value.length > 7 && value.length < 33)) 
+                    ? Promise.resolve() 
+                    : Promise.reject(`Password must be between ${8} and ${32} characters`) 
+                },
+                ({ getFieldValue }) => ({
+                  validator(rule, value) {
+                    if (!value || getFieldValue('password') === value) {
+                      return Promise.resolve();
+                    }
+                    return Promise.reject('The two passwords that you entered do not match!');
+                  },
+                }),
+              ]}
+            >
+              <Input.Password className="rounded-input" />
             </Form.Item>
 
             <Form.Item
@@ -103,13 +144,15 @@ const Register = ({ history }) => {
               label="Company name"
               hasFeedback
               rules={[
-                {
-                  required: true,
-                  message: "Please enter Company name!",
+                { 
+                  validator: (_, value) => 
+                    (!value || value.length < 50) 
+                    ? Promise.resolve() 
+                    : Promise.reject(`Please shorten the provided value to less than 50 characters`) 
                 },
               ]}
             >
-              <Input className="rounded-input" placeholder="company name" />
+              <Input className="rounded-input" />
             </Form.Item>
           </div>
           <br />
