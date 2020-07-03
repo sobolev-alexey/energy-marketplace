@@ -31,7 +31,7 @@ export const getBalance = async address => {
             `${config?.network}-load-balancer-settings`
         );
         const iota = composeAPI(loadBalancerSettings);
-        const { balances } = await iota.getBalances([address], 100);
+        const { balances } = await iota.getBalances([address]);
         return balances && balances.length > 0 ? balances[0] : 0;
     } catch (error) {
         console.error('getBalance error', error);
@@ -87,7 +87,7 @@ const transferFunds = async (wallet, totalAmount, paymentQueue) => {
                 let retries = 0;
                 let statuses;
                 while (retries++ < 60) {
-                    statuses = await iota.getLatestInclusion(hashes);
+                    statuses = await iota.getInclusionStates(hashes);
                     inclusions = statuses?.filter(status => status).length;
                     console.log('Inclusions after transfer', retries, inclusions);
                     if (inclusions > transfers.length) {
