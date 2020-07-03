@@ -23,7 +23,6 @@ export const paymentConfirmation = async () => {
             return;
         }
 
-        console.log(1111);
         // Check wallet exists
         const wallet: IWallet = await readData('wallet');
         if (!wallet || !wallet?.address) {
@@ -31,39 +30,26 @@ export const paymentConfirmation = async () => {
             await log('paymentConfirmation error: no wallet');
         }
 
-        console.log(2222);
-
         const loadBalancerSettings = ServiceFactory.get<LoadBalancerSettings>(
             `${asset?.network}-load-balancer-settings`
         );
         const iota = composeAPI(loadBalancerSettings);
 
         // Compare actual and stored wallet balances 
-        const { balances } = await iota.getBalances([wallet?.address], 100);
+        const { balances } = await iota.getBalances([wallet?.address]);
         const balance = balances && balances.length > 0 ? balances[0] : 0;
         
-        console.log(3333);
-
         // Compare actual and stored wallet balances 
         if (balance === wallet?.balance) {
             console.log('paymentConfirmation: wallet balance not changed:', balance);
             return;
         }
 
-        console.log(4444);
-
         // Check latest transfers to the wallet
         const transfers = [];
         const hashes = await iota.findTransactions({ addresses: [wallet?.address] });
-        const nodeInfo = await iota.getNodeInfo();
-        const tips = [];
-        if (nodeInfo) {
-            tips.push(nodeInfo.latestSolidSubtangleMilestone);
-        }
-        const statesResponses = await iota.getInclusionStates(hashes, tips);
+        const statesResponses = await iota.getInclusionStates(hashes);
         if (statesResponses.find(state => state)) {
-            console.log(5555);
-
             const allTrytes = await iota.getTrytes(hashes);
             const transactions = asTransactionObjects(hashes)(allTrytes);
 
@@ -81,8 +67,6 @@ export const paymentConfirmation = async () => {
                     }
                 }
             }
-
-            console.log(9999);
 
             transfers
                 .sort((a, b) => b.timestamp - a.timestamp)
@@ -103,7 +87,6 @@ const checkPaymentConfirmation = async contractId => {
     if (transaction?.status === 'Payment processed' || 
         transaction?.status === 'Energy provision finished'
     ) {
-        console.log(121212, contractId);
         queues.confirmPayment.add(transaction, options);
     }
 };
