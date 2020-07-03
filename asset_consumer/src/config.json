@@ -1,4 +1,5 @@
 {
+    "deviceUUID": "83734d58-9944-4ce5-9927-36474338f179",
     "websocketURL": "http://localhost",
     "redisHost": "127.0.0.1",
     "serverPortNumber": 4001,
