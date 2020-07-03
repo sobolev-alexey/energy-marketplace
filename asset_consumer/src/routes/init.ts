@@ -1,4 +1,4 @@
-import { serverPortNumber, websocketURL, websocketPortNumber } from '../config.json';
+import { deviceUUID, serverPortNumber, websocketURL, websocketPortNumber } from '../config.json';
 import { readData, readAllData, writeData } from '../utils/databaseHelper';
 import { EncryptionService, IMessagePayload } from '../utils/encryptionHelper';
 import { log } from '../utils/loggerHelper';
@@ -6,7 +6,9 @@ import { sendRequest } from '../utils/communicationHelper';
 
 export async function init(_: any, request: any): Promise<any> {
     try {
-        // ToDo: Verify the config is received from user
+        if (!request?.uuid || request.uuid !== deviceUUID) {
+            return { success: false, error: 'Wrong UUID' };
+        }
 
         await readAllData('asset');
         await new Promise(resolve => setTimeout(resolve, 2000));
