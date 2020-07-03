@@ -22,10 +22,11 @@
         "serve-mon": "nodemon ./dist/index",
         "start-dev": "NODE_OPTIONS=--enable-source-maps run-p serve-mon build-watch",
         "start": "node ./dist/index",
+        "marketplace": "node ./dist/index",
         "docs-api": "api2html -o src/docs/index.html -l http,shell,javascript--nodejs spec/api.json -b -c spec/logo.png -u https://www.iota.org -i ../../../../spec/example,../../../../spec/changelog"
     },
     "engines": {
-        "node": ">=10.0"
+        "node": ">=13.0"
     },
     "dependencies": {
         "@iota/client-load-balancer": "github:iotaledger/client-load-balancer#no-mam",
