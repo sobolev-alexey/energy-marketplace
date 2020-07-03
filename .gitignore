@@ -3,8 +3,9 @@
 .build
 */dist
 .dist
+marketplace_light
 
-test
+*/db/*.sqlite3
 
 # misc
 .DS_Store
@@ -15,3 +16,8 @@ test
 
 yarn-debug.log*
 yarn-error.log*
+
+marketplace/src/routes/v0/*
+
+location_tracking
+test
