@@ -5,7 +5,7 @@ import {
     paymentQueueProcessingSpeed,
     pendingTransactionsProcessingSpeed
 } from '../config.json';
-import { readData, getAbandonedTransactions, getUnpaidTransactions } from './databaseHelper';
+import { readData, writeData, getAbandonedTransactions, getUnpaidTransactions } from './databaseHelper';
 import { log, transactionLog } from './loggerHelper';
 import { decryptVerify } from './routineHelper';
 import { unreserveEnergy } from './energyProvisionHelper';
@@ -120,6 +120,40 @@ export async function processClaimRequest(request: any): Promise<any> {
         throw new Error('Marketplace signature verification failed');
     } catch (error) {
         await log(`Contract claim failed. ${error.toString()}`);
+        throw new Error(error);
+    }
+}
+
+export async function produceEnergy(energyProductionAmount: number): Promise<any> {
+    try {
+        const energy: any = await readData('energy');
+        const energyAmount = Number(energy && energy.energyAvailable || 0) + energyProductionAmount;
+        await writeData('energy', { 
+            timestamp: Date.now().toString(), 
+            energyAvailable: energyAmount,
+            energyReserved: (energy && energy.energyReserved || 0)
+        });
+
+        await log(`Produced ${energyProductionAmount} W of energy`);
+    } catch (error) {
+        await log(`Produce energy request failed. ${error.toString()}`);
+        throw new Error(error);
+    }
+}
+
+export async function consumeEnergy(energyConsumptionAmount: number): Promise<any> {
+    try {
+        const energy: any = await readData('energy');
+        const energyAmount = Number(energy && energy.energyAvailable || 0) - energyConsumptionAmount;
+        await writeData('energy', { 
+            timestamp: Date.now().toString(), 
+            energyAvailable: energyAmount > 0 ? energyAmount : 0,
+            energyReserved: (energy && energy.energyReserved || 0)
+        });
+
+        await log(`Consumed ${energyConsumptionAmount} W of energy`);
+    } catch (error) {
+        await log(`Consume energy request failed. ${error.toString()}`);
         throw new Error(error);
     }
 }
