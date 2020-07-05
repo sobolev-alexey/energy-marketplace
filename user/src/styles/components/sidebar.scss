@@ -4,7 +4,7 @@
     align-items: center;
     justify-content: space-between;
     width: 200px;
-    padding: 60px;
+    padding: 50px;
     height: 100vh;
     background-color: #242529;
     position: relative;
@@ -38,5 +38,15 @@
                 }
             }
         }
+    }
+}
+
+.logout {
+    background: transparent;
+    &:hover {
+        color: #141414;
+        background: transparent;
+        border: none;
+        transition: all 0.5s;
     }
 }

@@ -1,7 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import Layout from "../components/Layout";
 
-import { Form, Select, Input, Button, Upload, Col, Row, Space } from "antd";
+import { Form, Select, Input, Upload, Col, Row, Space } from "antd";
 
 const { Option } = Select;
 
@@ -34,7 +35,7 @@ const NewDeviceForm = () => {
                 },
               ]}
             >
-              <Input />
+              <Input className="rounded-input" />
             </Form.Item>
             <Form.Item
               name={["user", "url"]}
@@ -47,7 +48,7 @@ const NewDeviceForm = () => {
                 },
               ]}
             >
-              <Input />
+              <Input className="rounded-input" />
             </Form.Item>
             <Form.Item
               name="type"
@@ -61,30 +62,31 @@ const NewDeviceForm = () => {
               ]}
             >
               <Select placeholder="Producer">
-                <Option value="producer"> Producer </Option> <Option value="consumer"> Consumer </Option>
+                <Option value="producer">Producer </Option> <Option value="consumer">Consumer </Option>
               </Select>
             </Form.Item>
             <Form.Item label="Energy price (NOK per kWh)">
               <Form.Item name="energy-price" noStyle>
-                <Input type="number" />
+                <Input className="rounded-input" type="number" />
               </Form.Item>
             </Form.Item>
             <Form.Item label="Min wallet balance (Mi)">
               <Form.Item name="wallet-balance-Mi" noStyle>
-                <Input type="number" />
+                <Input className="rounded-input" type="number" />
               </Form.Item>
             </Form.Item>
           </Col>
           <Col offset={1} flex="auto">
             <Form.Item
+              className="no-file-selected"
               name="device-image"
               label="Device image"
               valuePropName="fileList"
               getValueFromEvent={normFile}
-              extra="No file selected"
+              extra={<span> No file selected </span>}
             >
               <Upload name="logo" action="/upload.do" listType="picture">
-                <Button> Select file </Button>
+                <button className="ant-btn-lg1"> Select file </button>
               </Upload>
             </Form.Item>
             <Form.Item
@@ -98,7 +100,7 @@ const NewDeviceForm = () => {
                 },
               ]}
             >
-              <Input />
+              <Input className="rounded-input" />
             </Form.Item>
             <Form.Item
               name="network"
@@ -118,7 +120,7 @@ const NewDeviceForm = () => {
             </Form.Item>
             <Form.Item label="Minimum offer amount (kWh)">
               <Form.Item name="min-offer-amount-KWh" noStyle>
-                <Input type="number" />
+                <Input className="rounded-input" type="number" />
               </Form.Item>
             </Form.Item>
           </Col>
