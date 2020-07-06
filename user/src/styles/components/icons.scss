@@ -1,0 +1,31 @@
+.icon-running {
+    color: #59ad9e;
+    font-size: 20px;
+    padding-right: 5px;
+}
+
+.text-running {
+    color: #59ad9e;
+    font-size: 14px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+}
+
+.icon-paused {
+    color: #dc817c;
+    font-size: 20px;
+    padding-right: 5px;
+}
+
+.text-paused {
+    color: #dc817c;
+    font-size: 14px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+}
+
+.anticon anticon-search ant-input-search-icon {
+    color: #242529;
+}

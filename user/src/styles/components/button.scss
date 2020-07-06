@@ -112,7 +112,7 @@ button {
     align-items: center;
     justify-content: space-evenly;
     &:hover {
-        color: #141414;
+        color: #dc817c;
         background: transparent;
         border: none;
         transition: all 0.5s;
@@ -148,4 +148,17 @@ button {
     font-size: 14px;
     line-height: 16px;
     width: 101px;
+}
+
+.ant-btn {
+    border-radius: 20px;
+    width: 90px;
+    background: #3A3D42;
+    color: white;
+    border: #3A3D42;
+    &:hover {
+        background: #141414;
+        border: #141414;
+        color: white;
+    }
 }

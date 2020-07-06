@@ -94,7 +94,6 @@ const Overview = () => {
                 style={{ width: 300 }}
               />
             </div>
-            {/* {console.log(searchQuery)} */}
             <div>
               <Divider className={"divider"} />
               <CustomTable columns={overviewTableColumns} devices={filteredDevices} />

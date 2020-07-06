@@ -1,0 +1,42 @@
+td {
+    border-style: none;
+    background-color: white;
+    margin: 20px 0px 20px 0;
+    cursor: pointer;
+}
+
+td:first-child {
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+}
+
+td:last-child {
+    border-bottom-right-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+.ant-table-thead>tr>th {
+    background-color: transparent;
+}
+
+.ant-table table {
+    background-color: #f4f8f9;
+    width: 100%;
+    text-align: left;
+    border-radius: 2px 2px 0 0;
+    border-collapse: separate;
+    border-spacing: 0 15px;
+}
+
+.ant-table-wrapper {
+    padding-bottom: 40px;
+}
+
+.ant-table-column-sorters span {
+    font-weight: 500;
+}
+
+.ant-input-search {
+    border-radius: 10px;
+    height: 40px;
+}
