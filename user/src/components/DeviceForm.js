@@ -16,7 +16,6 @@ const DeviceForm = ({ device, onChange, fields }) => {
   return (
     <Form
       fields={fields}
-      fields={fields}
       onFieldsChange={(changedFields, allFields) => {
         onChange(allFields);
       }}

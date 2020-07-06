@@ -132,8 +132,11 @@ td:last-child {
     background-color: transparent;
 }
 
-table {
+.ant-table table {
     background-color: #f4f8f9;
+    width: 100%;
+    text-align: left;
+    border-radius: 2px 2px 0 0;
     border-collapse: separate;
     border-spacing: 0 15px;
 }
@@ -144,14 +147,6 @@ table {
 
 .ant-table-column-sorters span {
     font-weight: 500;
-}
-
-.ant-table table {
-    background-color: #f4f8f9;
-    width: 100%;
-    text-align: left;
-    border-radius: 2px 2px 0 0;
-    border-collapse: separate;
 }
 
 label {
