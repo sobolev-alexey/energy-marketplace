@@ -54,7 +54,7 @@ const Register = ({ history }) => {
             name={["email"]}
             label="Email address"
             hasFeedback
-            onChange={(e) => setRevealFields(true) && setEmail(e.target.value)}
+            onChange={(e) => setRevealFields(true) || setEmail(e.target.value)}
             rules={[
               {
                 type: 'email',
