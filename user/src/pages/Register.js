@@ -51,44 +51,24 @@ const Register = ({ history }) => {
           onFinish={onFinish}
         >
           <Form.Item
-            name={["name"]}
-            label="Name"
+            name={["email"]}
+            label="Email address"
             hasFeedback
-            onChange={() => setRevealFields(true)}
+            onChange={(e) => setRevealFields(true) || setEmail(e.target.value)}
             rules={[
-              { 
-                validator: (_, value) => 
-                  (value.length < 50) 
-                  ? Promise.resolve() 
-                  : Promise.reject(`Please shorten the provided value to less than 50 characters`) 
+              {
+                type: 'email',
+                message: 'This is not a valid email!',
               },
               {
                 required: true,
-                message: "Please provide your name!",
+                message: 'Please provide your email!',
               },
             ]}
           >
             <Input className="rounded-input" />
           </Form.Item>
           <div className={revealFields ? "reveal-fields" : "hide-fields"}>
-            <Form.Item
-              name={["email"]}
-              label="Email address"
-              hasFeedback
-              onChange={(e) => setEmail(e.target.value)}
-              rules={[
-                {
-                  type: 'email',
-                  message: 'This is not a valid email!',
-                },
-                {
-                  required: true,
-                  message: 'Please provide your email!',
-                },
-              ]}
-            >
-              <Input className="rounded-input" />
-            </Form.Item>
             <Form.Item
               name={["password"]}
               label="Password"
@@ -137,22 +117,6 @@ const Register = ({ history }) => {
               ]}
             >
               <Input.Password className="rounded-input" />
-            </Form.Item>
-
-            <Form.Item
-              name={["companyName"]}
-              label="Company name"
-              hasFeedback
-              rules={[
-                { 
-                  validator: (_, value) => 
-                    (!value || value.length < 50) 
-                    ? Promise.resolve() 
-                    : Promise.reject(`Please shorten the provided value to less than 50 characters`) 
-                },
-              ]}
-            >
-              <Input className="rounded-input" />
             </Form.Item>
           </div>
           <br />

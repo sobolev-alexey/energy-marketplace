@@ -3,7 +3,6 @@ const cors = require('cors')({ origin: true });
 const axios = require('axios');
 const { v4: uuid } = require('uuid');
 const randomstring = require('randomstring');
-const isEmpty = require('lodash/isEmpty');
 const { 
   getSettings, 
   setUser, 
@@ -16,23 +15,19 @@ const {
 const { decryptVerify, getNewWallet } = require('./helpers');
 const { EncryptionService } = require('./encryption');
 
-
 // Setup User with an API Key
 exports.setupUser = functions.auth.user().onCreate(user => {
   return new Promise(async (resolve, reject) => {
-    console.log('setupUser', user);
     if (!user) {
       reject();
     } else {
-      // Try saving
       try {
         const apiKey = uuid();
         const encryptionService = EncryptionService();
         const { privateKey, publicKey } = encryptionService.generateKeys();
-        console.log('Keys', privateKey, publicKey);
+        const wallet = await getNewWallet();
 
-        await setUser(user.uid, { apiKey, privateKey, publicKey, userId: user.uid });
-        console.log('setupUser resolved for UID', user.uid);
+        await setUser(user.uid, { apiKey, privateKey, publicKey, userId: user.uid, wallet });
         resolve();
       } catch (e) {
         console.error('setupUser rejected with ', e);
