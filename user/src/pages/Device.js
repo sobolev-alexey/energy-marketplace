@@ -50,7 +50,9 @@ const Device = ({ history }) => {
             />
           </TabPane>
           <TabPane tab="Transactions" key="3">
-            <CustomTable columns={DeviceTableColumns} />
+            <div className="transactions-tab-wrapper">
+              <CustomTable columns={DeviceTableColumns} />
+            </div>
           </TabPane>
         </Tabs>
       </div>

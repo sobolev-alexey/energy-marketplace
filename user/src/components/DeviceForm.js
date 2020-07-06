@@ -16,7 +16,6 @@ const DeviceForm = ({ device, onChange, fields }) => {
   return (
     <Form
       fields={fields}
-      fields={fields}
       onFieldsChange={(changedFields, allFields) => {
         onChange(allFields);
       }}
@@ -41,7 +40,7 @@ const DeviceForm = ({ device, onChange, fields }) => {
                 },
               ]}
             >
-              <Input />
+              <Input className="rounded-input" />
             </Form.Item>
             <Form.Item
               name={["user", "url"]}
@@ -54,7 +53,7 @@ const DeviceForm = ({ device, onChange, fields }) => {
                 },
               ]}
             >
-              <Input />
+              <Input className="rounded-input" />
             </Form.Item>
             <Form.Item
               name="type"
@@ -73,14 +72,14 @@ const DeviceForm = ({ device, onChange, fields }) => {
             </Form.Item>
             <Form.Item label="Energy price (NOK per kWh)">
               <Form.Item name="energy-price" noStyle>
-                <Input type="number" />
+                <Input className="rounded-input" type="number" />
               </Form.Item>
             </Form.Item>
           </Col>
           <Col offset={1} flex="auto">
             <Form.Item label="Min wallet balance (Mi)">
               <Form.Item name="wallet-balance-Mi" noStyle>
-                <Input type="number" />
+                <Input className="rounded-input" type="number" />
               </Form.Item>
             </Form.Item>
             <Form.Item
@@ -94,7 +93,7 @@ const DeviceForm = ({ device, onChange, fields }) => {
                 },
               ]}
             >
-              <Input />
+              <Input className="rounded-input" />
             </Form.Item>
             <Form.Item
               name="network"
@@ -114,7 +113,7 @@ const DeviceForm = ({ device, onChange, fields }) => {
             </Form.Item>
             <Form.Item label="Minimum offer amount (kWh)">
               <Form.Item name="min-offer-amount-KWh" noStyle>
-                <Input type="number" />
+                <Input className="rounded-input" type="number" />
               </Form.Item>
             </Form.Item>
           </Col>

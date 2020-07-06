@@ -22,7 +22,7 @@ const Overview = () => {
   const [sortValue, setSortValue] = useState("");
 
   useEffect(() => {
-    auth.onAuthStateChanged(async user => {
+    auth.onAuthStateChanged(async (user) => {
       if (user) {
         // User is signed in.
         console.log("User 1", user.uid);
@@ -36,7 +36,7 @@ const Overview = () => {
     async function callApi() {
       const response = await axios.get(`https://jsonplaceholder.typicode.com/users`);
       const devices = response.data;
-      setDevices(devices.map(device => ({ ...device, key: device.id })));
+      setDevices(devices.map((device) => ({ ...device, key: device.id })));
       // const { response, error, loading } = { response: null, error: null, loading: true };
 
       // const response = await axios.get(`${config.serverAPI}/devices`);
@@ -81,7 +81,7 @@ const Overview = () => {
         ) : (
           <div>
             <div className="overview-sub-header-wrapper">
-              <Select defaultValue="A-Z" style={{ width: "188px" }} onChange={setDevicesSort}>
+              <Select className="select-rounded" defaultValue="A-Z" onChange={setDevicesSort}>
                 <Option value="A-Z">Sort by: A-Z</Option>
                 <Option value="Z-A">Sort by: Z-A</Option>
               </Select>
@@ -94,7 +94,6 @@ const Overview = () => {
                 style={{ width: 300 }}
               />
             </div>
-            {/* {console.log(searchQuery)} */}
             <div>
               <Divider className={"divider"} />
               <CustomTable columns={overviewTableColumns} devices={filteredDevices} />

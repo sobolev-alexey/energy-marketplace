@@ -12,9 +12,12 @@ button {
     width: 120px;
     background-color: #f4f8f9;
     cursor: pointer;
-    // &:hover {
-    //     background-color: #242529;
-    // }
+    &:hover {
+        background-color: #141414;
+        border: none;
+        color: white;
+        transition: all 0.3s;
+    }
     // &:disabled {
     //     background-color: #242529;
     //     &:hover {
@@ -63,8 +66,13 @@ button {
 
 .cta3 {
     color: #242529;
-    font-size: 40px;
+    font-size: 44px;
     padding-bottom: 5px;
+    &:hover {
+        color: #141414;
+        border: none;
+        transition: all 0.5s;
+    }
 }
 
 .cta4 {
@@ -82,6 +90,12 @@ button {
     display: flex;
     align-items: center;
     justify-content: space-evenly;
+    &:hover {
+        color: white;
+        background: #141414;
+        border: none;
+        transition: all 0.5s;
+    }
 }
 
 .delete-button {
@@ -97,6 +111,12 @@ button {
     display: flex;
     align-items: center;
     justify-content: space-evenly;
+    &:hover {
+        color: #dc817c;
+        background: transparent;
+        border: none;
+        transition: all 0.5s;
+    }
 }
 
 .cta-device {
@@ -128,4 +148,17 @@ button {
     font-size: 14px;
     line-height: 16px;
     width: 101px;
+}
+
+.ant-btn {
+    border-radius: 20px;
+    width: 90px;
+    background: #3A3D42;
+    color: white;
+    border: #3A3D42;
+    &:hover {
+        background: #141414;
+        border: #141414;
+        color: white;
+    }
 }
