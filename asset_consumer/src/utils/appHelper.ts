@@ -9,6 +9,7 @@ import { IDataResponse } from '../models/api/IDataResponse';
 import { IRoute } from '../models/app/IRoute';
 import { IConfiguration } from '../models/configuration/IConfiguration';
 import { arenaConfig } from './queueHelper';
+import { readData } from './databaseHelper';
 
 /**
  * Class to help with expressjs routing.
@@ -21,10 +22,10 @@ export class AppHelper {
      * @param customListener If true uses a custom listener otherwise listens for you during build process.
      * @returns The express js application.
      */
-    public static build(
+    public static async build(
         routes: IRoute[],
         onComplete?: (app: Application, config: IConfiguration, websocketPort: number) => void,
-        customListener?: boolean): Application {
+        customListener?: boolean): Promise<Application> {
         // tslint:disable:no-var-requires no-require-imports
         const packageJson = require('../../package.json');
         const configId = process.env.CONFIG_ID || 'local';
@@ -40,8 +41,11 @@ export class AppHelper {
         // app.use(logger('dev'));
 
         // Queue UI
-        app.use('/admin/board', UI);
-        app.use('/admin/arena', arenaConfig);
+        const asset: any = await readData('asset');
+        if (asset?.dashboard === 'enabled') {
+            app.use('/admin/board', UI);
+            app.use('/admin/arena', arenaConfig);
+        }
 
         app.use(cors({
             origin: config.allowedDomains && config.allowedDomains.length > 0 ? config.allowedDomains : '*',
@@ -123,6 +127,20 @@ export class AppHelper {
                         response = await mod[routes[i].func](config, params, body);
                     } else if (routes[i].inline) {
                         response = await routes[i].inline(config, params, body);
+                    }
+                    if (routes[i].func === 'init') {
+                        setTimeout(() => {
+                            console.log('Restarting...');
+                            process.on('exit', () => {
+                                require('child_process').spawn(process.argv.shift(), process.argv, {
+                                    cwd: process.cwd(),
+                                    detached : true,
+                                    stdio: 'inherit'
+                                });
+                            });
+                            process.exit();
+                        // tslint:disable-next-line:align
+                        }, 1000);
                     }
                 } catch (err) {
                     res.status(err.httpCode || 400);
