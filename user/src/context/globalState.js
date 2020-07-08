@@ -18,8 +18,18 @@ const GlobalState = ({ children }) => {
     
   useEffect(() => {
     readSession();
-    auth.onAuthStateChanged(user => {
+    auth.onAuthStateChanged(async user => {
       setLoggedIn(!!user);
+      if (!!user) {
+        const existingUser = await localStorage.getItem("user");
+        if (!existingUser) {
+          console.log('Store user in local storage');
+          await localStorage.setItem("user", JSON.stringify({ userId: user?.uid }));
+        }
+      } else {
+        console.log('Remove user from local storage');
+        await localStorage.clear();
+      }
     });
   }, []);
 
