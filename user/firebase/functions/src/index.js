@@ -154,7 +154,6 @@ exports.device = functions.https.onRequest((req, res) => {
     // Check Fields
     const params = req.body;
     if (!params 
-      || !params.operation
       || !params.userId 
       || !params.apiKey
       || !params.deviceName 
@@ -164,6 +163,9 @@ exports.device = functions.https.onRequest((req, res) => {
       || !params.minWalletAmount 
       || !params.minOfferAmount 
       || !params.maxEnergyPrice 
+      || !params.running 
+      || !params.dashboard
+      || !params.uuid
       ) {
       console.error('Device creation request failed. Params: ', params);
       return res.status(400).json({ error: 'Ensure all fields are included' });
@@ -179,15 +181,17 @@ exports.device = functions.https.onRequest((req, res) => {
         let wallet;
         let deviceId;
         let image = '';
-        if (params.operation === 'create') {
-          // Create device wallet
-          wallet = await getNewWallet();
-          deviceId = randomstring.generate(16);
-        } else if (params.operation === 'update' && params.deviceId) {
-          const existingDevice = user.devices.find(dev => dev.id === params.deviceId);
+        const existingDevice = user.devices.find(dev => 
+          (params.deviceId && (dev.id === params.deviceId)) || (dev.uuid === params.uuid));
+
+        if (existingDevice) {
           wallet = existingDevice && existingDevice.wallet;
           deviceId = existingDevice && existingDevice.id;
           image = existingDevice && existingDevice.image;
+        } else {
+          // Create device wallet
+          wallet = await getNewWallet();
+          deviceId = randomstring.generate(16);
         }
 
         // Compose payload
@@ -207,7 +211,10 @@ exports.device = functions.https.onRequest((req, res) => {
           location: params.location,
           assetWallet: wallet,
           marketplacePublicKey: settings.marketplacePublicKey,
-          assetOwnerPublicKey: user.publicKey
+          assetOwnerPublicKey: user.publicKey,
+          status: params.running === 'true' ? 'running' : 'paused',
+          dashboard: params.dashboard === 'true' ? 'enabled' : 'disabled',
+          uuid: params.uuid
         }
 
         // Send payload to device
@@ -223,6 +230,7 @@ exports.device = functions.https.onRequest((req, res) => {
           && deviceResponse.data.publicKey 
         ) {
           const device = {
+            status: params.running === 'true',
             id: deviceId,
             name: params.deviceName,
             description: params.deviceDescription || '',
@@ -230,6 +238,8 @@ exports.device = functions.https.onRequest((req, res) => {
             image: image || '',
             type: params.type,
             location: params.location,
+            dashboard: params.dashboard === 'true',
+            uuid: params.uuid,
             maxEnergyPrice: Number(params.maxEnergyPrice),
             minWalletAmount: Number(params.minWalletAmount),
             minOfferAmount: Number(params.minOfferAmount),
@@ -239,13 +249,15 @@ exports.device = functions.https.onRequest((req, res) => {
           // Store device info
           await setDevice(params.userId, device);
           return res.json({ status: 'success' });
+        } else if (!deviceResponse.data.success && deviceResponse.data.error) {
+          return res.status(403).json({ status: deviceResponse.data.error });
         }
-        return res.json({ status: 'something went wrong' });
+        return res.status(403).json({ status: 'Something went wrong' });
       }
-      return res.json({ status: 'wrong api key' });
+      return res.status(403).json({ status: 'Wrong api key' });
     } catch (e) {
-      console.error('Device creation request failed. Error: ', e);
-      return res.status(403).json({ status: 'error', error: e.message });
+      console.error('Device creation request failed. Device not reachable', e);
+      return res.status(403).json({ status: 'error', error: 'Device creation request failed. Device not reachable' });
     }
   });
 });
