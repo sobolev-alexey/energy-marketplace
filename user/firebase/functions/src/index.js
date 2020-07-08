@@ -10,6 +10,7 @@ const {
   getUser,
   getTransactions,
   getEvents,
+  getDevice,
   logEvent
 } = require('./firebase');
 const { decryptVerify, getNewWallet } = require('./helpers');
@@ -148,7 +149,6 @@ exports.events = functions.https.onRequest((req, res) => {
   });
 });
 
-
 exports.device = functions.https.onRequest((req, res) => {
   cors(req, res, async () => {
     // Check Fields
@@ -248,7 +248,7 @@ exports.device = functions.https.onRequest((req, res) => {
 
           // Store device info
           await setDevice(params.userId, device);
-          return res.json({ status: 'success' });
+          return res.json({ status: 'success', deviceId });
         } else if (!deviceResponse.data.success && deviceResponse.data.error) {
           return res.status(403).json({ status: deviceResponse.data.error });
         }
@@ -293,6 +293,39 @@ exports.image = functions.https.onRequest((req, res) => {
       return res.json({ status: 'wrong api key' });
     } catch (e) {
       console.error('Image upload request failed. Error: ', e);
+      return res.status(403).json({ status: 'error', error: e.message });
+    }
+  });
+});
+
+exports.info = functions.https.onRequest((req, res) => {
+  cors(req, res, async () => {
+    // Check Fields
+    const params = req.body;
+    if (!params 
+      || !params.userId 
+      || !params.apiKey
+      || !params.deviceId
+      ) {
+      console.error('Device info request failed. Params: ', params);
+      return res.status(400).json({ error: 'Ensure all fields are included' });
+    }
+
+    try {
+      const user = await getUser(params.userId, true);
+      
+      // Check correct apiKey
+      if (user && user.apiKey && user.apiKey === params.apiKey) {
+        const { device, error } = await getDevice(params.userId, params.deviceId);
+        if (error) {
+          throw new Error(error);
+        } else {
+          return res.json({ status: 'success', device });
+        }
+      }
+      return res.status(403).json({ status: 'Wrong api key' });
+    } catch (e) {
+      console.error('Device info request failed', e);
       return res.status(403).json({ status: 'error', error: e.message });
     }
   });
