@@ -40,3 +40,23 @@ td:last-child {
     border-radius: 10px;
     height: 40px;
 }
+
+.ant-table-cell {
+    .table-item-wrapper {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        font-weight: normal;
+        font-size: 14px;
+        line-height: 16px;
+
+        .primary-row {
+            color: #242529;
+            margin-bottom: 10px;
+        }
+
+        .secondary-row {
+            color: #878992;
+        }
+    }
+}

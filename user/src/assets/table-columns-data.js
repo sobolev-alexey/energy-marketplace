@@ -6,7 +6,19 @@ export const overviewTableColumns = [
     title: "Name",
     dataIndex: "name",
     key: "name",
+    ellipsis: true,
     sorter: (a, b) => a.name.localeCompare(b.name),
+    render: (value, row) => (
+      <div className="table-item-wrapper">
+        <span className="primary-row">
+          { value.charAt(0).toUpperCase() + value.slice(1) }
+        </span>
+        <span className="secondary-row">
+          { row.description }
+        </span>
+      </div>
+      
+    ),
   },
   {
     title: "Type",
@@ -18,6 +30,7 @@ export const overviewTableColumns = [
     ],
     onFilter: (value, record) => record.type.includes(value),
     sorter: (a, b) => a.type.localeCompare(b.type),
+    render: (value) => value.charAt(0).toUpperCase() + value.slice(1),
   },
   {
     title: "Balance",
@@ -34,8 +47,8 @@ export const overviewTableColumns = [
       { text: "Paused", value: "paused" },
     ],
     onFilter: (value, record) => record.status.includes(value),
-    render: (value) =>
-      value === "running" ? (
+    render: (status) =>
+      status ? (
         <span className="text-running">
           <PlayCircleOutlined className={"icon-running"} /> Running
         </span>
@@ -47,6 +60,7 @@ export const overviewTableColumns = [
   },
   {
     key: "x",
+    width: 80,
     render: () => (
       <div>
         <EllipsisOutlined style={{ fontSize: "30px", color: "#aab8c2" }} />
@@ -96,6 +110,7 @@ export const DeviceTableColumns = [
   },
   {
     key: "x",
+    width: 80,
     render: () => (
       <div>
         <EllipsisOutlined style={{ fontSize: "30px", color: "#aab8c2" }} />
