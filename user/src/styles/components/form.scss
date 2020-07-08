@@ -1,4 +1,4 @@
-.new-device-page-wrapper {
+.device-page-wrapper {
     display: flex;
     flex-direction: column;
     padding: 25px 0px 110px 40px;
@@ -113,10 +113,6 @@
 
 .ant-row {
     flex-flow: unset;
-}
-
-.ant-col {
-    width: 90%;
 }
 
 .ant-switch {
