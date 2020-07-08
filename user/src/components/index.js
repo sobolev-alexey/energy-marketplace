@@ -9,6 +9,7 @@ import Disclaimer from "./Disclaimer";
 import DeviceHeader from "./DeviceHeader";
 import DeviceInfo from "./DeviceInfo";
 import OverviewHeader from "./OverviewHeader";
+import CustomModal from "./CustomModal";
 
 export { 
     Sidebar, 
@@ -21,5 +22,6 @@ export {
     Disclaimer,
     DeviceHeader,
     DeviceInfo,
-    OverviewHeader
+    OverviewHeader,
+    CustomModal
 };
