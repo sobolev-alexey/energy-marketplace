@@ -156,10 +156,10 @@ exports.device = functions.https.onRequest((req, res) => {
     if (!params 
       || !params.userId 
       || !params.apiKey
-      || !params.deviceName 
+      || !params.name 
       || !params.type 
       || !params.location 
-      || !params.deviceURL
+      || !params.url
       || !params.minWalletAmount 
       || !params.minOfferAmount 
       || !params.maxEnergyPrice 
@@ -203,8 +203,8 @@ exports.device = functions.https.onRequest((req, res) => {
           assetOwnerAPI: settings.assetOwnerAPI,
           marketplaceAPI: settings.marketplaceAPI,
           assetId: deviceId,
-          assetName: params.deviceName,
-          assetDescription: params.deviceDescription || '',
+          assetName: params.name,
+          assetDescription: params.description || '',
           type: params.type,
           assetOwner: user.userId,
           network: settings.tangle.network,
@@ -219,7 +219,7 @@ exports.device = functions.https.onRequest((req, res) => {
 
         // Send payload to device
         const headers = { 'Content-Type': 'application/json' };
-        const deviceResponse = await axios.post(`${params.deviceURL}/init`, payload, { headers });
+        const deviceResponse = await axios.post(`${params.url}/init`, payload, { headers });
         
         console.log('API', deviceResponse.data);
 
@@ -230,10 +230,11 @@ exports.device = functions.https.onRequest((req, res) => {
           && deviceResponse.data.publicKey 
         ) {
           const device = {
-            status: params.running === 'true',
+            running: params.running === 'true',
             id: deviceId,
-            name: params.deviceName,
-            description: params.deviceDescription || '',
+            name: params.name,
+            url: params.url,
+            description: params.description || '',
             publicKey: deviceResponse.data.publicKey,
             image: image || '',
             type: params.type,
