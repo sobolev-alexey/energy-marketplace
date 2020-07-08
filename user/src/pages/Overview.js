@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { Layout, Loading } from "../components";
+import React, { useEffect, useState, useContext } from "react";
 import { Input, Select, Divider } from "antd";
+import { AppContext } from "../context/globalState";
 import callApi from "../utils/callApi";
 import CustomTable from "../components/Table";
 import OverviewHeader from "../components/OverviewHeader";
@@ -15,20 +15,18 @@ const Overview = () => {
   const [devices, setDevices] = useState([]);
   const [filteredDevices, setFilteredDevices] = useState([]);
   const [sortValue, setSortValue] = useState("");
+  const { user, setUser } = useContext(AppContext);
 
   useEffect(() => {
     async function loadUser() {
       try {
-        let user = await localStorage.getItem("user");
-        user = JSON.parse(user);
         if (user?.userId) {
           const { response, error } = await callApi('user', { userId: user?.userId });
 
           if (!error) {
             const devices = response?.devices?.map(device => ({ ...device, key: device.id, balance: device?.wallet?.balance }));
             setDevices(devices);
-            await localStorage.setItem("devices", JSON.stringify(devices));
-            await localStorage.setItem("user", JSON.stringify({ userId: user.userId, apiKey: response?.apiKey }));
+            setUser(response);
           } else {
             console.error("Error loading user data", error);
           }
@@ -40,7 +38,7 @@ const Overview = () => {
     }
     
     loadUser();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [user?.userId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     setFilteredDevices(devices.filter((device) => device.name.toLowerCase().includes(searchQuery.toLowerCase())));
