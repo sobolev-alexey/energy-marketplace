@@ -17,6 +17,7 @@ const CustomTable = ({ history, devices, columns }) => {
       className="ant-table-cell"
       columns={columns}
       dataSource={devices}
+      rowKey={device => device.id}
       pagination={{ hideOnSinglePage: true }}
     />
   );
