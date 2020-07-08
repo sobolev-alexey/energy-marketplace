@@ -4,7 +4,6 @@ import { withRouter } from "react-router";
 import { LogoutOutlined } from "@ant-design/icons";
 import { AppContext } from "../context/globalState";
 import { logout } from "../utils/firebase";
-import { destroySession } from "../utils/storage";
 import logo from "../assets/logo.svg";
 
 import CustomModal from "../components/CustomModal";
@@ -14,7 +13,7 @@ const Sidebar = ({ history }) => {
 
   const callback = async () => {
     setLoggedIn(false);
-    await destroySession();
+    await localStorage.clear();
     history.push("/");
   };
 
