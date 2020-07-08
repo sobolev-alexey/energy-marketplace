@@ -14,10 +14,10 @@ import { paymentConfirmation } from './paymentConfirmationHelper';
 import { queues, options } from './queueHelper';
 
 // tslint:disable-next-line:typedef
-export function BusinessLogic() {
-    const processPayments = async (): Promise<void> => {
-        const asset: any = await readData('asset');
+export async function BusinessLogic() {
+    const asset: any = await readData('asset');
 
+    const processPayments = async (): Promise<void> => {
         // Check asset type is requester
         if (asset?.type === 'requester') { 
             await processPaymentQueue();
@@ -37,8 +37,6 @@ export function BusinessLogic() {
             queues.cancelTransaction.add(transaction, options));
 
         if (unpaidTransactions.length > 0) {
-            const asset: any = await readData('asset');
-
             // Check asset type is requester
             if (asset?.type === 'requester') { 
                 // Process unpaid transactions
@@ -52,11 +50,16 @@ export function BusinessLogic() {
         }
     };
 
-    setInterval(processPayments, paymentQueueProcessingSpeed * 1000);
-    setInterval(processPendingTransactions, pendingTransactionsProcessingSpeed * 1000);
-    setInterval(() => queues.transaction.add({}, options), transactionCreationSpeed * 1000);
-    setInterval(() => queues.consumeEnergy.add({}, options), energyConsumptionSpeed * 1000);
-    setInterval(() => queues.produceEnergy.add({}, options), energyProductionSpeed * 1000);
+    console.log('Asset status', asset?.status);
+
+    if (asset?.status === 'running') {
+        console.log('Asset starting');
+        setInterval(processPayments, paymentQueueProcessingSpeed * 1000);
+        setInterval(processPendingTransactions, pendingTransactionsProcessingSpeed * 1000);
+        setInterval(() => queues.transaction.add({}, options), transactionCreationSpeed * 1000);
+        setInterval(() => queues.consumeEnergy.add({}, options), energyConsumptionSpeed * 1000);
+        setInterval(() => queues.produceEnergy.add({}, options), energyProductionSpeed * 1000);
+    }
 }
 
 export async function processPaymentProcessingConfirmation(request: any): Promise<any> {
