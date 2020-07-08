@@ -40,15 +40,15 @@ export const overviewTableColumns = [
   },
   {
     title: "Status",
-    dataIndex: "status",
-    key: "status",
+    dataIndex: "running",
+    key: "running",
     filters: [
       { text: "Running", value: "running" },
       { text: "Paused", value: "paused" },
     ],
-    onFilter: (value, record) => record.status.includes(value),
-    render: (status) =>
-      status ? (
+    onFilter: (value, record) => record.running.includes(value),
+    render: (running) =>
+      running ? (
         <span className="text-running">
           <PlayCircleOutlined className={"icon-running"} /> Running
         </span>
