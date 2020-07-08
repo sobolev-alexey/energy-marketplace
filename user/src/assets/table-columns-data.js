@@ -1,8 +1,5 @@
 import React from "react";
-
-import { PlayCircleOutlined, PauseCircleOutlined } from "@ant-design/icons";
-
-import DropdownButton from "../components/DropdownButton";
+import { EllipsisOutlined, PlayCircleOutlined, PauseCircleOutlined } from "@ant-design/icons";
 
 export const overviewTableColumns = [
   {
@@ -13,30 +10,30 @@ export const overviewTableColumns = [
   },
   {
     title: "Type",
-    dataIndex: "username",
+    dataIndex: "type",
     key: "type",
     filters: [
       { text: "Producer", value: "producer" },
       { text: "Consumer", value: "consumer" },
     ],
-    onFilter: (value, record) => record.username.includes(value),
-    sorter: (a, b) => a.username.localeCompare(b.username),
+    onFilter: (value, record) => record.type.includes(value),
+    sorter: (a, b) => a.type.localeCompare(b.type),
   },
   {
     title: "Balance",
-    dataIndex: "id",
+    dataIndex: "balance",
     key: "balance",
-    sorter: (a, b) => a.id - b.id,
+    sorter: (a, b) => Number(a) - Number(b),
   },
   {
     title: "Status",
-    dataIndex: "website",
+    dataIndex: "status",
     key: "status",
     filters: [
       { text: "Running", value: "running" },
       { text: "Paused", value: "paused" },
     ],
-    onFilter: (value, record) => record.website.includes(value),
+    onFilter: (value, record) => record.status.includes(value),
     render: (value) =>
       value === "running" ? (
         <span className="text-running">
@@ -50,7 +47,11 @@ export const overviewTableColumns = [
   },
   {
     key: "x",
-    render: () => <DropdownButton />,
+    render: () => (
+      <div>
+        <EllipsisOutlined style={{ fontSize: "30px", color: "#aab8c2" }} />
+      </div>
+    ),
   },
 ];
 
@@ -95,6 +96,10 @@ export const DeviceTableColumns = [
   },
   {
     key: "x",
-    render: () => <DropdownButton />,
+    render: () => (
+      <div>
+        <EllipsisOutlined style={{ fontSize: "30px", color: "#aab8c2" }} />
+      </div>
+    ),
   },
 ];
