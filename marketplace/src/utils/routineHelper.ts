@@ -113,6 +113,8 @@ export async function signPublishEncryptSend(
                 asset?.assetPublicKey, JSON.stringify(messagePayload)
             );
 
+            console.log('asset', asset);
+
             // Send encrypted payload and signature to asset
             // tslint:disable-next-line:no-unnecessary-local-variable
             const response = await sendRequest(`${asset?.assetURL}/${endpoint}`, { encrypted });
