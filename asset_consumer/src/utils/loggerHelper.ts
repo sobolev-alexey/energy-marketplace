@@ -4,6 +4,7 @@ import { signPublishEncryptSend } from './routineHelper';
 export const log = async (event: string) => {
     try {
         await writeData('log', { timestamp: Date.now().toString(), event });
+        console.log('log', event);
     } catch (error) {
         console.error('logger', error);
     }
@@ -12,6 +13,7 @@ export const log = async (event: string) => {
 export const transactionLog = async (payload: object) => {
     try {
         await writeData('transaction', payload);
+        console.log('transactionLog', payload);
 
         // Notify asset owner about new transaction event
         await signPublishEncryptSend(payload, 'notify_event');
