@@ -203,7 +203,8 @@ exports.logEvent = async (userId, deviceId, transactionId, event) => {
   // Save logs by user and device
   await admin
     .firestore()
-    .collection(`events/${userId}/devices/${deviceId}/transactions/${transactionId}`)
+    .collection(`events/${userId}/devices/${deviceId}/transactions`)
+    .doc(transactionId)
     .set({ 
       transactionId,
       timestamp
