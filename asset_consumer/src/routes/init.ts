@@ -38,8 +38,8 @@ export async function init(_: any, request: any): Promise<any> {
                     location: config.location,
                     type: config.type, 
                     network: config.network,
-                    websocket: `${config.url}:${websocketPortNumber}`,
-                    assetURL: `${config.url}:${serverPortNumber}`
+                    websocket: config.url,
+                    assetURL: config.url
                 };
 
                 console.log('Check 05', assetPayload);
