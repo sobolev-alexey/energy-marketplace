@@ -18,14 +18,17 @@ export const sendRequest = async (endpoint: string, payload: object): Promise<IR
     let response: IResponse;
 
     try {
+        console.log('sendRequest', endpoint);
         const axiosResponse = await axios.post<IResponse>(endpoint, payload);
 
         response = axiosResponse.data;
+        console.log('sendRequest response', response);
     } catch (err) {
         response = {
             success: false,
             message: `There was a problem communicating with the API.\n${err}`
         };
+        console.log('sendRequest ERROR response', response);
     }
 
     return response;
