@@ -1,31 +1,51 @@
-import React, { useState } from "react";
-
-import { withRouter } from "react-router";
-
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router";
 import { Tabs } from "antd";
-
-import { Layout, DeviceForm } from "../components";
-import DeviceHeader from "../components/DeviceHeader";
-import DeviceInfo from "../components/DeviceInfo";
-import CustomTable from "../components/Table";
-
+import { Layout, Loading, NewDeviceForm, DeviceHeader, DeviceInfo, Table } from "../components";
+import callApi from "../utils/callApi";
 import { DeviceTableColumns } from "../assets/table-columns-data";
 
 const { TabPane } = Tabs;
 
-const device2 = {
-  name: "name",
-  status: "running",
-  image:
-    "https://firebasestorage.googleapis.com/v0/b/cityexchange-energymarketplace.appspot.com/o/temp%2Fsolar_panel_PNG126.png?alt=media&token=fc2c39fd-14c7-471c-9b27-c144eab9b88a",
-};
+const Device = () => {
+  const { deviceId } = useParams();
+  const [device, setDevice] = useState();
+  const [loading, setLoading] = useState(true);
 
-const Device = ({ history }) => {
-  const { record } = history.location.state;
+  useEffect(() => {
+    async function loadDevice() {
+      try {
+        let user = await localStorage.getItem("user");
+        user = JSON.parse(user);
+
+        if (user?.userId && user?.apiKey) {
+          const { response, error } = await callApi('info', { 
+            userId: user?.userId,
+            apiKey: user?.apiKey,
+            deviceId
+          });
+
+          if (!error) {
+            const device = response?.device;
+            console.log(222, device);
+            setDevice(device);
+            setLoading(false);
+          } else {
+            console.error("Error loading device data", error);
+          }
+        }
+      } catch (err) {
+        console.error('Error while loading device data', err);
+      }
+    }
+    
+    loadDevice();
+  }, [deviceId]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const [fields, setFields] = useState([
     {
       name: ["username"],
-      value: record.name,
+      value: device?.name,
     },
   ]);
   const callback = (key) => {
@@ -34,30 +54,36 @@ const Device = ({ history }) => {
 
   return (
     <Layout>
-      <DeviceHeader device={record} />
-      <div className="device-page-wrapper">
-        <Tabs tabBarGutter={50} centered defaultActiveKey="1" onChange={callback}>
-          <TabPane tab="Overview" key="1">
-            <DeviceInfo device={{ ...record, image: device2.image }} />
-          </TabPane>
-          <TabPane tab="Settings" key="2">
-            <DeviceForm
-              fields={fields}
-              onChange={(newFields) => {
-                setFields(newFields);
-              }}
-              device={record}
-            />
-          </TabPane>
-          <TabPane tab="Transactions" key="3">
-            <div className="transactions-tab-wrapper">
-              <CustomTable columns={DeviceTableColumns} />
-            </div>
-          </TabPane>
-        </Tabs>
-      </div>
+     {loading ? (
+          <Loading />
+      ) : (
+        <React.Fragment>
+          <DeviceHeader device={device} />
+          <div className="device-page-wrapper">
+            <Tabs tabBarGutter={50} centered defaultActiveKey="1" onChange={callback}>
+              <TabPane tab="Overview" key="1">
+                <DeviceInfo device={device} />
+              </TabPane>
+              <TabPane tab="Settings" key="2">
+                <NewDeviceForm
+                  fields={fields}
+                  onChange={(newFields) => {
+                    setFields(newFields);
+                  }}
+                  device={device}
+                />
+              </TabPane>
+              <TabPane tab="Transactions" key="3">
+                <div className="transactions-tab-wrapper">
+                  <Table columns={DeviceTableColumns} />
+                </div>
+              </TabPane>
+            </Tabs>
+          </div>
+        </React.Fragment>
+      )}
     </Layout>
   );
 };
 
-export default withRouter(Device);
+export default Device;
