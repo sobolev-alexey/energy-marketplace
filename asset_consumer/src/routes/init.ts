@@ -44,7 +44,6 @@ export async function init(_: any, request: any): Promise<any> {
 
                 console.log('Check 05', assetPayload);
 
-
                 // Sign payload
                 const encryptionService = new EncryptionService();
                 const signature: Buffer = encryptionService.signMessage(
