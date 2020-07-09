@@ -1,4 +1,4 @@
-import { deviceUUID, serverPortNumber, websocketURL, websocketPortNumber } from '../config.json';
+import { deviceUUID, serverPortNumber, websocketPortNumber } from '../config.json';
 import { readData, readAllData, writeData } from '../utils/databaseHelper';
 import { EncryptionService, IMessagePayload } from '../utils/encryptionHelper';
 import { log } from '../utils/loggerHelper';
@@ -38,8 +38,8 @@ export async function init(_: any, request: any): Promise<any> {
                     location: config.location,
                     type: config.type, 
                     network: config.network,
-                    websocket: `${websocketURL}:${websocketPortNumber}`,
-                    assetURL: `${websocketURL}:${serverPortNumber}`
+                    websocket: `${config.url}:${websocketPortNumber}`,
+                    assetURL: `${config.url}:${serverPortNumber}`
                 };
 
                 console.log('Check 05', assetPayload);

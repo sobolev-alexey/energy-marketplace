@@ -54,7 +54,7 @@ exports.user = functions.https.onRequest((req, res) => {
       return res.json(user ? { ...user, status: 'success' } : null);
     } catch (e) {
       console.error('user failed. Error: ', e);
-      return res.status(403).json({ status: 'error', error: e.message });
+      return res.json({ status: 'error', error: e.message });
     }
   });
 });
@@ -90,7 +90,7 @@ exports.notify_event = functions.https.onRequest((req, res) => {
       return res.json({ status: 'error' });
     } catch (e) {
       console.error('Log event failed.', e);
-      return res.status(403).json({ status: 'error', error: e.message });
+      return res.json({ status: 'error', error: e.message });
     }
   });
 });
@@ -114,10 +114,10 @@ exports.transactions = functions.https.onRequest((req, res) => {
         const transactions = await getTransactions(params.userId, params.deviceId);
         return res.json({ status: 'success', transactions });
       }
-      return res.json({ status: 'wrong api key' });
+      return res.json({ status: 'error', error: 'wrong api key' });
     } catch (e) {
       console.error('Transactions request failed. Error: ', e);
-      return res.status(403).json({ status: 'error', error: e.message });
+      return res.json({ status: 'error', error: e.message });
     }
   });
 });
@@ -141,10 +141,10 @@ exports.events = functions.https.onRequest((req, res) => {
         const events = await getEvents(params.userId, params.deviceId, params.transactionId);
         return res.json({ status: 'success', events });
       }
-      return res.json({ status: 'wrong api key' });
+      return res.json({ status: 'error', error: 'wrong api key' });
     } catch (e) {
       console.error('Event request failed. Error: ', e);
-      return res.status(403).json({ status: 'error', error: e.message });
+      return res.json({ status: 'error', error: e.message });
     }
   });
 });
@@ -214,7 +214,8 @@ exports.device = functions.https.onRequest((req, res) => {
           assetOwnerPublicKey: user.publicKey,
           status: params.running === 'true' ? 'running' : 'paused',
           dashboard: params.dashboard === 'true' ? 'enabled' : 'disabled',
-          uuid: params.uuid
+          uuid: params.uuid,
+          url: params.url
         }
 
         // Send payload to device
@@ -251,14 +252,14 @@ exports.device = functions.https.onRequest((req, res) => {
           await setDevice(params.userId, device);
           return res.json({ status: 'success', deviceId });
         } else if (!deviceResponse.data.success && deviceResponse.data.error) {
-          return res.status(403).json({ status: deviceResponse.data.error });
+          return res.json({ status: 'error', error: deviceResponse.data.error });
         }
-        return res.status(403).json({ status: 'Something went wrong' });
+        return res.json({ status: 'error', error: 'Something went wrong' });
       }
-      return res.status(403).json({ status: 'Wrong api key' });
+      return res.json({ status: 'error', error: 'Wrong api key' });
     } catch (e) {
       console.error('Device creation request failed. Device not reachable', e);
-      return res.status(403).json({ status: 'error', error: 'Device creation request failed. Device not reachable' });
+      return res.json({ status: 'error', error: 'Device creation request failed. Device not reachable' });
     }
   });
 });
@@ -289,12 +290,12 @@ exports.image = functions.https.onRequest((req, res) => {
           await setDevice(params.userId, { ...device, image: params.image });
           return res.json({ status: 'success' });
         }
-        return res.json({ status: 'no device found' });
+        return res.json({ status: 'error', error: 'no device found' });
       }
-      return res.json({ status: 'wrong api key' });
+      return res.json({ status: 'error', error: 'wrong api key' });
     } catch (e) {
       console.error('Image upload request failed. Error: ', e);
-      return res.status(403).json({ status: 'error', error: e.message });
+      return res.json({ status: 'error', error: e.message });
     }
   });
 });
@@ -324,10 +325,10 @@ exports.info = functions.https.onRequest((req, res) => {
           return res.json({ status: 'success', device });
         }
       }
-      return res.status(403).json({ status: 'Wrong api key' });
+      return res.json({ status: 'error', error: 'Wrong api key' });
     } catch (e) {
       console.error('Device info request failed', e);
-      return res.status(403).json({ status: 'error', error: e.message });
+      return res.json({ status: 'error', error: e.message });
     }
   });
 });
