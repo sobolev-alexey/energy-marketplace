@@ -27,6 +27,8 @@ export default async (job, done) => {
                         done(null);
                     }
 
+                    console.log('Register asset', decrypted?.message);
+
                     await writeData('asset', decrypted?.message);
                     await log(`Asset registration successful. ${assetId}`);
                     done(null);
