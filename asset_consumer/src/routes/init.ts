@@ -1,4 +1,4 @@
-import { deviceUUID, serverPortNumber, websocketPortNumber } from '../config.json';
+import { deviceUUID } from '../config.json';
 import { readData, readAllData, writeData } from '../utils/databaseHelper';
 import { EncryptionService, IMessagePayload } from '../utils/encryptionHelper';
 import { log } from '../utils/loggerHelper';
