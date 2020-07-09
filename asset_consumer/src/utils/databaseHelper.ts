@@ -9,7 +9,7 @@ const db = new sqlite3.Database(
         if (error) {
             return console.error('New database Error', error, path.resolve(__dirname, database));
         }
-        await db.run('CREATE TABLE IF NOT EXISTS asset (assetId TEXT, assetOwner TEXT PRIMARY KEY, type TEXT, network TEXT, exchangeRate REAL, minWalletAmount INTEGER, maxEnergyPrice REAL, minOfferAmount REAL, assetOwnerAPI TEXT, marketplaceAPI TEXT, assetOwnerPublicKey TEXT, marketplacePublicKey TEXT, deviceUUID TEXT, assetName TEXT, location TEXT)');
+        await db.run('CREATE TABLE IF NOT EXISTS asset (assetId TEXT, assetOwner TEXT PRIMARY KEY, type TEXT, network TEXT, status TEXT, exchangeRate REAL, minWalletAmount INTEGER, maxEnergyPrice REAL, minOfferAmount REAL, assetOwnerAPI TEXT, marketplaceAPI TEXT, assetOwnerPublicKey TEXT, marketplacePublicKey TEXT, deviceUUID TEXT, assetName TEXT, location TEXT, dashboard TEXT)');
         await db.run('CREATE TABLE IF NOT EXISTS wallet (seed TEXT PRIMARY KEY, address TEXT, keyIndex INTEGER, balance INTEGER)');
         await db.run('CREATE TABLE IF NOT EXISTS transactionLog (requesterTransactionId TEXT, providerTransactionId TEXT, type TEXT, contractId TEXT, timestamp TEXT, requesterId TEXT, providerId TEXT, energyAmount REAL, energyPrice REAL, status TEXT, location TEXT, walletAddress TEXT, additionalDetails TEXT)');
         await db.run('CREATE TABLE IF NOT EXISTS transactionList (requesterTransactionId TEXT PRIMARY KEY, providerTransactionId TEXT, type TEXT, contractId TEXT, timestamp TEXT, requesterId TEXT, providerId TEXT, energyAmount REAL, energyPrice REAL, status TEXT, location TEXT, walletAddress TEXT, additionalDetails TEXT)');
@@ -30,26 +30,26 @@ export const close = async () => {
 };
 
 export const createAsset = async ({ 
-    assetId, assetOwner, type, network,
+    assetId, assetOwner, type, network, status = 'running',
     exchangeRate, minWalletAmount, maxEnergyPrice, 
     minOfferAmount, assetOwnerAPI, marketplaceAPI, 
     assetOwnerPublicKey, marketplacePublicKey, 
-    deviceUUID = '', assetName = '', location = '' 
+    deviceUUID = '', assetName = '', location = '', dashboard = 'disabled' 
 }) => {
     const replace = `
         REPLACE INTO asset (
-            assetId, assetOwner, type, network,
+            assetId, assetOwner, type, network, status,
             exchangeRate, minWalletAmount, maxEnergyPrice,
             minOfferAmount, assetOwnerAPI, marketplaceAPI,
             assetOwnerPublicKey, marketplacePublicKey,
-            deviceUUID, assetName, location
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+            deviceUUID, assetName, location, dashboard
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
     await db.run(replace, [
-        assetId, assetOwner, type, network,
+        assetId, assetOwner, type, network, status,
         exchangeRate, minWalletAmount, maxEnergyPrice, 
         minOfferAmount, assetOwnerAPI, marketplaceAPI, 
         assetOwnerPublicKey, marketplacePublicKey, 
-        deviceUUID, assetName, location
+        deviceUUID, assetName, location, dashboard
     ]);
 };
 

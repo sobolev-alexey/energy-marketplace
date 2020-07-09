@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { withRouter, Link } from "react-router-dom";
+import { useHistory, Link } from "react-router-dom";
 import { AppContext } from "../context/globalState";
 import { signInWithGoogle, signInWithCredentials } from "../utils/firebase";
 
@@ -8,7 +8,8 @@ import { Form, Input, Space } from "antd";
 import CustomAuthHeader from "../components/CustomAuthHeader";
 import googleLogo from "../assets/google-logo.svg";
 
-const Login = ({ history }) => {
+const Login = () => {
+  let history = useHistory();
   const { isLoggedIn, setLoggedIn } = useContext(AppContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -39,7 +40,14 @@ const Login = ({ history }) => {
         <h5>Log in</h5>
         <br />
         <br />
-        <Form size="large" layout="vertical" name="login-form" hideRequiredMark onFinish={onFinish}>
+        <Form 
+          size="large" 
+          layout="vertical" 
+          name="login-form" 
+          hideRequiredMark 
+          onFinish={onFinish} 
+          validateTrigger="onSubmit"
+        >
           <Form.Item
             name={["email"]}
             label="Email address"
@@ -101,4 +109,4 @@ const Login = ({ history }) => {
   );
 };
 
-export default withRouter(Login);
+export default Login;

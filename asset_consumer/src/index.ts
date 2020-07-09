@@ -44,8 +44,8 @@ AppHelper.build(routes, async (app, config, websocketPort) => {
         socket.on('disconnect', () => console.log('marketplace disconnected'));
     });
 
-    ServiceFactory.register('businessLogic', () => new BusinessLogic());
+    // ServiceFactory.register('businessLogic', () => BusinessLogic());
 
     // tslint:disable-next-line:no-unused-expression
-    new BusinessLogic();
+    BusinessLogic();
 });

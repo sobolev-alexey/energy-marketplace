@@ -66,6 +66,8 @@ exports.getUser = async (userId, internal = false) => {
           delete device.wallet.seed;
           delete device.wallet.keyIndex;
         }
+        
+        delete device.key;
         return device;
       } else {
         return null;
@@ -123,6 +125,62 @@ exports.getSettings = async () => {
   throw Error(message);
 };
 
+exports.getDevice = async (userId, deviceId) => {
+  // Get user's device
+  const devicesSnapshot = await admin
+    .firestore()
+    .collection(`users/${userId}/devices`)
+    .doc(deviceId)
+    .get();
+
+  if (!devicesSnapshot.exists) {
+    const message = 'getDevice failed. Device does not exist';
+    console.error(message, devicesSnapshot);
+    return { error: message };
+  }
+
+  const device = devicesSnapshot.data();
+  delete device.publicKey;
+  delete device.key;
+  if (device.wallet) {
+    delete device.wallet.seed;
+    delete device.wallet.keyIndex;
+  }
+
+  // Get device's events
+  const transactionsSnapshot = await admin
+    .firestore()
+    .collection(`events/${userId}/devices/${deviceId}/transactions/`)
+    .get();
+
+  const transactions = {};
+  const promises = [];
+  transactionsSnapshot.forEach(transactionSnapshot => {
+    if (transactionSnapshot.exists) {
+      const transaction = transactionSnapshot.data();
+
+      if (transaction.transactionId) {
+        promises.push({ [transaction.transactionId]: transactionSnapshot.ref.collection('events').get()});
+      }
+    }
+  });
+
+  for await (const promiseObj of promises) {
+    const transactionId = Object.keys(promiseObj)[0];
+
+    const eventsRef = await promiseObj[transactionId];
+    if (eventsRef.size > 0) {
+      const events = eventsRef.docs
+        .filter(event => event.exists)
+        .map(event => event.data());
+      
+      transactions[transactionId] = events;
+    }
+  }
+
+  return { device: { ...device, transactions }};
+};
+
 exports.logMessage = async (userId, deviceId, messages) => {
   const timestamp = (new Date()).toLocaleString().replace(/\//g, '.');
 
@@ -141,6 +199,15 @@ exports.logMessage = async (userId, deviceId, messages) => {
 
 exports.logEvent = async (userId, deviceId, transactionId, event) => {
   const timestamp = (new Date()).toLocaleString().replace(/\//g, '.');
+
+  // Save logs by user and device
+  await admin
+    .firestore()
+    .collection(`events/${userId}/devices/${deviceId}/transactions/${transactionId}`)
+    .set({ 
+      transactionId,
+      timestamp
+    }, { merge: true });
 
   // Save logs by user and device
   await admin

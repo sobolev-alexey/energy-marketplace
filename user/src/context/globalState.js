@@ -6,6 +6,8 @@ export const AppContext = React.createContext({});
 
 const GlobalState = ({ children }) => {
   const [isLoggedIn, setLoggedIn] = useState(false);
+  const [user, setUser] = useState({});
+  const [device, setDevice] = useState({});
 
   async function readSession() {
     const user = await window.sessionStorage.getItem(
@@ -18,13 +20,30 @@ const GlobalState = ({ children }) => {
     
   useEffect(() => {
     readSession();
-    auth.onAuthStateChanged(user => {
-      setLoggedIn(!!user);
+    auth.onAuthStateChanged(async firebaseUser => {
+      setLoggedIn(!!firebaseUser);
+      if (!!firebaseUser) {
+        setUser({ userId: firebaseUser?.uid });
+        // const existingUser = await localStorage.getItem("user");
+        if (!user) {
+          console.log('Store user');
+          setUser({ userId: firebaseUser?.uid });
+          // await localStorage.setItem("user", JSON.stringify({ userId: user?.uid }));
+        }
+      } else {
+        console.log('Remove user');
+        await localStorage.clear();
+        setUser({});
+      }
     });
   }, []);
 
   return (
-    <AppContext.Provider value={{ isLoggedIn, setLoggedIn }}>
+    <AppContext.Provider value={{ 
+      isLoggedIn, setLoggedIn,
+      user, setUser,
+      device, setDevice
+    }}>
       {children}
     </AppContext.Provider>
   );

@@ -1,44 +1,54 @@
 import React from "react";
-
-import { PlayCircleOutlined, PauseCircleOutlined } from "@ant-design/icons";
-
-import DropdownButton from "../components/DropdownButton";
+import { EllipsisOutlined, PlayCircleOutlined, PauseCircleOutlined } from "@ant-design/icons";
 
 export const overviewTableColumns = [
   {
     title: "Name",
     dataIndex: "name",
     key: "name",
+    ellipsis: true,
     sorter: (a, b) => a.name.localeCompare(b.name),
+    render: (value, row) => (
+      <div className="table-item-wrapper">
+        <span className="primary-row">
+          { value.charAt(0).toUpperCase() + value.slice(1) }
+        </span>
+        <span className="secondary-row">
+          { row.description }
+        </span>
+      </div>
+      
+    ),
   },
   {
     title: "Type",
-    dataIndex: "username",
+    dataIndex: "type",
     key: "type",
     filters: [
       { text: "Producer", value: "producer" },
       { text: "Consumer", value: "consumer" },
     ],
-    onFilter: (value, record) => record.username.includes(value),
-    sorter: (a, b) => a.username.localeCompare(b.username),
+    onFilter: (value, record) => record.type.includes(value),
+    sorter: (a, b) => a.type.localeCompare(b.type),
+    render: (value) => value.charAt(0).toUpperCase() + value.slice(1),
   },
   {
     title: "Balance",
-    dataIndex: "id",
+    dataIndex: "balance",
     key: "balance",
-    sorter: (a, b) => a.id - b.id,
+    sorter: (a, b) => Number(a) - Number(b),
   },
   {
     title: "Status",
-    dataIndex: "website",
-    key: "status",
+    dataIndex: "running",
+    key: "running",
     filters: [
       { text: "Running", value: "running" },
       { text: "Paused", value: "paused" },
     ],
-    onFilter: (value, record) => record.website.includes(value),
-    render: (value) =>
-      value === "running" ? (
+    onFilter: (value, record) => record.running.includes(value),
+    render: (running) =>
+      running ? (
         <span className="text-running">
           <PlayCircleOutlined className={"icon-running"} /> Running
         </span>
@@ -50,7 +60,12 @@ export const overviewTableColumns = [
   },
   {
     key: "x",
-    render: () => <DropdownButton />,
+    width: 80,
+    render: () => (
+      <div>
+        <EllipsisOutlined style={{ fontSize: "30px", color: "#aab8c2" }} />
+      </div>
+    ),
   },
 ];
 
@@ -95,6 +110,11 @@ export const DeviceTableColumns = [
   },
   {
     key: "x",
-    render: () => <DropdownButton />,
+    width: 80,
+    render: () => (
+      <div>
+        <EllipsisOutlined style={{ fontSize: "30px", color: "#aab8c2" }} />
+      </div>
+    ),
   },
 ];

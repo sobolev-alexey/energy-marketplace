@@ -1,13 +1,13 @@
-.fnew-device-page-wrapper {
+.device-page-wrapper {
     display: flex;
     flex-direction: column;
-    padding: 25px 40px 110px 40px;
+    padding: 25px 0px 110px 40px;
     width: 100%;
     flex-flow: column;
     height: 100%;
 }
 
-.fnew-device-page-footer {
+.new-device-page-footer {
     display: flex;
     flex-direction: row;
     justify-content: flex-end;
@@ -68,6 +68,7 @@
 .rounded-input {
     border-radius: 10px;
     height: 40px;
+    width: 100%;
 }
 
 .ant-form-item-control {
@@ -98,7 +99,9 @@
 }
 
 .ant-form-item-control-input-content {
-    flex: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     max-width: 100%;
     border-radius: 10px;
     height: 45px;
@@ -106,4 +109,25 @@
 
 .ant-select-arrow {
     color: #242529;
+}
+
+.ant-row {
+    flex-flow: unset;
+}
+
+.ant-switch {
+    width: 55px;
+    background-color: #dc817c;
+
+    &:hover {
+        background-color: rgb(170, 170, 170);
+    }
+
+    &.ant-switch-checked {
+        background-color: #59ad9e;
+    }
+}
+
+.ant-form-item-children-icon {
+    display: none;
 }

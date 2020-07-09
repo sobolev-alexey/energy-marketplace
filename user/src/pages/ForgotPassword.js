@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { withRouter } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { AppContext } from "../context/globalState";
 import { resetPassword } from "../utils/firebase";
 
@@ -7,7 +7,8 @@ import { Form, Input, Modal } from "antd";
 
 import CustomAuthHeader from "../components/CustomAuthHeader";
 
-const ForgotPassword = ({ history }) => {
+const ForgotPassword = () => {
+  let history = useHistory();
   const [modal, contextHolder] = Modal.useModal();
   const { isLoggedIn, setLoggedIn } = useContext(AppContext);
   const [email, setEmail] = useState("");
@@ -18,7 +19,7 @@ const ForgotPassword = ({ history }) => {
     isLoggedIn && history.push("/overview");
   }, [isLoggedIn]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const callback = (result) => {
+  const callback = () => {
     const config = {
       title: 'Password reset',
       content: (
@@ -44,7 +45,14 @@ const ForgotPassword = ({ history }) => {
       <div className="login-content">
         <h5> Forgot Password </h5> <br />
         <br />
-        <Form size="large" layout="vertical" name="forgot-password-form" hideRequiredMark onFinish={onFinish}>
+        <Form 
+          size="large" 
+          layout="vertical" 
+          name="forgot-password-form" 
+          hideRequiredMark 
+          onFinish={onFinish} 
+          validateTrigger="onSubmit"
+        >
           <Form.Item
             name={["email"]}
             label="Email address"
@@ -76,4 +84,4 @@ const ForgotPassword = ({ history }) => {
   );
 };
 
-export default withRouter(ForgotPassword);
+export default ForgotPassword;

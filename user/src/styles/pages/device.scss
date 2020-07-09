@@ -4,6 +4,10 @@
     flex-flow: column;
     padding: 25px 0 0 0;
     width: 100%;
+
+    .ant-col {
+        width: 90%;
+    }
 }
 
 .transactions-tab-wrapper {
