@@ -23,9 +23,10 @@ export default async (job, done) => {
                 await log(`Claim request failure. Request: ${JSON.stringify(claimPayload)}, Response: ${JSON.stringify(claimResponse)}, Contract: ${claimPayload?.contractId}`);
             }
             done(null);
+        } else {
+            await log('Asset signature verification failed');
+            done(new Error('Asset signature verification failed'));
         }
-        await log('Asset signature verification failed');
-        done(new Error('Asset signature verification failed'));
     } catch (error) {
         console.error('issueClaim', error);
         await log(`issueClaim Error ${error.toString()}`);

@@ -5,7 +5,6 @@ import { queues, options } from '../utils/queueHelper';
 // Endpoint called by bid manager when a match between offer and request is found
 export async function match(_: any, requestPayload: any): Promise<any> {
     try {
-        console.log('Match route', requestPayload);
         if (requestPayload?.request && requestPayload?.offer) {
             queues.processMatch.add(requestPayload, options);
             return { success: true };
