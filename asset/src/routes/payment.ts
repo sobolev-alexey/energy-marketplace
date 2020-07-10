@@ -9,6 +9,7 @@ export async function payment(_: any, request: any): Promise<any> {
         if (request) {
             const asset: any = await readData('asset');
             if (asset?.type === 'requester') {
+                console.log('Payment request API', asset);
                 queues.processPaymentRequest.add(request, options);
             }
             return { success: true };
