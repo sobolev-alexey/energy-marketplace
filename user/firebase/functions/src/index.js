@@ -13,7 +13,7 @@ const {
   getDevice,
   logEvent,
 } = require("./firebase");
-const { decryptVerify, getNewWallet, faucet } = require("./helpers");
+const { decryptVerify, getNewWallet, faucet, getBalance } = require("./helpers");
 const { EncryptionService } = require("./encryption");
 
 // Setup User with an API Key
@@ -301,6 +301,25 @@ exports.faucet = functions.https.onRequest((req, res) => {
       return res.json({ transactions });
     } catch (e) {
       console.error("faucet failed. Error: ", e.message);
+      return res.status(403).json({ error: e.message });
+    }
+  });
+});
+
+exports.balance = functions.https.onRequest((req, res) => {
+  cors(req, res, async () => {
+    // Check Fields
+    const packet = req.body;
+    if (!packet || !packet.address) {
+      console.error("faucet failed. Receiving Address: ", packet.address);
+      return res.status(400).json({ error: "Malformed Request" });
+    }
+
+    try {
+      const balance = await getBalance(packet.address);
+      return res.json({ balance });
+    } catch (e) {
+      console.error("balance failed. Error: ", e.message);
       return res.status(403).json({ error: e.message });
     }
   });
