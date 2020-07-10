@@ -113,6 +113,7 @@ export async function signPublishEncryptSend(
             );
 
             // Publish payload to MAM
+            console.log('signPublishEncryptSend 00', assetId, `${asset?.assetURL}/${endpoint}`);
             console.log('signPublishEncryptSend 01', transactionId, payload);
             const mam = await publish(transactionId, { message: payload, signature });
             console.log('signPublishEncryptSend 02', mam);
