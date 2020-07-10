@@ -4,11 +4,7 @@ const admin = require('firebase-admin');
 admin.initializeApp(functions.config().firebase);
 
 exports.setUser = async (uid, obj) => {
-  await admin
-    .firestore()
-    .collection('users')
-    .doc(uid)
-    .set(obj);
+  await admin.firestore().collection('users').doc(uid).set(obj);
 
   return true;
 };
@@ -48,11 +44,11 @@ exports.getUser = async (userId, internal = false, wallet = false) => {
 
     // Get user devices
     const devicesSnapshot = await admin
-    .firestore()
-    .collection('users')
-    .doc(userId)
-    .collection('devices')
-    .get();
+      .firestore()
+      .collection('users')
+      .doc(userId)
+      .collection('devices')
+      .get();
 
     user.devices = devicesSnapshot.docs.map(document => {
       if (document.exists) {
@@ -66,7 +62,7 @@ exports.getUser = async (userId, internal = false, wallet = false) => {
           delete device.wallet.seed;
           delete device.wallet.keyIndex;
         }
-        
+
         delete device.key;
         return device;
       } else {
@@ -99,7 +95,9 @@ exports.getEvents = async (userId, deviceId, transactionId) => {
   // Get events
   const querySnapshot = await admin
     .firestore()
-    .collection(`events/${userId}/devices/${deviceId}/transactions/${transactionId}/events`)
+    .collection(
+      `events/${userId}/devices/${deviceId}/transactions/${transactionId}/events`
+    )
     .get();
 
   // Check there is data
@@ -107,6 +105,15 @@ exports.getEvents = async (userId, deviceId, transactionId) => {
 
   // Return data
   return querySnapshot.docs.filter(doc => doc.exists && doc.data());
+};
+
+exports.updateWalletAddressKeyIndex = async (address, keyIndex, userId) => {
+  await admin
+    .firestore()
+    .collection('settings')
+    .doc('settings')
+    .set({ wallet: { address, keyIndex } }, { merge: true });
+  return true;
 };
 
 exports.getSettings = async () => {
@@ -119,7 +126,7 @@ exports.getSettings = async () => {
   if (doc.exists) {
     return doc.data();
   }
-  
+
   const message = 'getSettings failed. Setting does not exist';
   console.error(message, doc);
   throw Error(message);
@@ -160,7 +167,11 @@ exports.getDevice = async (userId, deviceId) => {
       const transaction = transactionSnapshot.data();
 
       if (transaction.transactionId) {
-        promises.push({ [transaction.transactionId]: transactionSnapshot.ref.collection('events').get()});
+        promises.push({
+          [transaction.transactionId]: transactionSnapshot.ref
+            .collection('events')
+            .get(),
+        });
       }
     }
   });
@@ -173,25 +184,25 @@ exports.getDevice = async (userId, deviceId) => {
       const events = eventsRef.docs
         .filter(event => event.exists)
         .map(event => event.data());
-      
+
       transactions[transactionId] = events;
     }
   }
 
-  return { device: { ...device, transactions }};
+  return { device: { ...device, transactions } };
 };
 
 exports.logMessage = async (userId, deviceId, messages) => {
-  const timestamp = (new Date()).toLocaleString().replace(/\//g, '.');
+  const timestamp = new Date().toLocaleString().replace(/\//g, '.');
 
   // Save logs by user and device
   await admin
     .firestore()
     .collection(`logs/${userId}/devices/${deviceId}/log`)
     .doc(timestamp)
-    .set({ 
+    .set({
       ...messages.map(message => message),
-      timestamp
+      timestamp,
     }, { merge: true });
 
   return true;
