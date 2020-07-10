@@ -61,8 +61,8 @@ export async function signPublishEncryptSend(payload: any, endpoint: string): Pr
             );
 
             const transactionId = asset?.type === 'provider' 
-                ? payload.providerTransactionId 
-                : payload.requesterTransactionId;
+                ? payload?.providerTransactionId 
+                : payload?.requesterTransactionId;
 
             let mam;
             let publicKey;

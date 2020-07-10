@@ -160,7 +160,6 @@ exports.device = functions.https.onRequest((req, res) => {
       || !params.type 
       || !params.location 
       || !params.url
-      || !params.minWalletAmount 
       || !params.minOfferAmount 
       || !params.maxEnergyPrice 
       || !params.running 
@@ -198,7 +197,6 @@ exports.device = functions.https.onRequest((req, res) => {
         const payload = {
           exchangeRate: Number(settings.exchangeRate),
           maxEnergyPrice: Number(params.maxEnergyPrice),
-          minWalletAmount: Number(params.minWalletAmount),
           minOfferAmount: Number(params.minOfferAmount),
           assetOwnerAPI: settings.assetOwnerAPI,
           marketplaceAPI: settings.marketplaceAPI,
@@ -243,7 +241,6 @@ exports.device = functions.https.onRequest((req, res) => {
             dashboard: params.dashboard === 'true',
             uuid: params.uuid,
             maxEnergyPrice: Number(params.maxEnergyPrice),
-            minWalletAmount: Number(params.minWalletAmount),
             minOfferAmount: Number(params.minOfferAmount),
             wallet
           }
