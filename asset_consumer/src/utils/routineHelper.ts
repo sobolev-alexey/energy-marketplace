@@ -85,9 +85,10 @@ export async function signPublishEncryptSend(payload: any, endpoint: string): Pr
             );
 
             // Send encrypted payload and signature to asset
-            const requestPayload: { encrypted: string; userId?: string; } = { encrypted };
+            const requestPayload: { encrypted: string; userId?: string; mam?: object; } = { encrypted };
             if (endpoint === 'fund' || endpoint === 'notify_event') {
                 requestPayload.userId = asset.assetOwner;
+                requestPayload.mam = mam;
                 console.log('signPublishEncryptSend 2', requestPayload.userId);
             }
 
