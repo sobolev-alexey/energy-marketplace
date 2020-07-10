@@ -41,6 +41,8 @@ export const getBalance = async address => {
 
 const transferFunds = async (wallet, totalAmount, paymentQueue) => {
     try {
+        console.log('transferFunds 00', wallet);
+
         const { address, keyIndex, seed } = wallet;
         const config: any = await readData('asset');
         const loadBalancerSettings = ServiceFactory.get<LoadBalancerSettings>(
@@ -144,6 +146,8 @@ export const processPaymentQueue = async () => {
             return null;
         }
 
+        console.log('processPaymentQueue', wallet);
+        
         let walletBalance = await getBalance(wallet?.address);
         console.log('processPayment check wallet', wallet?.address, walletBalance);
         
