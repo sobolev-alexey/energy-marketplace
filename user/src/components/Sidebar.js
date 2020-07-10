@@ -5,7 +5,7 @@ import { LogoutOutlined } from "@ant-design/icons";
 import { AppContext } from "../context/globalState";
 import { logout } from "../utils/firebase";
 import logo from "../assets/logo.svg";
-import { CustomModal, Loading } from "../components";
+import { Loading } from "../components";
 
 const Sidebar = () => {
   let history = useHistory();
@@ -37,8 +37,6 @@ const Sidebar = () => {
           <Link to="/wallet" className="cta">
             Withdraw
           </Link>
-          <br />
-          <CustomModal />
         </div>
       )}
       <div className="sidebar-footer">

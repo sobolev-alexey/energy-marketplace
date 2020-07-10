@@ -1,10 +1,10 @@
 import React from "react";
-import { Layout, NewDeviceHeader, NewDeviceForm } from "../components";
+import { Layout, NewDeviceHeader, DeviceForm } from "../components";
 
 const NewDevicePage = () => (
   <Layout>
     <NewDeviceHeader />
-    <NewDeviceForm />
+    <DeviceForm />
   </Layout>
 );
 
