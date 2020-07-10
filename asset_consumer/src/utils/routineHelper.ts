@@ -52,7 +52,7 @@ export async function signPublishEncryptSend(payload: any, endpoint: string): Pr
             }
 
             // Log event 
-            await log(`signPublishEncryptSend for contract ${payload.contractId}`);
+            await log(`signPublishEncryptSend for ${endpoint}: ${payload?.contractId}`);
 
             // Sign payload
             const encryptionService = new EncryptionService();
@@ -61,8 +61,8 @@ export async function signPublishEncryptSend(payload: any, endpoint: string): Pr
             );
 
             const transactionId = asset?.type === 'provider' 
-                ? payload.providerTransactionId 
-                : payload.requesterTransactionId;
+                ? payload?.providerTransactionId 
+                : payload?.requesterTransactionId;
 
             let mam;
             let publicKey;
@@ -85,9 +85,10 @@ export async function signPublishEncryptSend(payload: any, endpoint: string): Pr
             );
 
             // Send encrypted payload and signature to asset
-            const requestPayload: { encrypted: string; userId?: string; } = { encrypted };
+            const requestPayload: { encrypted: string; userId?: string; mam?: object; } = { encrypted };
             if (endpoint === 'fund' || endpoint === 'notify_event') {
                 requestPayload.userId = asset.assetOwner;
+                requestPayload.mam = mam;
                 console.log('signPublishEncryptSend 2', requestPayload.userId);
             }
 

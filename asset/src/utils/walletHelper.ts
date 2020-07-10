@@ -7,6 +7,7 @@ import { ServiceFactory } from '../factories/serviceFactory';
 import { readData, removeData, writeData } from './databaseHelper';
 import { getPaymentQueue } from './paymentQueueHelper';
 import { queues, options } from './queueHelper';
+import { signPublishEncryptSend } from './routineHelper';
 import { IWallet } from '../models/wallet/IWallet';
 
 export const generateSeed = (length = 81) => {
@@ -160,6 +161,7 @@ export const processPaymentQueue = async () => {
         } 
         if (walletBalance < totalAmount) {
           // Issue fund wallet request
+          await signPublishEncryptSend({ address: wallet?.address, walletBalance }, 'fund');
         }
 
         return await transferFunds(
