@@ -51,7 +51,6 @@ export async function verifyRequest(request: any): Promise<any> {
         const initialTransaction = transactions.find(transaction => transaction.status === 'Initial request');
         const initialTransactionMam = mamTransactions.find(transaction => transaction?.message?.status === 'Initial request');
         const contractTransaction = transactions.find(transaction => transaction.status === 'Contract created');
-        const contractTransactionMam = mamTransactions.find(transaction => transaction?.message?.request?.status === 'Contract created');
         
         console.log('verifyRequest 08');
 
@@ -81,14 +80,6 @@ export async function verifyRequest(request: any): Promise<any> {
         if (!compareObjectProps(initialTransaction, request, ['requesterTransactionId', 'energyAmount', 'location' ])
             || (initialTransaction?.energyPrice < request?.energyPrice)) {
             console.log('verifyRequest 666 11');
-            
-            return false;
-        }
-
-        console.log('verifyRequest 12', contractTransaction, contractTransactionMam?.message?.request);
-
-        if (!compareObjectProps(contractTransaction, contractTransactionMam?.message?.request, ['contractId', 'requesterTransactionId', 'providerTransactionId', 'energyAmount', 'energyPrice', 'walletAddress', 'providerId', 'location' ])) {
-            console.log('verifyRequest 666 12', contractTransactionMam?.message);
             
             return false;
         }
