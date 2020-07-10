@@ -55,7 +55,11 @@ export async function decryptVerify(request: any): Promise<{
                                 );
                                 console.log('decryptVerify MAM', mamVerificationResult, transactionId, mamFetchLastMessage?.message);
 
-                                if (!mamVerificationResult || mamFetchLastMessage?.message?.transactionId !== transactionId) {
+                                const mamTransactionId = mamFetchLastMessage?.message?.type === 'request' 
+                                    ? mamFetchLastMessage?.message?.requesterTransactionId 
+                                    : mamFetchLastMessage?.message?.providerTransactionId;
+                                
+                                if (!mamVerificationResult || mamTransactionId !== transactionId) {
                                     await log(`Asset signature verification from MAM failed. ${assetId}`);
                                     // throw new Error('Asset signature verification from MAM failed');
                                 } 
