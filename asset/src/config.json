@@ -1,7 +1,7 @@
 {
     "deviceUUID": "ac4a33f0-ee20-41e4-9fcd-9f91ecf77d0f",
     "redisHost": "127.0.0.1",
-    "serverPortNumber": 4000,
+    "serverPortNumber": 7000,
     "websocketPortNumber": 8000,
     "redisPortNumber": 6379,
     "defaultSecurity": 2,
