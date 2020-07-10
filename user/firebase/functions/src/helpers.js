@@ -24,7 +24,7 @@ const decryptVerify = async (encrypted, userId) => {
                 device.publicKey, decrypted.message, decrypted.signature
               );  
                   
-              return { verificationResult, message: decrypted.message };
+              return { verificationResult, message: decrypted.message, mam: decrypted.mam };
           }
           throw new Error('No user key');
       } else {

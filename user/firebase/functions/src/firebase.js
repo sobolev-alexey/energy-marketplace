@@ -197,7 +197,7 @@ exports.logMessage = async (userId, deviceId, messages) => {
   return true;
 };
 
-exports.logEvent = async (userId, deviceId, transactionId, event) => {
+exports.logEvent = async (userId, deviceId, transactionId, event, mam) => {
   const timestamp = (new Date()).toLocaleString().replace(/\//g, '.');
 
   // Save logs by user and device
@@ -217,6 +217,7 @@ exports.logEvent = async (userId, deviceId, transactionId, event) => {
     .doc(timestamp)
     .set({ 
       ...event,
+      mam,
       timestamp
     }, { merge: true });
 
