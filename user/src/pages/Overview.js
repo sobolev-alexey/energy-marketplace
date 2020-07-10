@@ -20,14 +20,17 @@ const Overview = () => {
     async function loadUser() {
       try {
         if (user?.userId) {
-          const { response, error } = await callApi('user', { userId: user?.userId });
+          const response = await callApi('user', { userId: user?.userId });
 
-          if (!error) {
+          if (!response?.error && response?.status !== 'error') {
             const devices = response?.devices?.map(device => ({ ...device, key: device.id, balance: device?.wallet?.balance }));
             setDevices(devices);
             setUser(response);
+            const userData = { ...response, userId: user?.userId };
+            delete userData?.devices;
+            await localStorage.setItem("user", JSON.stringify(userData));
           } else {
-            console.error("Error loading user data", error);
+            console.error("Error loading user data", response?.error);
           }
           setLoading(false);
         }
@@ -79,7 +82,7 @@ const Overview = () => {
               <Divider className={"divider"} />
               <Table 
                 columns={overviewTableColumns} 
-                devices={filteredDevices} 
+                data={filteredDevices} 
               />
             </div>
           </div>
