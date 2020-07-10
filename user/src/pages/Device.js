@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router";
 import { Tabs } from "antd";
-import { Layout, Loading, NewDeviceForm, DeviceHeader, DeviceInfo, Table } from "../components";
+import { Layout, Loading, DeviceForm, DeviceHeader, DeviceInfo, Table } from "../components";
 import callApi from "../utils/callApi";
 import { DeviceTableColumns } from "../assets/table-columns-data";
 
@@ -19,19 +19,19 @@ const Device = () => {
         user = JSON.parse(user);
 
         if (user?.userId && user?.apiKey) {
-          const { response, error } = await callApi('info', { 
+          const response = await callApi('info', { 
             userId: user?.userId,
             apiKey: user?.apiKey,
             deviceId
           });
 
-          if (!error) {
+          if (!response?.error && response?.status !== 'error') {
             const device = response?.device;
-            console.log(222, device);
+            console.log('Device page', device);
             setDevice(device);
             setLoading(false);
           } else {
-            console.error("Error loading device data", error);
+            console.error("Error loading device data", response?.error);
           }
         }
       } catch (err) {
@@ -42,16 +42,6 @@ const Device = () => {
     loadDevice();
   }, [deviceId]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const [fields, setFields] = useState([
-    {
-      name: ["username"],
-      value: device?.name,
-    },
-  ]);
-  const callback = (key) => {
-    console.log(key);
-  };
-
   return (
     <Layout>
      {loading ? (
@@ -60,22 +50,24 @@ const Device = () => {
         <React.Fragment>
           <DeviceHeader device={device} />
           <div className="device-page-wrapper">
-            <Tabs tabBarGutter={50} centered defaultActiveKey="1" onChange={callback}>
+            <Tabs tabBarGutter={50} centered defaultActiveKey="1">
               <TabPane tab="Overview" key="1">
                 <DeviceInfo device={device} />
               </TabPane>
               <TabPane tab="Settings" key="2">
-                <NewDeviceForm
-                  fields={fields}
-                  onChange={(newFields) => {
-                    setFields(newFields);
-                  }}
-                  device={device}
-                />
+                <DeviceForm device={device} />
               </TabPane>
               <TabPane tab="Transactions" key="3">
                 <div className="transactions-tab-wrapper">
-                  <Table columns={DeviceTableColumns} />
+                  <Table 
+                    columns={DeviceTableColumns}
+                    data={ 
+                      Object.entries(device.transactions)
+                        .map(item => item[1]
+                          .map(entry => ({ ...entry, transactionId: item[0]})))
+                        .flat()
+                    } 
+                   />
                 </div>
               </TabPane>
             </Tabs>
