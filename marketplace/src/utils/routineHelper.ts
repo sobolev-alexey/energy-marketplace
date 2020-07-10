@@ -113,7 +113,7 @@ export async function signPublishEncryptSend(
             );
 
             // Publish payload to MAM
-            console.log('signPublishEncryptSend 01', payload);
+            console.log('signPublishEncryptSend 01', transactionId, payload);
             const mam = await publish(transactionId, { message: payload, signature });
             console.log('signPublishEncryptSend 02', mam);
 
@@ -131,7 +131,7 @@ export async function signPublishEncryptSend(
             // tslint:disable-next-line:no-unnecessary-local-variable
             const response = await sendRequest(`${asset?.assetURL}/${endpoint}`, { encrypted });
             console.log('signPublishEncryptSend 04', response);
-            
+
             return response;
         }
     } catch (error) {
