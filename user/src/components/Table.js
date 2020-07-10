@@ -8,8 +8,8 @@ const CustomTable = ({ data, columns }) => {
   console.log(data);
   return (
     <Table
-      onRow={(record) => ({
-          onClick: (record) => console.log(record) || history.push(`/device/${record.id}`),
+      onRow={record => ({
+          onClick: () => history.push(`/device/${record.id}`),
         }
       )}
       className="ant-table-cell"
