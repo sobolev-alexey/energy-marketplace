@@ -60,7 +60,10 @@ const transferFunds = async (wallet, totalAmount, paymentQueue) => {
 
         return new Promise(async (resolve, reject) => {
             try {
+                console.log('transferFunds 01', typeof keyIndex, seed);
                 const remainderAddress = generateAddress(seed, Number(keyIndex) + 1);
+                console.log('transferFunds 02', Number(keyIndex) + 1, remainderAddress);
+
                 const transactionOptions = {
                     inputs: [{
                         address,

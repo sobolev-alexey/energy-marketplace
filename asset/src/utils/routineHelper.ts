@@ -90,6 +90,9 @@ export async function signPublishEncryptSend(payload: any, endpoint: string): Pr
                 requestPayload.userId = asset.assetOwner;
                 console.log('signPublishEncryptSend 2', requestPayload.userId);
             }
+        
+            console.log('signPublishEncryptSend 3', payload);
+
             return await sendRequest(endpoint, requestPayload);
         }
     } catch (error) {
