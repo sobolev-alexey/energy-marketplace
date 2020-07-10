@@ -147,7 +147,7 @@ export class AppHelper {
                     response = { success: false, message: err.message };
                 }
                 console.log(`<=== duration: ${Date.now() - start}ms`);
-                console.log(response);
+                console.log('response', response);
                 if (routes[i].dataResponse) {
                     const dataResponse = <IDataResponse>response;
                     res.setHeader('Content-Type', dataResponse.contentType);
