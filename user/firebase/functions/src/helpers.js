@@ -64,8 +64,7 @@ const generateSeed = (length = 81) => {
 
 const getNewWallet = async () => {
   const settings = await getSettings();
-  const security =
-    (settings && settings.tangle && settings.tangle.security) || 2;
+  const security = (settings && settings.tangle && settings.tangle.security) || 2;
   const seed = generateSeed();
   const keyIndex = 0;
   const address = generateAddress(seed, keyIndex, security, true);
@@ -79,7 +78,6 @@ const getBalance = async address => {
       return 0;
     }
     const settings = await getSettings();
-    console.log('getBalance TEST');
     const api = await getApi(settings);
     const { balances } = await api.getBalances([address]);
     return balances && balances.length > 0 ? balances[0] : 0;
