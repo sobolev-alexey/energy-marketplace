@@ -41,9 +41,10 @@ export default async (job, done) => {
                 await sendRequest(bidManagerEndpoint, cancellationPayload);
             }
             done(null);
+        } else {
+            await log('Asset signature verification failed');
+            done(new Error('Asset signature verification failed'));
         }
-        await log('Asset signature verification failed');
-        done(new Error('Asset signature verification failed'));
     } catch (error) {
         console.error('cancelTransaction', error);
         await log(`cancelTransaction Error ${error.toString()}`);
