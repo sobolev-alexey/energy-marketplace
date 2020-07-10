@@ -71,42 +71,46 @@ export const overviewTableColumns = [
 
 export const DeviceTableColumns = [
   {
-    title: "Contract ID",
-    dataIndex: "name",
-    key: "name",
+    title: "Transaction ID",
+    dataIndex: "transactionId",
+    key: "transactionId",
+    sorter: (a, b) => a.transactionId.localeCompare(b.transactionId),
   },
   {
     title: "Timestamp",
-    dataIndex: "username",
-    key: "type",
+    dataIndex: "timestamp",
+    key: "timestamp",
+    sorter: (a, b) => a.timestamp.localeCompare(b.timestamp),
   },
   {
     title: "Amount kWh",
-    dataIndex: "phone",
-    key: "balance",
-    sorter: (a, b) => a.phone - b.phone,
+    dataIndex: "energyAmount",
+    key: "energyAmount",
+    sorter: (a, b) => a.energyAmount - b.energyAmount,
   },
   {
     title: "Value Mi",
-    dataIndex: "phone",
-    key: "balance",
-    sorter: (a, b) => a.phone - b.phone,
+    dataIndex: "energyPrice",
+    key: "energyPrice",
+    sorter: (a, b) => a.energyPrice - b.energyPrice,
   },
   {
     title: "Status",
-    dataIndex: "website",
+    dataIndex: "status",
     key: "status",
     filters: [
-      { text: "Running", value: "running" },
-      { text: "Paused", value: "paused" },
+      { text: "Initial offer", value: "Initial offer" },
+      { text: "Initial request", value: "Initial request" },
+      { text: "Contract created", value: "Contract created" },
+      { text: "Energy provision finished", value: "Energy provision finished" },
+      { text: "Payment requested", value: "Payment requested" },
+      { text: "Payment processed", value: "Payment processed" },
+      { text: "Payment confirmed", value: "Payment confirmed" },
+      { text: "Invalid", value: "Invalid" },
+      { text: "Claim issued", value: "Claim issued" },
+      { text: "Cancelled", value: "Cancelled" },
     ],
-    onFilter: (value, record) => record.website.includes(value),
-    render: (value) =>
-      value === "running" ? (
-        <span className="text-running">Confirmed</span>
-      ) : (
-        <span className="text-paused">Cancelled</span>
-      ),
+    onFilter: (value, record) => record.status.includes(value),
   },
   {
     key: "x",
