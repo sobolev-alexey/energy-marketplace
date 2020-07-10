@@ -23,7 +23,7 @@ exports.setDevice = async (userId, device) => {
   return true;
 };
 
-exports.getUser = async (userId, internal = false) => {
+exports.getUser = async (userId, internal = false, wallet = false) => {
   // Get user
   const userDocument = await admin
     .firestore()
@@ -62,7 +62,7 @@ exports.getUser = async (userId, internal = false) => {
           delete device.publicKey;
         }
 
-        if (device.wallet) {
+        if (device.wallet && !wallet) {
           delete device.wallet.seed;
           delete device.wallet.keyIndex;
         }

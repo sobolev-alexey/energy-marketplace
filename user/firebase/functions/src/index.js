@@ -171,7 +171,7 @@ exports.device = functions.https.onRequest((req, res) => {
     }
 
     try {
-      const user = await getUser(params.userId, true);
+      const user = await getUser(params.userId, true, true);
       
       // Check correct apiKey
       if (user && user.apiKey && user.apiKey === params.apiKey) {
