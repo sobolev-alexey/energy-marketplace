@@ -27,15 +27,18 @@ export default async (job, done) => {
                         done(null);
                     }
 
+                    console.log('Register asset', decrypted?.message);
+
                     await writeData('asset', decrypted?.message);
                     await log(`Asset registration successful. ${assetId}`);
                     done(null);
                 }
                 await log(`Asset signature verification failed. ${assetId}`);
                 done(new Error('Asset signature verification failed'));
+            } else {
+                await log(`No marketplace key`);
+                done(new Error('No marketplace key'));
             }
-            await log(`No marketplace key`);
-            done(new Error('No marketplace key'));
         } else {
             await log(`No encrypted payload found`);
             done(new Error('No encrypted payload found'));

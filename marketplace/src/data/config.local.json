@@ -11,11 +11,6 @@
             "provider": "http://bare01.devnet.iota.cafe:14265",
             "depth": 3,
             "mwm": 9
-        },
-        {
-            "provider": "https://altnodes.devnet.iota.org",
-            "depth": 3,
-            "mwm": 9
         }
     ],
     "allowedDomains": [

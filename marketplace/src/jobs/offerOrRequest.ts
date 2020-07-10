@@ -16,9 +16,11 @@ export default async (job, done) => {
             await sendRequest(bidManagerEndpoint, request?.message);
 
             done(null);
+        } else {
+            console.log('Request/Offer Job', request);
+            await log('Asset signature verification failed');
+            done(new Error('Asset signature verification failed'));
         }
-        await log('Asset signature verification failed');
-        done(new Error('Asset signature verification failed'));
     } catch (error) {
         console.error('offerOrRequest', error);
         await log(`offerOrRequest Error ${error.toString()}`);

@@ -83,11 +83,13 @@ export class EncryptionService {
     public verifySignature(publicKey: string, dataToCheck: object, signatureToVerify: ISignature): boolean {
         try {
             const publicKeyInstance = this.getPublicKeyInstance(publicKey);
+            console.log('verifySignature', JSON.stringify(dataToCheck), signatureToVerify?.data);
             return publicKeyInstance.verify(
                 Buffer.from(JSON.stringify(dataToCheck)), 
                 Buffer.from(signatureToVerify?.data)
             );
         } catch (error) {
+            console.log('verifySignature ERROR', error);
             throw new Error(error);
         }
     }

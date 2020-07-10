@@ -22,24 +22,20 @@ const decryptVerify = async (encrypted, userId) => {
         const encryptionService = EncryptionService();
 
         const decrypted = encryptionService.privateDecrypt(
-          user.privateKey,
-          encrypted
+          user.privateKey, encrypted
         );
 
-        const assetId =
-          decrypted.message && decrypted.message.type === 'offer'
-            ? decrypted.message && decrypted.message.providerId
-            : decrypted.message && decrypted.message.requesterId;
+        const assetId = decrypted.message && decrypted.message.type === 'offer' 
+          ? decrypted.message && decrypted.message.providerId 
+          : decrypted.message && decrypted.message.requesterId;
 
         const device = user.devices.find(asset => asset.id === assetId);
 
         const verificationResult = encryptionService.verifySignature(
-          device.publicKey,
-          decrypted.message,
-          decrypted.signature
-        );
-
-        return { verificationResult, message: decrypted.message };
+          device.publicKey, decrypted.message, decrypted.signature
+        );  
+              
+        return { verificationResult, message: decrypted.message, mam: decrypted.mam };
       }
       throw new Error('No user key');
     } else {
@@ -97,9 +93,6 @@ const getApi = async settings => {
     successMode: SuccessMode[settings.tangle.loadBalancerSuccessMode],
     failMode: FailMode.all,
     timeoutMs: settings.tangle.loadBalancerTimeout,
-    // tryNodeCallback: (node) => {
-    //   console.log(`Trying node ${node.provider}`);
-    // },
     failNodeCallback: (node, err) => {
       console.error(`Failed node ${node.provider}, ${err.message}`);
     },
@@ -129,7 +122,7 @@ const transferFunds = async (
     const depth = settings.tangle.depth;
 
     // Difficulty of Proof-of-Work required to attach transaction to tangle.
-    // Minimum value on mainnet & spamnet is `14`, `9` on devnet and other testnets.
+    // Minimum value on mainnet is `14`, `9` on devnet.
     const minWeightMagnitude = settings.tangle.mwm;
 
     if (balance === 0) {
@@ -218,10 +211,8 @@ const faucet = async receiveAddress => {
   const setting = await getSettings();
   const wallet = setting && setting.wallet;
   let { keyIndex, seed, balance } = wallet;
-  console.log('BALANCE1', balance);
   let address = await generateAddress(seed, keyIndex);
   const iotaWalletBalance = await getBalance(address);
-  console.log('BALANCE2', iotaWalletBalance);
 
   if (iotaWalletBalance === 0) {
     const newIotaWallet = await repairWallet(seed, keyIndex);
@@ -230,7 +221,7 @@ const faucet = async receiveAddress => {
       keyIndex = newIotaWallet.keyIndex;
     }
   }
-  console.log('BALANCE3', iotaWalletBalance);
+
   return await transferFunds(
     receiveAddress,
     address,

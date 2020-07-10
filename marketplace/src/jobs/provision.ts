@@ -6,6 +6,9 @@ export default async (job, done) => {
         await log(`provision job started`);
         const request = await decryptVerify(job?.data);
         const paymentRequestPayload = request?.message;
+
+        console.log('Provision job', request);
+
         paymentRequestPayload.timestamp = Date.now().toString();
         paymentRequestPayload.status = 'Payment requested';
 
@@ -24,9 +27,10 @@ export default async (job, done) => {
                 await log(`Payment request communication failure. Request: ${JSON.stringify(paymentRequestPayload)}, Response: ${JSON.stringify(paymentResponse)}, Contract: ${paymentRequestPayload.contractId}`);
             }
             done(null);
+        } else {
+            await log('Asset signature verification failed');
+            done(new Error('Asset signature verification failed'));
         }
-        await log('Asset signature verification failed');
-        done(new Error('Asset signature verification failed'));
     } catch (error) {
         console.error('provision', error);
         await log(`provision Error ${error.toString()}`);

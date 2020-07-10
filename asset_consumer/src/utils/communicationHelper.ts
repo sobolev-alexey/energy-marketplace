@@ -12,7 +12,10 @@ interface IResponse {
  * @param request The request to send.
  * @returns The response from the request.
  */
-export const sendRequest = async (endpoint: string, request: { encrypted: string; userId?: string; }): Promise<IResponse> => {
+export const sendRequest = async (
+    endpoint: string, 
+    request: { encrypted: string; userId?: string; }
+): Promise<IResponse> => {
     const asset: any = await readData('asset');
     
     let baseURL = asset?.marketplaceAPI;
@@ -24,14 +27,17 @@ export const sendRequest = async (endpoint: string, request: { encrypted: string
     let response: IResponse;
 
     try {
+        console.log('sendRequest', endpoint);
         const axiosResponse = await ax.post<IResponse>(endpoint, request);
 
         response = axiosResponse.data;
+        console.log('sendRequest response', response);
     } catch (err) {
         response = {
             success: false,
             message: `There was a problem communicating with the API.\n${err}`
         };
+        console.log('sendRequest ERROR response', response);
     }
 
     return response;

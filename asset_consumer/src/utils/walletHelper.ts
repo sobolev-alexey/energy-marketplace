@@ -7,6 +7,7 @@ import { ServiceFactory } from '../factories/serviceFactory';
 import { readData, removeData, writeData } from './databaseHelper';
 import { getPaymentQueue } from './paymentQueueHelper';
 import { queues, options } from './queueHelper';
+import { signPublishEncryptSend } from './routineHelper';
 import { IWallet } from '../models/wallet/IWallet';
 
 export const generateSeed = (length = 81) => {
@@ -41,6 +42,8 @@ export const getBalance = async address => {
 
 const transferFunds = async (wallet, totalAmount, paymentQueue) => {
     try {
+        console.log('transferFunds 00', wallet);
+
         const { address, keyIndex, seed } = wallet;
         const config: any = await readData('asset');
         const loadBalancerSettings = ServiceFactory.get<LoadBalancerSettings>(
@@ -60,7 +63,10 @@ const transferFunds = async (wallet, totalAmount, paymentQueue) => {
 
         return new Promise(async (resolve, reject) => {
             try {
+                console.log('transferFunds 01', typeof keyIndex, seed);
                 const remainderAddress = generateAddress(seed, Number(keyIndex) + 1);
+                console.log('transferFunds 02', Number(keyIndex) + 1, remainderAddress);
+
                 const transactionOptions = {
                     inputs: [{
                         address,
@@ -141,6 +147,8 @@ export const processPaymentQueue = async () => {
             return null;
         }
 
+        console.log('processPaymentQueue', wallet);
+        
         let walletBalance = await getBalance(wallet?.address);
         console.log('processPayment check wallet', wallet?.address, walletBalance);
         
@@ -160,6 +168,7 @@ export const processPaymentQueue = async () => {
         } 
         if (walletBalance < totalAmount) {
           // Issue fund wallet request
+          await signPublishEncryptSend({ address: wallet?.address, walletBalance }, 'fund');
         }
 
         return await transferFunds(

@@ -53,7 +53,7 @@ exports.user = functions.https.onRequest((req, res) => {
       return res.json(user ? { ...user, status: "success" } : null);
     } catch (e) {
       console.error("user failed. Error: ", e);
-      return res.status(403).json({ status: "error", error: e.message });
+      return res.json({ status: "error", error: e.message });
     }
   });
 });
@@ -80,14 +80,14 @@ exports.notify_event = functions.https.onRequest((req, res) => {
             : result.message.requesterTransactionId;
 
         // Store event
-        await logEvent(params.userId, deviceId, transactionId, result.message);
+        await logEvent(params.userId, deviceId, transactionId, result.message, result.mam);
         return res.json({ status: "success" });
       }
 
       return res.json({ status: "error" });
     } catch (e) {
       console.error("Log event failed.", e);
-      return res.status(403).json({ status: "error", error: e.message });
+      return res.json({ status: "error", error: e.message });
     }
   });
 });
@@ -110,10 +110,10 @@ exports.transactions = functions.https.onRequest((req, res) => {
         const transactions = await getTransactions(params.userId, params.deviceId);
         return res.json({ status: "success", transactions });
       }
-      return res.json({ status: "wrong api key" });
+      return res.json({ status: "error", error: "wrong api key" });
     } catch (e) {
       console.error("Transactions request failed. Error: ", e);
-      return res.status(403).json({ status: "error", error: e.message });
+      return res.json({ status: "error", error: e.message });
     }
   });
 });
@@ -136,10 +136,10 @@ exports.events = functions.https.onRequest((req, res) => {
         const events = await getEvents(params.userId, params.deviceId, params.transactionId);
         return res.json({ status: "success", events });
       }
-      return res.json({ status: "wrong api key" });
+      return res.json({ status: "error", error: "wrong api key" });
     } catch (e) {
       console.error("Event request failed. Error: ", e);
-      return res.status(403).json({ status: "error", error: e.message });
+      return res.json({ status: "error", error: e.message });
     }
   });
 });
@@ -148,28 +148,26 @@ exports.device = functions.https.onRequest((req, res) => {
   cors(req, res, async () => {
     // Check Fields
     const params = req.body;
-    if (
-      !params ||
-      !params.userId ||
-      !params.apiKey ||
-      !params.name ||
-      !params.type ||
-      !params.location ||
-      !params.url ||
-      !params.minWalletAmount ||
-      !params.minOfferAmount ||
-      !params.maxEnergyPrice ||
-      !params.running ||
-      !params.dashboard ||
-      !params.uuid
-    ) {
+    if (!params 
+      || !params.userId 
+      || !params.apiKey
+      || !params.name 
+      || !params.type 
+      || !params.location 
+      || !params.url
+      || !params.minOfferAmount 
+      || !params.maxEnergyPrice 
+      || !params.running 
+      || !params.dashboard
+      || !params.uuid
+      ) {
       console.error("Device creation request failed. Params: ", params);
       return res.status(400).json({ error: "Ensure all fields are included" });
     }
 
     try {
-      const user = await getUser(params.userId, true);
-
+      const user = await getUser(params.userId, true, true);
+      
       // Check correct apiKey
       if (user && user.apiKey && user.apiKey === params.apiKey) {
         const settings = await getSettings();
@@ -195,7 +193,6 @@ exports.device = functions.https.onRequest((req, res) => {
         const payload = {
           exchangeRate: Number(settings.exchangeRate),
           maxEnergyPrice: Number(params.maxEnergyPrice),
-          minWalletAmount: Number(params.minWalletAmount),
           minOfferAmount: Number(params.minOfferAmount),
           assetOwnerAPI: settings.assetOwnerAPI,
           marketplaceAPI: settings.marketplaceAPI,
@@ -212,7 +209,10 @@ exports.device = functions.https.onRequest((req, res) => {
           status: params.running === "true" ? "running" : "paused",
           dashboard: params.dashboard === "true" ? "enabled" : "disabled",
           uuid: params.uuid,
-        };
+          url: params.url
+        }
+
+        console.log("Payload", payload);
 
         // Send payload to device
         const headers = { "Content-Type": "application/json" };
@@ -235,7 +235,6 @@ exports.device = functions.https.onRequest((req, res) => {
             dashboard: params.dashboard === "true",
             uuid: params.uuid,
             maxEnergyPrice: Number(params.maxEnergyPrice),
-            minWalletAmount: Number(params.minWalletAmount),
             minOfferAmount: Number(params.minOfferAmount),
             wallet,
           };
@@ -244,14 +243,14 @@ exports.device = functions.https.onRequest((req, res) => {
           await setDevice(params.userId, device);
           return res.json({ status: "success", deviceId });
         } else if (!deviceResponse.data.success && deviceResponse.data.error) {
-          return res.status(403).json({ status: deviceResponse.data.error });
+          return res.json({ status: "error", error: deviceResponse.data.error });
         }
-        return res.status(403).json({ status: "Something went wrong" });
+        return res.json({ status: "error", error: "Something went wrong" });
       }
-      return res.status(403).json({ status: "Wrong api key" });
+      return res.json({ status: "error", error: "Wrong api key" });
     } catch (e) {
       console.error("Device creation request failed. Device not reachable", e);
-      return res.status(403).json({ status: "error", error: "Device creation request failed. Device not reachable" });
+      return res.json({ status: "error", error: "Device creation request failed. Device not reachable" });
     }
   });
 });
@@ -277,12 +276,12 @@ exports.image = functions.https.onRequest((req, res) => {
           await setDevice(params.userId, { ...device, image: params.image });
           return res.json({ status: "success" });
         }
-        return res.json({ status: "no device found" });
+        return res.json({ status: "error", error: "no device found" });
       }
-      return res.json({ status: "wrong api key" });
+      return res.json({ status: "error", error: "wrong api key" });
     } catch (e) {
       console.error("Image upload request failed. Error: ", e);
-      return res.status(403).json({ status: "error", error: e.message });
+      return res.json({ status: "error", error: e.message });
     }
   });
 });
@@ -301,7 +300,7 @@ exports.faucet = functions.https.onRequest((req, res) => {
       return res.json({ transactions });
     } catch (e) {
       console.error("faucet failed. Error: ", e.message);
-      return res.status(403).json({ error: e.message });
+      return res.json({ status: "error", error: e.message });
     }
   });
 });
@@ -311,7 +310,7 @@ exports.balance = functions.https.onRequest((req, res) => {
     // Check Fields
     const packet = req.body;
     if (!packet || !packet.address) {
-      console.error("faucet failed. Receiving Address: ", packet.address);
+      console.error("balance failed. Receiving Address: ", packet.address);
       return res.status(400).json({ error: "Malformed Request" });
     }
 
@@ -320,7 +319,7 @@ exports.balance = functions.https.onRequest((req, res) => {
       return res.json({ balance });
     } catch (e) {
       console.error("balance failed. Error: ", e.message);
-      return res.status(403).json({ error: e.message });
+      return res.json({ status: "error", error: e.message });
     }
   });
 });
@@ -346,10 +345,10 @@ exports.info = functions.https.onRequest((req, res) => {
           return res.json({ status: "success", device });
         }
       }
-      return res.status(403).json({ status: "Wrong api key" });
+      return res.json({ status: "error", error: "Wrong api key" });
     } catch (e) {
       console.error("Device info request failed", e);
-      return res.status(403).json({ status: "error", error: e.message });
+      return res.json({ status: "error", error: e.message });
     }
   });
 });

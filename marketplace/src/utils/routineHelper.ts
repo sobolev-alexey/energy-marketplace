@@ -24,12 +24,18 @@ export async function decryptVerify(request: any): Promise<{
                     : decrypted?.message?.providerId ;
                 const asset: any = await readData('asset', 'assetId', assetId);
 
+                console.log('decryptVerify 01', assetId, decrypted?.message?.type);
+                console.log('decryptVerify 02', asset);
+                console.log('decryptVerify 03', decrypted?.message);
+
                 if (asset) {
                     await writeData('mam', decrypted?.mam);
 
                     const verificationResult: boolean = encryptionService.verifySignature(
                         asset?.assetPublicKey, decrypted?.message, decrypted?.signature
                     );  
+
+                    console.log('decryptVerify 04', verificationResult);
 
                     if (verificationResult) {
                         await log(`Asset signature verification successful. ${assetId}`);
@@ -47,7 +53,12 @@ export async function decryptVerify(request: any): Promise<{
                                 const mamVerificationResult: boolean = encryptionService.verifySignature(
                                     asset?.assetPublicKey, mamFetchLastMessage?.message, mamFetchLastMessage?.signature
                                 );
-                                if (!mamVerificationResult || mamFetchLastMessage?.message?.transactionId !== transactionId) {
+
+                                const mamTransactionId = mamFetchLastMessage?.message?.type === 'request' 
+                                    ? mamFetchLastMessage?.message?.requesterTransactionId 
+                                    : mamFetchLastMessage?.message?.providerTransactionId;
+                                
+                                if (!mamVerificationResult || mamTransactionId !== transactionId) {
                                     await log(`Asset signature verification from MAM failed. ${assetId}`);
                                     // throw new Error('Asset signature verification from MAM failed');
                                 } 
@@ -102,9 +113,12 @@ export async function signPublishEncryptSend(
             );
 
             // Publish payload to MAM
+            console.log('signPublishEncryptSend 00', assetId, `${asset?.assetURL}/${endpoint}`);
+            console.log('signPublishEncryptSend 01', transactionId, payload);
             const mam = await publish(transactionId, { message: payload, signature });
-            // console.log(333, mam);
-
+            console.log('signPublishEncryptSend 02', mam);
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
             // Encrypt payload and signature with asset's public key
             const messagePayload: IMessagePayload = { message: payload, signature, mam };
             // console.log(444, messagePayload);
@@ -113,10 +127,13 @@ export async function signPublishEncryptSend(
                 asset?.assetPublicKey, JSON.stringify(messagePayload)
             );
 
+            console.log('signPublishEncryptSend 03', asset);
+
             // Send encrypted payload and signature to asset
             // tslint:disable-next-line:no-unnecessary-local-variable
             const response = await sendRequest(`${asset?.assetURL}/${endpoint}`, { encrypted });
-            // console.log(555, response);
+            console.log('signPublishEncryptSend 04', response);
+
             return response;
         }
     } catch (error) {

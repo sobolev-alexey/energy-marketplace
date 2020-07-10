@@ -23,9 +23,10 @@ export default async (job, done) => {
                 await log(`Payment processing confirmation request failure. Request: ${JSON.stringify(paymentConfirmationPayload)}, Response: ${JSON.stringify(paymentConfirmationResponse)}, Contract: ${paymentConfirmationPayload.contractId}`);
             }
             done(null);
+        } else {
+            await log('Asset signature verification failed');
+            done(new Error('Asset signature verification failed'));
         }
-        await log('Asset signature verification failed');
-        done(new Error('Asset signature verification failed'));
     } catch (error) {
         console.error('payment processing', error);
         await log(`payment processing Error ${error.toString()}`);

@@ -55,9 +55,10 @@ export default async (job, done) => {
                 await log(`Contract communication failure. Request: ${JSON.stringify(requesterResponse)}, Offer: ${JSON.stringify(providerResponse)}, Contract: ${contractId}`);
             }
             done(null);
+        } else {
+            await log('No offer or request found in match');
+            done(new Error('No offer or request found in match'));
         }
-        await log('No offer or request found in match');
-        done(new Error('No offer or request found in match'));
     } catch (error) {
         console.error('processMatch', error);
         await log(`processMatch Error ${error.toString()}`);

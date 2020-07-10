@@ -19,7 +19,7 @@ exports.setDevice = async (userId, device) => {
   return true;
 };
 
-exports.getUser = async (userId, internal = false) => {
+exports.getUser = async (userId, internal = false, wallet = false) => {
   // Get user
   const userDocument = await admin
     .firestore()
@@ -58,7 +58,7 @@ exports.getUser = async (userId, internal = false) => {
           delete device.publicKey;
         }
 
-        if (device.wallet) {
+        if (device.wallet && !wallet) {
           delete device.wallet.seed;
           delete device.wallet.keyIndex;
         }
@@ -200,48 +200,37 @@ exports.logMessage = async (userId, deviceId, messages) => {
     .firestore()
     .collection(`logs/${userId}/devices/${deviceId}/log`)
     .doc(timestamp)
-    .set(
-      {
-        ...messages.map(message => message),
-        timestamp,
-      },
-      { merge: true }
-    );
+    .set({
+      ...messages.map(message => message),
+      timestamp,
+    }, { merge: true });
 
   return true;
 };
 
-exports.logEvent = async (userId, deviceId, transactionId, event) => {
-  const timestamp = new Date().toLocaleString().replace(/\//g, '.');
+exports.logEvent = async (userId, deviceId, transactionId, event, mam) => {
+  const timestamp = (new Date()).toLocaleString().replace(/\//g, '.');
 
   // Save logs by user and device
   await admin
     .firestore()
-    .collection(
-      `events/${userId}/devices/${deviceId}/transactions/${transactionId}`
-    )
-    .set(
-      {
-        transactionId,
-        timestamp,
-      },
-      { merge: true }
-    );
+    .collection(`events/${userId}/devices/${deviceId}/transactions`)
+    .doc(transactionId)
+    .set({ 
+      transactionId,
+      timestamp
+    }, { merge: true });
 
   // Save logs by user and device
   await admin
     .firestore()
-    .collection(
-      `events/${userId}/devices/${deviceId}/transactions/${transactionId}/events`
-    )
+    .collection(`events/${userId}/devices/${deviceId}/transactions/${transactionId}/events`)
     .doc(timestamp)
-    .set(
-      {
-        ...event,
-        timestamp,
-      },
-      { merge: true }
-    );
+    .set({ 
+      ...event,
+      mam,
+      timestamp
+    }, { merge: true });
 
   return true;
 };
