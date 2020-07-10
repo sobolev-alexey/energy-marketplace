@@ -221,7 +221,11 @@ exports.device = functions.https.onRequest((req, res) => {
         console.log("API", deviceResponse.data);
 
         // Receive public key
-        if (deviceResponse && deviceResponse.data && deviceResponse.data.success && deviceResponse.data.publicKey) {
+        if (deviceResponse 
+          && deviceResponse.data 
+          && deviceResponse.data.success 
+          && deviceResponse.data.publicKey 
+        ) {
           const device = {
             running: params.running === "true",
             id: deviceId,
