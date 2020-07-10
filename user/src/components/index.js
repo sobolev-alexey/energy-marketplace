@@ -2,7 +2,6 @@ import Sidebar from "./Sidebar";
 import Table from "./Table";
 import Layout from "./Layout";
 import Loading from "./Loading";
-import NewDeviceForm from "./NewDeviceForm";
 import NewDeviceHeader from "./NewDeviceHeader";
 import DeviceForm from "./DeviceForm";
 import Disclaimer from "./Disclaimer";
@@ -16,7 +15,6 @@ export {
     Table, 
     Layout, 
     Loading, 
-    NewDeviceForm,
     NewDeviceHeader,
     DeviceForm, 
     Disclaimer,
