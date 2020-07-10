@@ -52,7 +52,7 @@ export async function signPublishEncryptSend(payload: any, endpoint: string): Pr
             }
 
             // Log event 
-            await log(`signPublishEncryptSend for contract ${payload.contractId}`);
+            await log(`signPublishEncryptSend for ${endpoint}: ${payload?.contractId}`);
 
             // Sign payload
             const encryptionService = new EncryptionService();
