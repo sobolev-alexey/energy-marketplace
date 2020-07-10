@@ -53,7 +53,6 @@ export async function decryptVerify(request: any): Promise<{
                                 const mamVerificationResult: boolean = encryptionService.verifySignature(
                                     asset?.assetPublicKey, mamFetchLastMessage?.message, mamFetchLastMessage?.signature
                                 );
-                                console.log('decryptVerify MAM', mamVerificationResult, transactionId, mamFetchLastMessage?.message);
 
                                 const mamTransactionId = mamFetchLastMessage?.message?.type === 'request' 
                                     ? mamFetchLastMessage?.message?.requesterTransactionId 
@@ -114,8 +113,9 @@ export async function signPublishEncryptSend(
             );
 
             // Publish payload to MAM
+            console.log('signPublishEncryptSend 01', payload);
             const mam = await publish(transactionId, { message: payload, signature });
-            // console.log(333, mam);
+            console.log('signPublishEncryptSend 02', mam);
 
             // Encrypt payload and signature with asset's public key
             const messagePayload: IMessagePayload = { message: payload, signature, mam };
@@ -125,12 +125,13 @@ export async function signPublishEncryptSend(
                 asset?.assetPublicKey, JSON.stringify(messagePayload)
             );
 
-            console.log('asset', asset);
+            console.log('signPublishEncryptSend 03', asset);
 
             // Send encrypted payload and signature to asset
             // tslint:disable-next-line:no-unnecessary-local-variable
             const response = await sendRequest(`${asset?.assetURL}/${endpoint}`, { encrypted });
-            // console.log(555, response);
+            console.log('signPublishEncryptSend 04', response);
+            
             return response;
         }
     } catch (error) {
