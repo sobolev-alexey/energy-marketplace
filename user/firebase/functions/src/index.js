@@ -83,7 +83,7 @@ exports.notify_event = functions.https.onRequest((req, res) => {
           : result.message.requesterTransactionId;
 
         // Store event
-        await logEvent(params.userId, deviceId, transactionId, result.message);
+        await logEvent(params.userId, deviceId, transactionId, result.message, result.mam);
         return res.json({ status: 'success' });
       }
 
@@ -215,6 +215,8 @@ exports.device = functions.https.onRequest((req, res) => {
           uuid: params.uuid,
           url: params.url
         }
+
+        console.log('Payload', payload);
 
         // Send payload to device
         const headers = { 'Content-Type': 'application/json' };

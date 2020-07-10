@@ -117,7 +117,8 @@ export async function signPublishEncryptSend(
             console.log('signPublishEncryptSend 01', transactionId, payload);
             const mam = await publish(transactionId, { message: payload, signature });
             console.log('signPublishEncryptSend 02', mam);
-
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            
             // Encrypt payload and signature with asset's public key
             const messagePayload: IMessagePayload = { message: payload, signature, mam };
             // console.log(444, messagePayload);
