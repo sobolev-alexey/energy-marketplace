@@ -3,19 +3,23 @@ import { useHistory } from "react-router-dom";
 
 import { Table } from "antd";
 
-const CustomTable = ({ devices, columns }) => {
+const CustomTable = ({ data, columns }) => {
   let history = useHistory();
-  
+  console.log(data);
   return (
     <Table
       onRow={(record) => ({
-          onClick: () => history.push(`/device/${record.id}`),
+          onClick: (record) => console.log(record) || history.push(`/device/${record.id}`),
         }
       )}
       className="ant-table-cell"
       columns={columns}
-      dataSource={devices}
-      rowKey={device => device.id}
+      dataSource={data}
+      rowKey={item => {
+        if (item?.id) return item.id;
+        if (item?.type === 'offer') return `${item?.providerTransactionId}-${item?.status}`;
+        if (item?.type === 'request') return `${item?.requesterTransactionId}-${item?.status}`;
+      }}
       pagination={{ hideOnSinglePage: true }}
     />
   );
