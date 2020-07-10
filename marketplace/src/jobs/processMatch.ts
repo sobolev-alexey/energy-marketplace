@@ -56,6 +56,8 @@ export default async (job, done) => {
             }
             done(null);
         }
+        console.log('ProcessMatch JOB', job?.data);
+
         await log('No offer or request found in match');
         done(new Error('No offer or request found in match'));
     } catch (error) {

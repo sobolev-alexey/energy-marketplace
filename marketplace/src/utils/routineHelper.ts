@@ -24,12 +24,18 @@ export async function decryptVerify(request: any): Promise<{
                     : decrypted?.message?.providerId ;
                 const asset: any = await readData('asset', 'assetId', assetId);
 
+                console.log('decryptVerify 01', assetId, decrypted?.message?.type);
+                console.log('decryptVerify 02', asset);
+                console.log('decryptVerify 03', decrypted?.message);
+
                 if (asset) {
                     await writeData('mam', decrypted?.mam);
 
                     const verificationResult: boolean = encryptionService.verifySignature(
                         asset?.assetPublicKey, decrypted?.message, decrypted?.signature
                     );  
+
+                    console.log('decryptVerify 04', verificationResult);
 
                     if (verificationResult) {
                         await log(`Asset signature verification successful. ${assetId}`);
@@ -47,6 +53,8 @@ export async function decryptVerify(request: any): Promise<{
                                 const mamVerificationResult: boolean = encryptionService.verifySignature(
                                     asset?.assetPublicKey, mamFetchLastMessage?.message, mamFetchLastMessage?.signature
                                 );
+                                console.log('decryptVerify MAM', mamVerificationResult, transactionId, mamFetchLastMessage?.message);
+
                                 if (!mamVerificationResult || mamFetchLastMessage?.message?.transactionId !== transactionId) {
                                     await log(`Asset signature verification from MAM failed. ${assetId}`);
                                     // throw new Error('Asset signature verification from MAM failed');

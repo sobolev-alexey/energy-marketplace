@@ -17,6 +17,7 @@ export default async (job, done) => {
 
             done(null);
         }
+        console.log('Request/Offer Job', request);
         await log('Asset signature verification failed');
         done(new Error('Asset signature verification failed'));
     } catch (error) {
