@@ -9,9 +9,9 @@ const callApi = async (url, payload) => {
     const response = await axios.post(`${serverAPI}/${url}`, payload, { headers });
     console.log("API", response?.data);
 
-    return { response: response?.data, error: null };
+    return response?.data;
   } catch (error) {
-    return { error, response: null };
+    return { error };
   }
 };
 

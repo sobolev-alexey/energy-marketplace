@@ -3,6 +3,7 @@ import { log } from './loggerHelper';
 import { publish } from './mamHelper';
 import { EncryptionService, IMessagePayload, IReceivedMessagePayload } from './encryptionHelper';
 import { sendRequest } from './communicationHelper';
+import { IWallet } from '../models/wallet/IWallet';
 
 export async function decryptVerify(request: any): Promise<{ verificationResult: boolean, message?: any }> {
     try {
@@ -85,8 +86,11 @@ export async function signPublishEncryptSend(payload: any, endpoint: string): Pr
             );
 
             // Send encrypted payload and signature to asset
-            const requestPayload: { encrypted: string; userId?: string; } = { encrypted };
+            const requestPayload: { encrypted: string; userId?: string; keyIndex?: number; } = { encrypted };
             if (endpoint === 'fund' || endpoint === 'notify_event') {
+                const wallet: IWallet = await readData('wallet');
+                
+                requestPayload.keyIndex = wallet?.keyIndex;
                 requestPayload.userId = asset.assetOwner;
                 console.log('signPublishEncryptSend 2', requestPayload.userId);
             }

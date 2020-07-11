@@ -6,7 +6,6 @@ import { PlayCircleOutlined, PauseCircleOutlined } from "@ant-design/icons";
 const { Meta } = Card;
 
 const DeviceInfo = ({ device }) => {
-  console.log(device)
   return (
     <div className="device-info">
       <Row gutter={20}>

@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext } from "react";
 import { Input, Select, Divider } from "antd";
 import { AppContext } from "../context/globalState";
 import callApi from "../utils/callApi";
-import { Layout, Loading, Table, OverviewHeader } from "../components";
+import { Layout, Loading, DevicesTable, OverviewHeader } from "../components";
 import { overviewTableColumns } from "../assets/table-columns-data";
 
 const { Search } = Input;
@@ -20,14 +20,17 @@ const Overview = () => {
     async function loadUser() {
       try {
         if (user?.userId) {
-          const { response, error } = await callApi('user', { userId: user?.userId });
+          const response = await callApi('user', { userId: user?.userId });
 
-          if (!error) {
+          if (!response?.error && response?.status !== 'error') {
             const devices = response?.devices?.map(device => ({ ...device, key: device.id, balance: device?.wallet?.balance }));
             setDevices(devices);
             setUser(response);
+            const userData = { ...response, userId: user?.userId };
+            delete userData?.devices;
+            await localStorage.setItem("user", JSON.stringify(userData));
           } else {
-            console.error("Error loading user data", error);
+            console.error("Error loading user data", response?.error);
           }
           setLoading(false);
         }
@@ -77,9 +80,9 @@ const Overview = () => {
             </div>
             <div>
               <Divider className={"divider"} />
-              <Table 
+              <DevicesTable 
                 columns={overviewTableColumns} 
-                devices={filteredDevices} 
+                data={filteredDevices} 
               />
             </div>
           </div>

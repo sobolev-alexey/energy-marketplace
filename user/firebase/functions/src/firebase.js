@@ -183,7 +183,7 @@ exports.getDevice = async (userId, deviceId) => {
     if (eventsRef.size > 0) {
       const events = eventsRef.docs
         .filter(event => event.exists)
-        .map(event => event.data());
+        .map(event => ({ ...event.data(), transactionId }));
 
       transactions[transactionId] = events;
     }

@@ -1,8 +1,8 @@
 import Sidebar from "./Sidebar";
-import Table from "./Table";
+import DevicesTable from "./DevicesTable";
+import TransactionsTable from "./TransactionsTable";
 import Layout from "./Layout";
 import Loading from "./Loading";
-import NewDeviceForm from "./NewDeviceForm";
 import NewDeviceHeader from "./NewDeviceHeader";
 import DeviceForm from "./DeviceForm";
 import Disclaimer from "./Disclaimer";
@@ -13,10 +13,10 @@ import CustomModal from "./CustomModal";
 
 export { 
     Sidebar, 
-    Table, 
+    DevicesTable, 
+    TransactionsTable,
     Layout, 
     Loading, 
-    NewDeviceForm,
     NewDeviceHeader,
     DeviceForm, 
     Disclaimer,
