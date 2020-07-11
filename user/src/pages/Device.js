@@ -9,6 +9,7 @@ const { TabPane } = Tabs;
 const Device = () => {
   const { deviceId } = useParams();
   const [device, setDevice] = useState();
+  const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -18,20 +19,21 @@ const Device = () => {
         user = JSON.parse(user);
 
         if (user?.userId && user?.apiKey) {
-          const response = await callApi('info', { 
+          const infoResponse = await callApi('info', { 
             userId: user?.userId,
             apiKey: user?.apiKey,
             deviceId
           });
 
-          if (!response?.error && response?.status !== 'error') {
-            const device = response?.device;
-            console.log('Device page', device);
+          if (!infoResponse?.error && infoResponse?.status !== 'error') {
+            const device = infoResponse?.device;
             setDevice(device);
             setLoading(false);
           } else {
-            console.error("Error loading device data", response?.error);
+            console.error("Error loading device data", infoResponse?.error);
           }
+
+          setLoading(false);
         }
       } catch (err) {
         console.error('Error while loading device data', err);
@@ -40,6 +42,33 @@ const Device = () => {
     
     loadDevice();
   }, [deviceId]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    async function loadTransactions() {
+      try {
+        let user = await localStorage.getItem("user");
+        user = JSON.parse(user);
+
+        if (user?.userId && user?.apiKey && device?.id) {
+          const transactionsResponse = await callApi('transactions', { 
+            userId: user?.userId,
+            apiKey: user?.apiKey,
+            deviceId
+          });
+
+          if (!transactionsResponse?.error && transactionsResponse?.status !== 'error') {
+            setTransactions(transactionsResponse?.transactions);
+          } else {
+            console.error("Error loading device data", transactionsResponse?.error);
+          }
+        }
+      } catch (err) {
+        console.error('Error while loading device data', err);
+      }
+    }
+    
+    loadTransactions();
+  }, [device?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <Layout>
