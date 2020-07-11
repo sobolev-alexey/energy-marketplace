@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router";
 import { Tabs } from "antd";
-import { Layout, Loading, DeviceForm, DeviceHeader, DeviceInfo, Table } from "../components";
+import { Layout, Loading, DeviceForm, DeviceHeader, DeviceInfo, TransactionsTable } from "../components";
 import callApi from "../utils/callApi";
-import { DeviceTableColumns } from "../assets/table-columns-data";
 
 const { TabPane } = Tabs;
 
@@ -59,15 +58,7 @@ const Device = () => {
               </TabPane>
               <TabPane tab="Transactions" key="3">
                 <div className="transactions-tab-wrapper">
-                  <Table 
-                    columns={DeviceTableColumns}
-                    data={ 
-                      Object.entries(device.transactions)
-                        .map(item => item[1]
-                          .map(entry => ({ ...entry, transactionId: item[0]})))
-                        .flat()
-                    } 
-                   />
+                  <TransactionsTable data={ device.transactions } />
                 </div>
               </TabPane>
             </Tabs>

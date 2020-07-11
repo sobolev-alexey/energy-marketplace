@@ -112,13 +112,4 @@ export const DeviceTableColumns = [
     ],
     onFilter: (value, record) => record.status.includes(value),
   },
-  {
-    key: "x",
-    width: 80,
-    render: () => (
-      <div>
-        <EllipsisOutlined style={{ fontSize: "30px", color: "#aab8c2" }} />
-      </div>
-    ),
-  },
 ];
