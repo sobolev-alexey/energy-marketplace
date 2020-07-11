@@ -14,7 +14,7 @@ interface IResponse {
  */
 export const sendRequest = async (
     endpoint: string, 
-    request: { encrypted: string; userId?: string; }
+    request: { encrypted: string; userId?: string; keyIndex?: number; }
 ): Promise<IResponse> => {
     const asset: any = await readData('asset');
     
