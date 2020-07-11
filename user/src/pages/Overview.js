@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext } from "react";
 import { Input, Select, Divider } from "antd";
 import { AppContext } from "../context/globalState";
 import callApi from "../utils/callApi";
-import { Layout, Loading, Table, OverviewHeader } from "../components";
+import { Layout, Loading, DevicesTable, OverviewHeader } from "../components";
 import { overviewTableColumns } from "../assets/table-columns-data";
 
 const { Search } = Input;
@@ -80,7 +80,7 @@ const Overview = () => {
             </div>
             <div>
               <Divider className={"divider"} />
-              <Table 
+              <DevicesTable 
                 columns={overviewTableColumns} 
                 data={filteredDevices} 
               />

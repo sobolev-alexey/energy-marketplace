@@ -1,5 +1,6 @@
 import Sidebar from "./Sidebar";
-import Table from "./Table";
+import DevicesTable from "./DevicesTable";
+import TransactionsTable from "./TransactionsTable";
 import Layout from "./Layout";
 import Loading from "./Loading";
 import NewDeviceHeader from "./NewDeviceHeader";
@@ -12,7 +13,8 @@ import CustomModal from "./CustomModal";
 
 export { 
     Sidebar, 
-    Table, 
+    DevicesTable, 
+    TransactionsTable,
     Layout, 
     Loading, 
     NewDeviceHeader,
