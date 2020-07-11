@@ -51,14 +51,14 @@ const Device = () => {
           <div className="device-page-wrapper">
             <Tabs tabBarGutter={50} centered defaultActiveKey="1">
               <TabPane tab="Overview" key="1">
-                <DeviceInfo device={device} />
+                <DeviceInfo device={device} transactions={transactions} />
               </TabPane>
               <TabPane tab="Settings" key="2">
                 <DeviceForm device={device} />
               </TabPane>
               <TabPane tab="Transactions" key="3">
                 <div className="transactions-tab-wrapper">
-                  <TransactionsTable data={ device.transactions } />
+                  <TransactionsTable data={transactions} />
                 </div>
               </TabPane>
             </Tabs>
