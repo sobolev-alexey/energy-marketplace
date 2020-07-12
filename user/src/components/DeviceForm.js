@@ -146,53 +146,36 @@ const NewDeviceForm = ({ device = {}, callback = null }) => {
             >
               <Input className="rounded-input" />
             </Form.Item>
-            <Form.Item 
-              name="maxEnergyPrice"
-              label="Energy price (NOK per kWh)"
-              noStyle
-              hasFeedback
-              rules={[
-                {
-                  required: true,
-                  message: "Please provide the max. energy price for this device",
-                },
-                {
-                  type: "number",
-                  message: "This is not a valid value",
-                },
-                { 
-                  validator: (_, value) => 
-                    (!value || value > 0) 
-                    ? Promise.resolve() 
-                    : Promise.reject(`This is not a valid value`) 
-                },
-              ]}
-            >
-              <InputNumber className="rounded-input" type="number" step={0.001} />
+            <Form.Item label="Energy price (NOK per kWh)">
+              <Form.Item 
+                name="maxEnergyPrice"
+                noStyle
+                hasFeedback
+                rules={[
+                  {
+                    required: true,
+                    message: "Please provide the max. energy price for this device",
+                  },
+                  {
+                    type: "number",
+                    message: "This is not a valid value",
+                  },
+                  { 
+                    validator: (_, value) => 
+                      (!value || value > 0) 
+                      ? Promise.resolve() 
+                      : Promise.reject(`This is not a valid value`) 
+                  },
+                ]}
+              >
+                <InputNumber className="rounded-input" type="number" step={0.001} />
+              </Form.Item>
             </Form.Item>
-            <Form.Item 
-              name="minOfferAmount" 
-              label="Minimum offer/request energy value (kWh)"
-              noStyle
-              hasFeedback
-              rules={[
-                {
-                  required: true,
-                  message: "Please provide the min. offer/request energy value for this device",
-                },
-                {
-                  type: "number",
-                  message: "This is not a valid value",
-                },
-                { 
-                  validator: (_, value) => 
-                    (!value || value > 0) 
-                    ? Promise.resolve() 
-                    : Promise.reject(`This is not a valid value`) 
-                },
-              ]}
-            >
-              <InputNumber className="rounded-input" type="number" />
+            <Form.Item name="running" label="Running" valuePropName="checked">
+              <Switch checkedChildren="Yes" unCheckedChildren="No" defaultChecked />
+            </Form.Item>
+            <Form.Item name="dashboard" label="Enable transaction dashboard" valuePropName="checked">
+              <Switch checkedChildren="Yes" unCheckedChildren="No" defaultChecked={false} />
             </Form.Item>
           </Col>
           <Col>
@@ -232,11 +215,30 @@ const NewDeviceForm = ({ device = {}, callback = null }) => {
             >
               <Input className="rounded-input" />
             </Form.Item>
-            <Form.Item name="running" label="Running" valuePropName="checked">
-              <Switch checkedChildren="Yes" unCheckedChildren="No" defaultChecked />
-            </Form.Item>
-            <Form.Item name="dashboard" label="Enable transaction dashboard" valuePropName="checked">
-              <Switch checkedChildren="Yes" unCheckedChildren="No" defaultChecked={false} />
+            <Form.Item label="Minimum offer/request energy value (kWh)">
+              <Form.Item 
+                name="minOfferAmount" 
+                noStyle
+                hasFeedback
+                rules={[
+                  {
+                    required: true,
+                    message: "Please provide the min. offer/request energy value for this device",
+                  },
+                  {
+                    type: "number",
+                    message: "This is not a valid value",
+                  },
+                  { 
+                    validator: (_, value) => 
+                      (!value || value > 0) 
+                      ? Promise.resolve() 
+                      : Promise.reject(`This is not a valid value`) 
+                  },
+                ]}
+              >
+                <InputNumber className="rounded-input" type="number" />
+              </Form.Item>
             </Form.Item>
             <Form.Item
               className="no-file-selected"

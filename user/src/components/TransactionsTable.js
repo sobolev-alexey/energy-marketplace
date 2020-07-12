@@ -3,9 +3,9 @@ import { Table } from "antd";
 import { DeviceTableColumns } from "../assets/table-columns-data";
 
 const TransactionsTable = ({ data }) => {
-  console.log(444, Object.keys(data).length, data);
+  console.log(444, data && Object.keys(data).length, data);
 
-  const items = Object.keys(data)
+  const items = data && Object.keys(data)
     .map(key => data[key]
     .sort((a, b) => b.timestamp.localeCompare(a.timestamp))[0]
   );

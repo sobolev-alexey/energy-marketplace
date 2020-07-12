@@ -92,32 +92,6 @@ exports.notify_event = functions.https.onRequest((req, res) => {
   });
 });
 
-exports.transactions = functions.https.onRequest((req, res) => {
-  cors(req, res, async () => {
-    // Check Fields
-    const params = req.body;
-    if (!params || !params.userId || !params.deviceId || !params.apiKey) {
-      console.error("Transactions request failed. Params: ", params);
-      return res.status(400).json({ error: "Ensure all fields are included" });
-    }
-
-    try {
-      // Retrieve user
-      const user = await getUser(params.userId);
-
-      // Check correct apiKey
-      if (user && user.apiKey && user.apiKey === params.apiKey) {
-        const transactions = await getTransactions(params.userId, params.deviceId);
-        return res.json({ status: "success", transactions });
-      }
-      return res.json({ status: "error", error: "wrong api key" });
-    } catch (e) {
-      console.error("Transactions request failed. Error: ", e);
-      return res.json({ status: "error", error: e.message });
-    }
-  });
-});
-
 exports.events = functions.https.onRequest((req, res) => {
   cors(req, res, async () => {
     // Check Fields
@@ -352,6 +326,32 @@ exports.info = functions.https.onRequest((req, res) => {
       return res.json({ status: "error", error: "Wrong api key" });
     } catch (e) {
       console.error("Device info request failed", e);
+      return res.json({ status: "error", error: e.message });
+    }
+  });
+});
+
+exports.transactions = functions.https.onRequest((req, res) => {
+  cors(req, res, async () => {
+    // Check Fields
+    const params = req.body;
+    if (!params || !params.userId || !params.deviceId || !params.apiKey) {
+      console.error("Transactions request failed. Params: ", params);
+      return res.status(400).json({ error: "Ensure all fields are included" });
+    }
+
+    try {
+      // Retrieve user
+      const user = await getUser(params.userId);
+
+      // Check correct apiKey
+      if (user && user.apiKey && user.apiKey === params.apiKey) {
+        const transactions = await getTransactions(params.userId, params.deviceId);
+        return res.json({ status: "success", transactions });
+      }
+      return res.json({ status: "error", error: "wrong api key" });
+    } catch (e) {
+      console.error("Transactions request failed. Error: ", e);
       return res.json({ status: "error", error: e.message });
     }
   });

@@ -78,17 +78,43 @@ exports.getUser = async (userId, internal = false, wallet = false) => {
 };
 
 exports.getTransactions = async (userId, deviceId) => {
-  // Get transactions
-  const querySnapshot = await admin
+  // Get device's events
+  const transactionsSnapshot = await admin
     .firestore()
-    .collection(`events/${userId}/devices/${deviceId}/transactions`)
+    .collection(`events/${userId}/devices/${deviceId}/transactions/`)
+    .limit(150)
     .get();
 
-  // Check there is data
-  if (querySnapshot.size === 0) return [];
+  const transactions = {};
+  const promises = [];
+  transactionsSnapshot.forEach(transactionSnapshot => {
+    if (transactionSnapshot.exists) {
+      const transaction = transactionSnapshot.data();
 
-  // Return data
-  return querySnapshot.docs.filter(doc => doc.exists && doc.data());
+      if (transaction.transactionId) {
+        promises.push({
+          [transaction.transactionId]: transactionSnapshot.ref
+            .collection('events')
+            .get(),
+        });
+      }
+    }
+  });
+
+  for await (const promiseObj of promises) {
+    const transactionId = Object.keys(promiseObj)[0];
+
+    const eventsRef = await promiseObj[transactionId];
+    if (eventsRef.size > 0) {
+      const events = eventsRef.docs
+        .filter(event => event.exists)
+        .map(event => ({ ...event.data(), transactionId }));
+
+      transactions[transactionId] = events;
+    }
+  }
+
+  return transactions;
 };
 
 exports.getEvents = async (userId, deviceId, transactionId) => {
@@ -154,42 +180,7 @@ exports.getDevice = async (userId, deviceId) => {
     delete device.wallet.keyIndex;
   }
 
-  // Get device's events
-  const transactionsSnapshot = await admin
-    .firestore()
-    .collection(`events/${userId}/devices/${deviceId}/transactions/`)
-    .get();
-
-  const transactions = {};
-  const promises = [];
-  transactionsSnapshot.forEach(transactionSnapshot => {
-    if (transactionSnapshot.exists) {
-      const transaction = transactionSnapshot.data();
-
-      if (transaction.transactionId) {
-        promises.push({
-          [transaction.transactionId]: transactionSnapshot.ref
-            .collection('events')
-            .get(),
-        });
-      }
-    }
-  });
-
-  for await (const promiseObj of promises) {
-    const transactionId = Object.keys(promiseObj)[0];
-
-    const eventsRef = await promiseObj[transactionId];
-    if (eventsRef.size > 0) {
-      const events = eventsRef.docs
-        .filter(event => event.exists)
-        .map(event => ({ ...event.data(), transactionId }));
-
-      transactions[transactionId] = events;
-    }
-  }
-
-  return { device: { ...device, transactions } };
+  return { device };
 };
 
 exports.logMessage = async (userId, deviceId, messages) => {
