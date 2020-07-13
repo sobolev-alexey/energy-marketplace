@@ -20,8 +20,9 @@ export const sendRequest = async (endpoint: string, payload: object): Promise<IR
 
     try {
         console.log('sendRequest', endpoint);
+        const headers = { 'Content-Type': 'application/json' };
         const httpsAgent = new https.Agent({ rejectUnauthorized: false });
-        const axiosResponse = await axios.post<IResponse>(endpoint, payload, { httpsAgent });
+        const axiosResponse = await axios.post<IResponse>(endpoint, payload, { headers, httpsAgent });
 
         response = axiosResponse.data;
         console.log('sendRequest response', response);
