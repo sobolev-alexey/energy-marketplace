@@ -1,6 +1,7 @@
 const functions = require("firebase-functions");
 const cors = require("cors")({ origin: true });
 const axios = require("axios");
+const https = require("https");
 const { v4: uuid } = require("uuid");
 const randomstring = require("randomstring");
 const {
@@ -190,7 +191,8 @@ exports.device = functions.https.onRequest((req, res) => {
 
         // Send payload to device
         const headers = { "Content-Type": "application/json" };
-        const deviceResponse = await axios.post(`${params.url}/init`, payload, { headers });
+        const httpsAgent = new https.Agent({ rejectUnauthorized: false })
+        const deviceResponse = await axios.post(`${params.url}/init`, payload, { headers, httpsAgent });
 
         console.log("API", deviceResponse.data);
 
