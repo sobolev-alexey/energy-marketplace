@@ -37,7 +37,7 @@ exports.getUser = async (userId, internal = false, wallet = false) => {
       delete user.userId;
     }
 
-    if (user.wallet) {
+    if (user.wallet && !internal) {
       delete user.wallet.seed;
       delete user.wallet.keyIndex;
     }
@@ -222,6 +222,16 @@ exports.logEvent = async (userId, deviceId, transactionId, event, mam) => {
       mam,
       timestamp
     }, { merge: true });
+
+  return true;
+};
+
+exports.updateWalletKeyIndex = async (userId, deviceId, keyIndex) => {
+  await admin
+    .firestore()
+    .collection(`users/${userId}/devices`)
+    .doc(deviceId)
+    .set({ wallet: { keyIndex } }, { merge: true });
 
   return true;
 };

@@ -13,8 +13,9 @@ const {
   getEvents,
   getDevice,
   logEvent,
+  updateWalletKeyIndex,
 } = require("./firebase");
-const { decryptVerify, getNewWallet, faucet, getBalance } = require("./helpers");
+const { decryptVerify, getNewWallet, faucet, getBalance, checkBalance } = require("./helpers");
 const { EncryptionService } = require("./encryption");
 
 // Setup User with an API Key
@@ -63,7 +64,7 @@ exports.notify_event = functions.https.onRequest((req, res) => {
   cors(req, res, async () => {
     // Check Fields
     const params = req.body;
-    if (!params || !params.userId || !params.encrypted) {
+    if (!params || !params.userId || !params.keyIndex || !params.encrypted) {
       console.error("Log event failed. Params: ", params);
       return res.status(400).json({ error: "Ensure all fields are included" });
     }
@@ -82,6 +83,7 @@ exports.notify_event = functions.https.onRequest((req, res) => {
 
         // Store event
         await logEvent(params.userId, deviceId, transactionId, result.message, result.mam);
+        await updateWalletKeyIndex(params.userId, deviceId, params.keyIndex);
         return res.json({ status: "success" });
       }
 
@@ -372,6 +374,49 @@ exports.transactions = functions.https.onRequest((req, res) => {
       return res.json({ status: "error", error: "wrong api key" });
     } catch (e) {
       console.error("Transactions request failed. Error: ", e);
+      return res.json({ status: "error", error: e.message });
+    }
+  });
+});
+
+exports.fund = functions.https.onRequest((req, res) => {
+  cors(req, res, async () => {
+    // Check Fields
+    const params = req.body;
+    if (!params || !params.userId || !params.keyIndex || !params.encrypted) {
+      console.error("Log event failed. Params: ", params);
+      return res.status(400).json({ error: "Ensure all fields are included" });
+    }
+
+    try {
+      // Decrypt payload and verify signature
+      const result = await decryptVerify(params.encrypted, params.userId);
+
+      if (result && result.verificationResult && result.message) {
+        const deviceId = result.message.type === "offer" ? result.message.providerId : result.message.requesterId;
+        const user = await getUser(params.userId, true, true);
+        const settings = await getSettings();
+  
+        const existingDevice = user.devices.find(device => device.id === deviceId);
+
+        if (existingDevice) {
+          const { address, balance } = await checkBalance(existingDevice.wallet);
+
+          if (balance < settings.deviceWalletAmount) {
+            console.log(`Fund device ${deviceId}, current balance: ${balance}. Wallet address: ${address}`);
+            await faucet(address);
+            return res.json({ status: "success" });
+          } else {
+            return res.json({ status: "error", error: "enough balance" });
+          }
+        } else {
+          return res.json({ status: "error", error: "no device" });
+        }
+      }
+
+      return res.json({ status: "error" });
+    } catch (e) {
+      console.error("Log event failed.", e);
       return res.json({ status: "error", error: e.message });
     }
   });
