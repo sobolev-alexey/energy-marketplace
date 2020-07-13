@@ -1,4 +1,5 @@
 import axios from 'axios';
+import https from 'https';
 import io from 'socket.io-client';
 import { log } from './loggerHelper';
 
@@ -19,7 +20,8 @@ export const sendRequest = async (endpoint: string, payload: object): Promise<IR
 
     try {
         console.log('sendRequest', endpoint);
-        const axiosResponse = await axios.post<IResponse>(endpoint, payload);
+        const httpsAgent = new https.Agent({ rejectUnauthorized: false });
+        const axiosResponse = await axios.post<IResponse>(endpoint, payload, { httpsAgent });
 
         response = axiosResponse.data;
         console.log('sendRequest response', response);
