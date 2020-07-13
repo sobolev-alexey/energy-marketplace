@@ -72,6 +72,7 @@ const NewDeviceForm = ({ device = {}, callback = null }) => {
           setShowModal(true);
         }
       }
+      typeof callback === 'function' && callback();
     } catch (err) {
       console.error('Error while loading user data', err);
     }
