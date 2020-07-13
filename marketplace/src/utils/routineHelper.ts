@@ -27,16 +27,16 @@ export async function decryptVerify(request: any): Promise<{
                 console.log('decryptVerify 01', assetId, decrypted?.message?.type);
                 console.log('decryptVerify 02', asset);
                 console.log('decryptVerify 03', decrypted?.message);
+                console.log('decryptVerify 04', decrypted?.mam);
 
                 if (asset) {
-                    await writeData('mam', decrypted?.mam);
-
                     const verificationResult: boolean = encryptionService.verifySignature(
                         asset?.assetPublicKey, decrypted?.message, decrypted?.signature
                     );  
 
-                    console.log('decryptVerify 04', verificationResult);
+                    console.log('decryptVerify 05', verificationResult);
 
+                    await writeData('mam', decrypted?.mam);
                     if (verificationResult) {
                         await log(`Asset signature verification successful. ${assetId}`);
 
