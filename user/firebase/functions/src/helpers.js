@@ -232,10 +232,18 @@ const faucet = async receiveAddress => {
   );
 };
 
+const checkBalance = async ({ seed, keyIndex }) => {
+  let address = await generateAddress(seed, keyIndex);
+  const balance = await getBalance(address);
+
+  return { address, balance };
+};
+
 module.exports = {
   decryptVerify,
   getNewWallet,
   faucet,
   getBalance,
   repairWallet,
+  checkBalance
 };
