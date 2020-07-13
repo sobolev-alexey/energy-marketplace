@@ -181,20 +181,38 @@ exports.device = functions.https.onRequest((req, res) => {
           assetWallet: wallet,
           marketplacePublicKey: settings.marketplacePublicKey,
           assetOwnerPublicKey: user.publicKey,
-          status: params.running === "true" ? "running" : "paused",
-          dashboard: params.dashboard === "true" ? "enabled" : "disabled",
+          status: params.running === true ? "running" : "paused",
+          dashboard: params.dashboard === true ? "enabled" : "disabled",
           uuid: params.uuid,
           url: params.url
         }
 
-        console.log("Payload", payload);
+        console.log("Payload", JSON.stringify(payload));
 
         // Send payload to device
         const headers = { "Content-Type": "application/json" };
         const httpsAgent = new https.Agent({ rejectUnauthorized: false })
-        const deviceResponse = await axios.post(`${params.url}/init`, payload, { headers, httpsAgent });
+        let deviceResponse;
+        try {
+          const response = await axios.post(`${params.url}/init`, payload, { headers, httpsAgent });
+          deviceResponse = response;
+          console.log("API", response && JSON.stringify(response.data));
+        } catch (error) {
+          console.error('AXIOS', error);
 
-        console.log("API", deviceResponse.data);
+          if (error.response) {
+            // Request made and server responded
+            console.log(error.response.data);
+            console.log(error.response.status);
+            console.log(error.response.headers);
+          } else if (error.request) {
+            // The request was made but no response was received
+            console.log(error.request);
+          } else {
+            // Something happened in setting up the request that triggered an Error
+            console.log('AXIOS Error', error.message);
+          }
+        }
 
         // Receive public key
         if (deviceResponse 
@@ -203,7 +221,7 @@ exports.device = functions.https.onRequest((req, res) => {
           && deviceResponse.data.publicKey 
         ) {
           const device = {
-            running: params.running === "true",
+            running: params.running,
             id: deviceId,
             name: params.name,
             url: params.url,
@@ -212,7 +230,7 @@ exports.device = functions.https.onRequest((req, res) => {
             image: image || "",
             type: params.type,
             location: params.location,
-            dashboard: params.dashboard === "true",
+            dashboard: params.dashboard,
             uuid: params.uuid,
             maxEnergyPrice: Number(params.maxEnergyPrice),
             minOfferAmount: Number(params.minOfferAmount),
