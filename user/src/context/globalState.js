@@ -38,7 +38,7 @@ const GlobalState = ({ children }) => {
         setUser({});
       }
     });
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <AppContext.Provider value={{ 

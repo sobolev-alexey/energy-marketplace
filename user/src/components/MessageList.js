@@ -16,7 +16,7 @@ const MessageList = ({ mam }) => {
     }
     
     fetchMessages();
-  }, [mam?.root]);
+  }, [mam?.root]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!mam?.root) return null;
   
