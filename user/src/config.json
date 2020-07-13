@@ -1,3 +1,4 @@
 {
-    "serverAPI": "https://us-central1-cityexchange-energymarketplace.cloudfunctions.net"
+    "serverAPI": "https://us-central1-cityexchange-energymarketplace.cloudfunctions.net",
+    "provider": "https://nodes.devnet.iota.org:443"
 }

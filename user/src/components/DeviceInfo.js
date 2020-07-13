@@ -20,7 +20,7 @@ const DeviceInfo = ({ device, transactions }) => {
       let totalPrice = 0;
       let totalCount = 0;
       Object.values(transactions).forEach(array => {
-        array.find(entry => {
+        array.forEach(entry => {
           if (entry?.status === 'Energy provision finished') {
             totalEnergy += Number(entry?.energyAmount);
             totalPrice += Number(entry?.energyPrice);
@@ -93,7 +93,7 @@ const DeviceInfo = ({ device, transactions }) => {
                 <Loading />
               ) : (
                 <React.Fragment>
-                  { energy } <span className="wallet-balance3-device"> kWh </span>
+                  { energy } <span className="wallet-balance3-device"> W </span>
                 </React.Fragment>
               )}
             </h1>

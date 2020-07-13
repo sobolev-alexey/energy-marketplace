@@ -13,34 +13,15 @@ const Device = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function loadDevice() {
+    async function loadDeviceInitial() {
       try {
-        let user = await localStorage.getItem("user");
-        user = JSON.parse(user);
-
-        if (user?.userId && user?.apiKey) {
-          const infoResponse = await callApi('info', { 
-            userId: user?.userId,
-            apiKey: user?.apiKey,
-            deviceId
-          });
-
-          if (!infoResponse?.error && infoResponse?.status !== 'error') {
-            const device = infoResponse?.device;
-            setDevice(device);
-            setLoading(false);
-          } else {
-            console.error("Error loading device data", infoResponse?.error);
-          }
-
-          setLoading(false);
-        }
+        await loadDevice();
       } catch (err) {
         console.error('Error while loading device data', err);
       }
     }
     
-    loadDevice();
+    loadDeviceInitial();
   }, [deviceId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
@@ -70,6 +51,33 @@ const Device = () => {
     loadTransactions();
   }, [device?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  async function loadDevice() {
+    try {
+      let user = await localStorage.getItem("user");
+      user = JSON.parse(user);
+
+      if (user?.userId && user?.apiKey) {
+        const infoResponse = await callApi('info', { 
+          userId: user?.userId,
+          apiKey: user?.apiKey,
+          deviceId
+        });
+
+        if (!infoResponse?.error && infoResponse?.status !== 'error') {
+          const device = infoResponse?.device;
+          setDevice(device);
+          setLoading(false);
+        } else {
+          console.error("Error loading device data", infoResponse?.error);
+        }
+
+        setLoading(false);
+      }
+    } catch (err) {
+      console.error('Error while loading device data', err);
+    }
+  }
+
   return (
     <Layout>
      {loading ? (
@@ -83,7 +91,7 @@ const Device = () => {
                 <DeviceInfo device={device} transactions={transactions} />
               </TabPane>
               <TabPane tab="Settings" key="2">
-                <DeviceForm device={device} />
+                <DeviceForm device={device} callback={loadDevice} />
               </TabPane>
               <TabPane tab="Transactions" key="3">
                 <div className="transactions-tab-wrapper">

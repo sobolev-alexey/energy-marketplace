@@ -3,7 +3,6 @@ import { Input, Select, Divider } from "antd";
 import { AppContext } from "../context/globalState";
 import callApi from "../utils/callApi";
 import { Layout, Loading, DevicesTable, OverviewHeader } from "../components";
-import { overviewTableColumns } from "../assets/table-columns-data";
 
 const { Search } = Input;
 const { Option } = Select;
@@ -80,10 +79,7 @@ const Overview = () => {
             </div>
             <div>
               <Divider className={"divider"} />
-              <DevicesTable 
-                columns={overviewTableColumns} 
-                data={filteredDevices} 
-              />
+              <DevicesTable data={filteredDevices} />
             </div>
           </div>
         )}
