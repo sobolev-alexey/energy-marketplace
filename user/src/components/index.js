@@ -10,6 +10,8 @@ import DeviceHeader from "./DeviceHeader";
 import DeviceInfo from "./DeviceInfo";
 import OverviewHeader from "./OverviewHeader";
 import CustomModal from "./CustomModal";
+import MessageContent from "./MessageContent";
+import MessageList from "./MessageList";
 
 export { 
     Sidebar, 
@@ -23,5 +25,7 @@ export {
     DeviceHeader,
     DeviceInfo,
     OverviewHeader,
-    CustomModal
+    CustomModal,
+    MessageContent,
+    MessageList
 };

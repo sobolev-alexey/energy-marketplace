@@ -131,10 +131,21 @@ const TransactionsTable = ({ data }) => {
 
   console.log(555, items);
 
+  const handleSearch = (selectedKeys, confirm, dataIndex) => {
+    confirm();
+    setSearchText(selectedKeys[0]);
+    setSearchedColumn(dataIndex);
+  };
+
+  const handleReset = clearFilters => {
+    clearFilters();
+    setSearchText('');
+  };
+
   return (
     <Table
       className="ant-table-cell"
-      columns={ DeviceTableColumns }
+      columns={ transactionOverviewTableColumns }
       dataSource={ items }
       rowKey={ item => `${item?.transactionId}-${item?.status}` }
       pagination={{ hideOnSinglePage: true }}
@@ -142,10 +153,25 @@ const TransactionsTable = ({ data }) => {
         expandRowByClick: true,
         expandedRowRender: (record, index) => (
           <Table 
-            columns={DeviceTableColumns}
+            columns={transactionDetailsTableColumns}
             dataSource={data[record.transactionId]} 
             pagination={false} 
             rowKey={ item => item?.status }
+            expandable={{
+              expandRowByClick: true,
+              expandedRowRender: record => (
+                <React.Fragment>
+                  { record?.mam 
+                    ? <MessageList mam={record?.mam} />
+                    : (
+                      <p style={{ margin: 0 }}>
+                        No Tangle record found
+                      </p>
+                    )
+                  }
+                </React.Fragment>
+              )
+            }}
           />
         )
       }}
