@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Card, Space, Row, Col } from "antd";
 import { PlayCircleOutlined, PauseCircleOutlined } from "@ant-design/icons";
+import { convertAmount } from "../utils/amountConverter";
 import { Loading } from ".";
 
 const { Meta } = Card;
@@ -34,6 +35,8 @@ const DeviceInfo = ({ device, transactions }) => {
   }, [transactions]); // eslint-disable-line react-hooks/exhaustive-deps
 
   console.log('transactions', transactions);
+  const balance = convertAmount(Number(device?.wallet?.balance));
+
   return (
     <div className="device-info">
       <Row gutter={20}>
@@ -65,7 +68,7 @@ const DeviceInfo = ({ device, transactions }) => {
           <Card hoverable className="device-info-card">
             <span> DEVICE WALLET </span>
             <h1 className="transaction-info-device">
-              { device?.wallet?.balance } <span className="wallet-balance3-device"> Iota </span>
+              { balance?.[0] || 0 } <span className="wallet-balance3-device"> { balance?.[1] || "Iota" } </span>
             </h1>
             <div>
               <Space size={10}>

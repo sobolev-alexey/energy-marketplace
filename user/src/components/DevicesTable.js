@@ -40,7 +40,14 @@ const overviewTableColumns = [
     dataIndex: "balance",
     key: "balance",
     sorter: (a, b) => Number(a) - Number(b),
-    render: (value) => `${convertAmount(Number(value)).join(' ')}`,
+    render: (value) => {
+      if (Number(value)) {
+        const balance = convertAmount(value);
+        return `${balance?.[0] || 0 } ${ balance?.[1] || "Iota"}`
+      } else {
+        return value
+      }
+    },
   },
   {
     title: "Status",

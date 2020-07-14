@@ -18,6 +18,8 @@ const Sidebar = () => {
     history.push("/");
   };
 
+  const balance = convertAmount(Number(user?.wallet?.balance));
+
   return (
     <div className="sidebar-wrapper">
       <Link to="/">
@@ -29,7 +31,7 @@ const Sidebar = () => {
         <div className="sidebar-content">
           <h5 className="main-wallet-text"> MAIN WALLLET </h5>
           <h1 className="wallet-balance">
-            { user?.wallet?.balance } <span className="wallet-balance3"> { convertAmount(Number(user?.wallet?.balance))?.[1] } </span>
+            { balance?.[0] || 0 } <span className="wallet-balance3"> { balance?.[1] || "Iota" } </span>
           </h1>
           <br />
           <button className="custom-button" onClick={() => console.log("Add funds")}>
