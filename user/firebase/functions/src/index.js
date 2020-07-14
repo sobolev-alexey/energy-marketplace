@@ -52,7 +52,15 @@ exports.user = functions.https.onRequest((req, res) => {
     try {
       // Retrieve user
       const user = await getUser(params.userId);
-      return res.json(user ? { ...user, status: "success" } : null);
+      user.wallet = await checkBalance(user.wallet);
+
+      const devices = []
+      for await (const device of user.devices) {
+        const wallet = await checkBalance(device.wallet);
+        devices.push({ ...device, wallet });
+      };
+
+      return res.json(user ? { ...user, devices, status: "success" } : null);
     } catch (e) {
       console.error("user failed. Error: ", e);
       return res.json({ status: "error", error: e.message });
@@ -342,6 +350,7 @@ exports.info = functions.https.onRequest((req, res) => {
         if (error) {
           throw new Error(error);
         } else {
+          device.wallet = await checkBalance(device.wallet);
           return res.json({ status: "success", device });
         }
       }

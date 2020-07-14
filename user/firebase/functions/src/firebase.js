@@ -37,11 +37,6 @@ exports.getUser = async (userId, internal = false, wallet = false) => {
       delete user.userId;
     }
 
-    if (user.wallet && !internal) {
-      delete user.wallet.seed;
-      delete user.wallet.keyIndex;
-    }
-
     // Get user devices
     const devicesSnapshot = await admin
       .firestore()
@@ -56,11 +51,6 @@ exports.getUser = async (userId, internal = false, wallet = false) => {
 
         if (!internal) {
           delete device.publicKey;
-        }
-
-        if (device.wallet && !wallet) {
-          delete device.wallet.seed;
-          delete device.wallet.keyIndex;
         }
 
         delete device.key;
@@ -175,10 +165,6 @@ exports.getDevice = async (userId, deviceId) => {
   const device = devicesSnapshot.data();
   delete device.publicKey;
   delete device.key;
-  if (device.wallet) {
-    delete device.wallet.seed;
-    delete device.wallet.keyIndex;
-  }
 
   return { device };
 };

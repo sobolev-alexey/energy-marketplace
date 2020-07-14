@@ -3,7 +3,6 @@ const { generateAddress, createPrepareTransfers } = require('@iota/core');
 const {
   composeAPI,
   FailMode,
-  LinearWalkStrategy,
   RandomWalkStrategy,
   SuccessMode,
 } = require('@iota/client-load-balancer');
@@ -85,7 +84,7 @@ const getBalance = async address => {
 
 const getApi = async settings => {
   const api = await composeAPI({
-    nodeWalkStrategy: new LinearWalkStrategy(
+    nodeWalkStrategy: new RandomWalkStrategy(
       settings.nodes.map(provider => ({ provider }))
     ),
     depth: settings.tangle.depth,

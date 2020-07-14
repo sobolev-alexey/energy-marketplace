@@ -4,6 +4,7 @@ import { useHistory } from "react-router";
 import { LogoutOutlined } from "@ant-design/icons";
 import { AppContext } from "../context/globalState";
 import { logout } from "../utils/firebase";
+import { convertAmount } from "../utils/amountConverter";
 import logo from "../assets/logo.svg";
 import { Loading } from "../components";
 
@@ -17,6 +18,8 @@ const Sidebar = () => {
     history.push("/");
   };
 
+  const balance = convertAmount(Number(user?.wallet?.balance));
+
   return (
     <div className="sidebar-wrapper">
       <Link to="/">
@@ -28,7 +31,7 @@ const Sidebar = () => {
         <div className="sidebar-content">
           <h5 className="main-wallet-text"> MAIN WALLLET </h5>
           <h1 className="wallet-balance">
-            { user?.wallet?.balance } <span className="wallet-balance3"> Iota </span>
+            { balance?.[0] || 0 } <span className="wallet-balance3"> { balance?.[1] || "Iota" } </span>
           </h1>
           <br />
           <button className="custom-button" onClick={() => console.log("Add funds")}>
