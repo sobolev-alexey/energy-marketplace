@@ -1,12 +1,16 @@
 .device-page-wrapper {
     display: flex;
     flex-direction: column;
-    flex-flow: column;
-    padding: 25px 0 0 0;
+    padding: 25px 0px 0 0px;
     width: 100%;
+    flex-flow: column;
     .ant-col {
         width: 90%;
     }
+}
+
+.device-page-content {
+    padding: 0 40px;
 }
 
 .transactions-tab-wrapper {

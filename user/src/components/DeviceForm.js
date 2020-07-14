@@ -101,181 +101,183 @@ const NewDeviceForm = ({ device = {}, callback = null }) => {
         ...device,
       }}>
       <div className='device-page-wrapper'>
-        <Row justify='space-between'>
-          <Col>
-            <Form.Item
-              name='type'
-              label='Type'
-              hasFeedback
-              rules={[
-                {
-                  required: true,
-                  message: 'Please select the type of your device',
-                },
-              ]}>
-              <Select>
-                <Option value='producer'>Producer</Option>
-                <Option value='consumer'>Consumer</Option>
-              </Select>
-            </Form.Item>
-            <Form.Item
-              name='name'
-              label='Name'
-              hasFeedback
-              rules={[
-                {
-                  required: true,
-                  message: 'Please provide the name of your device',
-                },
-                {
-                  validator: (_, value) =>
-                    !value || value.length < 50
-                      ? Promise.resolve()
-                      : Promise.reject(
-                          `Please shorten the provided value to less than 50 characters`
-                        ),
-                },
-              ]}>
-              <Input className='rounded-input' />
-            </Form.Item>
-            <Form.Item
-              name='uuid'
-              label='Device UUID'
-              hasFeedback
-              rules={[
-                {
-                  required: true,
-                  message: 'Please provide the UUID of your device',
-                },
-                {
-                  validator: (_, value) =>
-                    new RegExp(uuid_regex).test(value)
-                      ? Promise.resolve()
-                      : Promise.reject(`UUID format is wrong`),
-                },
-              ]}>
-              <Input className='rounded-input' />
-            </Form.Item>
-            <Form.Item label='Energy price (NOK per kWh)'>
+        <div className='device-page-content'>
+          <Row justify='space-between'>
+            <Col>
               <Form.Item
-                name='maxEnergyPrice'
-                noStyle
+                name='type'
+                label='Type'
                 hasFeedback
                 rules={[
                   {
                     required: true,
-                    message:
-                      'Please provide the max. energy price for this device',
+                    message: 'Please select the type of your device',
                   },
+                ]}>
+                <Select>
+                  <Option value='producer'>Producer</Option>
+                  <Option value='consumer'>Consumer</Option>
+                </Select>
+              </Form.Item>
+              <Form.Item
+                name='name'
+                label='Name'
+                hasFeedback
+                rules={[
                   {
-                    type: 'number',
-                    message: 'This is not a valid value',
+                    required: true,
+                    message: 'Please provide the name of your device',
                   },
                   {
                     validator: (_, value) =>
-                      !value || value > 0
+                      !value || value.length < 50
                         ? Promise.resolve()
-                        : Promise.reject(`This is not a valid value`),
+                        : Promise.reject(
+                            `Please shorten the provided value to less than 50 characters`
+                          ),
                   },
                 ]}>
-                <InputNumber
-                  className='rounded-input'
-                  type='number'
-                  step={0.001}
+                <Input className='rounded-input' />
+              </Form.Item>
+              <Form.Item
+                name='uuid'
+                label='Device UUID'
+                hasFeedback
+                rules={[
+                  {
+                    required: true,
+                    message: 'Please provide the UUID of your device',
+                  },
+                  {
+                    validator: (_, value) =>
+                      new RegExp(uuid_regex).test(value)
+                        ? Promise.resolve()
+                        : Promise.reject(`UUID format is wrong`),
+                  },
+                ]}>
+                <Input className='rounded-input' />
+              </Form.Item>
+              <Form.Item label='Energy price (NOK per kWh)'>
+                <Form.Item
+                  name='maxEnergyPrice'
+                  noStyle
+                  hasFeedback
+                  rules={[
+                    {
+                      required: true,
+                      message:
+                        'Please provide the max. energy price for this device',
+                    },
+                    {
+                      type: 'number',
+                      message: 'This is not a valid value',
+                    },
+                    {
+                      validator: (_, value) =>
+                        !value || value > 0
+                          ? Promise.resolve()
+                          : Promise.reject(`This is not a valid value`),
+                    },
+                  ]}>
+                  <InputNumber
+                    className='rounded-input'
+                    type='number'
+                    step={0.001}
+                  />
+                </Form.Item>
+              </Form.Item>
+              <Form.Item name='running' label='Running' valuePropName='checked'>
+                <Switch
+                  checkedChildren='Yes'
+                  unCheckedChildren='No'
+                  defaultChecked
                 />
               </Form.Item>
-            </Form.Item>
-            <Form.Item name='running' label='Running' valuePropName='checked'>
-              <Switch
-                checkedChildren='Yes'
-                unCheckedChildren='No'
-                defaultChecked
-              />
-            </Form.Item>
-            <Form.Item
-              name='dashboard'
-              label='Enable transaction dashboard'
-              valuePropName='checked'>
-              <Switch
-                checkedChildren='Yes'
-                unCheckedChildren='No'
-                defaultChecked={false}
-              />
-            </Form.Item>
-          </Col>
-          <Col>
-            <Form.Item
-              name='url'
-              label='URL'
-              hasFeedback
-              rules={[
-                {
-                  required: true,
-                  message: 'Please provide the URL of your device',
-                },
-                {
-                  type: 'url',
-                  message: 'This is not a valid URL',
-                },
-              ]}>
-              <Input className='rounded-input' />
-            </Form.Item>
-            <Form.Item
-              name='location'
-              label='Location'
-              hasFeedback
-              rules={[
-                {
-                  required: true,
-                  message: 'Please provide the location of your device',
-                },
-              ]}>
-              <Input className='rounded-input' />
-            </Form.Item>
-            <Form.Item name='description' label='Description (optional)'>
-              <Input className='rounded-input' />
-            </Form.Item>
-            <Form.Item label='Minimum offer/request energy value (kWh)'>
               <Form.Item
-                name='minOfferAmount'
-                noStyle
+                name='dashboard'
+                label='Enable transaction dashboard'
+                valuePropName='checked'>
+                <Switch
+                  checkedChildren='Yes'
+                  unCheckedChildren='No'
+                  defaultChecked={false}
+                />
+              </Form.Item>
+            </Col>
+            <Col>
+              <Form.Item
+                name='url'
+                label='URL'
                 hasFeedback
                 rules={[
                   {
                     required: true,
-                    message:
-                      'Please provide the min. offer/request energy value for this device',
+                    message: 'Please provide the URL of your device',
                   },
                   {
-                    type: 'number',
-                    message: 'This is not a valid value',
-                  },
-                  {
-                    validator: (_, value) =>
-                      !value || value > 0
-                        ? Promise.resolve()
-                        : Promise.reject(`This is not a valid value`),
+                    type: 'url',
+                    message: 'This is not a valid URL',
                   },
                 ]}>
-                <InputNumber className='rounded-input' type='number' />
+                <Input className='rounded-input' />
               </Form.Item>
-            </Form.Item>
-            <Form.Item
-              className='no-file-selected'
-              name='device-image'
-              label='Device image'
-              valuePropName='fileList'
-              getValueFromEvent={normFile}
-              extra={<span> No file selected </span>}>
-              <Upload
-                name='deviceImage'
-                listType='picture'
-                action={`https://${firebase?.storageBucket}/devices`}>
-                <button className='ant-btn-lg1'> Select file </button>
-              </Upload>
-            </Form.Item>
-          </Col>
-        </Row>
+              <Form.Item
+                name='location'
+                label='Location'
+                hasFeedback
+                rules={[
+                  {
+                    required: true,
+                    message: 'Please provide the location of your device',
+                  },
+                ]}>
+                <Input className='rounded-input' />
+              </Form.Item>
+              <Form.Item name='description' label='Description (optional)'>
+                <Input className='rounded-input' />
+              </Form.Item>
+              <Form.Item label='Minimum offer/request energy value (kWh)'>
+                <Form.Item
+                  name='minOfferAmount'
+                  noStyle
+                  hasFeedback
+                  rules={[
+                    {
+                      required: true,
+                      message:
+                        'Please provide the min. offer/request energy value for this device',
+                    },
+                    {
+                      type: 'number',
+                      message: 'This is not a valid value',
+                    },
+                    {
+                      validator: (_, value) =>
+                        !value || value > 0
+                          ? Promise.resolve()
+                          : Promise.reject(`This is not a valid value`),
+                    },
+                  ]}>
+                  <InputNumber className='rounded-input' type='number' />
+                </Form.Item>
+              </Form.Item>
+              <Form.Item
+                className='no-file-selected'
+                name='device-image'
+                label='Device image'
+                valuePropName='fileList'
+                getValueFromEvent={normFile}
+                extra={<span> No file selected </span>}>
+                <Upload
+                  name='deviceImage'
+                  listType='picture'
+                  action={`https://${firebase?.storageBucket}/devices`}>
+                  <button className='ant-btn-lg1'> Select file </button>
+                </Upload>
+              </Form.Item>
+            </Col>
+          </Row>
+        </div>
       </div>
       <div className='new-device-page-footer'>
         {loading ? (

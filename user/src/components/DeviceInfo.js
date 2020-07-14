@@ -19,8 +19,6 @@ const DeviceInfo = ({ device, transactions }) => {
   const [error, setError] = useState('');
   const [show, setShow] = useState(false);
 
-  // const balance = convertAmount(Number(device?.wallet?.balance));
-
   useEffect(() => {
     async function getBalance() {
       try {
@@ -136,13 +134,14 @@ const DeviceInfo = ({ device, transactions }) => {
         <Col span={8}>
           <Card hoverable className='device-info-card'>
             <span> DEVICE WALLET </span>
-            <div className='ant-card-body-wallet'>
+            <div className='wallet-info-device'>
               {!deviceBalance ? (
                 <Loading />
               ) : (
                 <React.Fragment>
-                  <h1 className='wallet-balance-device'>
-                    {deviceBalance?.[0] || 'Iota'}
+                  <h1>
+                    {deviceBalance?.[0]}
+                    <span className='wallet-balance3'>{deviceBalance?.[1]}</span>
                     <span className='wallet-balance3-device'> Iota </span>
                   </h1>
                   <br />

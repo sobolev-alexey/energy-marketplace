@@ -84,7 +84,8 @@ const Sidebar = () => {
         <div className='sidebar-content'>
           <h5 className='main-wallet-text'> MAIN WALLLET </h5>
           <h1 className='wallet-balance'>
-            {userBalance?.[0] || 0}
+            {userBalance?.[0]}
+            <span className='wallet-balance3'>{userBalance?.[1]}</span>
             {console.log('User balance', userBalance)}
             <span className='wallet-balance3'> Iota </span>
           </h1>
