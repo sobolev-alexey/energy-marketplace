@@ -2,6 +2,7 @@ import React from "react";
 import { useHistory } from "react-router-dom";
 import { Table } from "antd";
 import { EllipsisOutlined, PlayCircleOutlined, PauseCircleOutlined } from "@ant-design/icons";
+import { convertAmount } from "../utils/amountConverter";
 
 const overviewTableColumns = [
   {
@@ -39,6 +40,7 @@ const overviewTableColumns = [
     dataIndex: "balance",
     key: "balance",
     sorter: (a, b) => Number(a) - Number(b),
+    render: (value) => `${convertAmount(Number(value)).join(' ')}`,
   },
   {
     title: "Status",

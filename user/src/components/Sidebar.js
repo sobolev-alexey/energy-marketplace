@@ -4,6 +4,7 @@ import { useHistory } from "react-router";
 import { LogoutOutlined } from "@ant-design/icons";
 import { AppContext } from "../context/globalState";
 import { logout } from "../utils/firebase";
+import { convertAmount } from "../utils/amountConverter";
 import logo from "../assets/logo.svg";
 import { Loading } from "../components";
 
@@ -28,7 +29,7 @@ const Sidebar = () => {
         <div className="sidebar-content">
           <h5 className="main-wallet-text"> MAIN WALLLET </h5>
           <h1 className="wallet-balance">
-            { user?.wallet?.balance } <span className="wallet-balance3"> Iota </span>
+            { user?.wallet?.balance } <span className="wallet-balance3"> { convertAmount(Number(user?.wallet?.balance))?.[1] } </span>
           </h1>
           <br />
           <button className="custom-button" onClick={() => console.log("Add funds")}>
