@@ -1,4 +1,5 @@
 const functions = require("firebase-functions");
+const tools = require('firebase-tools');
 const cors = require("cors")({ origin: true });
 const axios = require("axios");
 const https = require("https");
@@ -12,6 +13,7 @@ const {
   getTransactions,
   getEvents,
   getDevice,
+  deleteDevice,
   logEvent,
   updateWalletKeyIndex,
 } = require("./firebase");
@@ -142,8 +144,6 @@ exports.device = functions.https.onRequest((req, res) => {
       || !params.url
       || !params.minOfferAmount 
       || !params.maxEnergyPrice 
-      || !params.running 
-      || !params.dashboard
       || !params.uuid
       ) {
       console.error("Device creation request failed. Params: ", params);
@@ -426,6 +426,39 @@ exports.fund = functions.https.onRequest((req, res) => {
       return res.json({ status: "error" });
     } catch (e) {
       console.error("Log event failed.", e);
+      return res.json({ status: "error", error: e.message });
+    }
+  });
+});
+
+exports.remove = functions.https.onRequest((req, res) => {
+  cors(req, res, async () => {
+    const params = req.body;
+    // Add device key into the list
+    if (!params || !params.userId || !params.apiKey || !params.deviceId) {
+      console.error('remove device failed. Packet: ', params);
+      return res.status(400).json({ error: 'Ensure all fields are included' });
+    }
+
+    try {
+      await tools.firestore
+        .delete(`events/${params.userId}/devices/${params.deviceId}/transactions`, {
+          project: 'cityexchange-energymarketplace',
+          recursive: true,
+          yes: true,
+          // token: functions.config().fb.token
+        });
+
+      const user = await getUser(params.userId, true);
+
+      // Check correct apiKey
+      if (user && user.apiKey && user.apiKey === params.apiKey) {
+        await deleteDevice(params.userId, params.deviceId);
+        return res.json({ status: "success" });
+      }
+      return res.json({ status: "error", error: "Wrong api key" });
+    } catch (e) {
+      console.error("Remove device request failed", e);
       return res.json({ status: "error", error: e.message });
     }
   });
