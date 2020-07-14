@@ -165,10 +165,6 @@ exports.getDevice = async (userId, deviceId) => {
   const device = devicesSnapshot.data();
   delete device.publicKey;
   delete device.key;
-  if (device.wallet) {
-    delete device.wallet.seed;
-    delete device.wallet.keyIndex;
-  }
 
   return { device };
 };

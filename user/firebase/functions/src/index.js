@@ -350,6 +350,7 @@ exports.info = functions.https.onRequest((req, res) => {
         if (error) {
           throw new Error(error);
         } else {
+          device.wallet = await checkBalance(device.wallet);
           return res.json({ status: "success", device });
         }
       }
