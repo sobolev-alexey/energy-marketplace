@@ -13,6 +13,7 @@ const DeviceInfo = ({ device, transactions }) => {
   const [energy, setEnergy] = useState();
   const [total, setTotal] = useState();
   const [price, setPrice] = useState();
+  const { user } = useContext(AppContext);
   const [loading, setLoading] = useState(false);
   const [deviceBalance, setDeviceBalance] = useState();
   const [error, setError] = useState('');
