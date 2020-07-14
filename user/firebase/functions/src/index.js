@@ -1,9 +1,9 @@
-const functions = require("firebase-functions");
-const cors = require("cors")({ origin: true });
-const axios = require("axios");
-const https = require("https");
-const { v4: uuid } = require("uuid");
-const randomstring = require("randomstring");
+const functions = require('firebase-functions');
+const cors = require('cors')({ origin: true });
+const axios = require('axios');
+const https = require('https');
+const { v4: uuid } = require('uuid');
+const randomstring = require('randomstring');
 const {
   getSettings,
   setUser,
@@ -14,12 +14,19 @@ const {
   getDevice,
   logEvent,
   updateWalletKeyIndex,
-} = require("./firebase");
-const { decryptVerify, getNewWallet, faucet, getBalance, checkBalance } = require("./helpers");
-const { EncryptionService } = require("./encryption");
+} = require('./firebase');
+const {
+  decryptVerify,
+  getNewWallet,
+  faucet,
+  getBalance,
+  checkBalance,
+  transferFunds,
+} = require('./helpers');
+const { EncryptionService } = require('./encryption');
 
 // Setup User with an API Key
-exports.setupUser = functions.auth.user().onCreate((user) => {
+exports.setupUser = functions.auth.user().onCreate(user => {
   return new Promise(async (resolve, reject) => {
     if (!user) {
       reject();
@@ -30,10 +37,16 @@ exports.setupUser = functions.auth.user().onCreate((user) => {
         const { privateKey, publicKey } = encryptionService.generateKeys();
         const wallet = await getNewWallet();
 
-        await setUser(user.uid, { apiKey, privateKey, publicKey, userId: user.uid, wallet });
+        await setUser(user.uid, {
+          apiKey,
+          privateKey,
+          publicKey,
+          userId: user.uid,
+          wallet,
+        });
         resolve();
       } catch (e) {
-        console.error("setupUser rejected with ", e);
+        console.error('setupUser rejected with ', e);
         reject(e.message);
       }
     }
@@ -45,17 +58,17 @@ exports.user = functions.https.onRequest((req, res) => {
     // Check Fields
     const params = req.body;
     if (!params || !params.userId) {
-      console.error("Get user failed. Params: ", params);
-      return res.status(400).json({ error: "Ensure all fields are included" });
+      console.error('Get user failed. Params: ', params);
+      return res.status(400).json({ error: 'Ensure all fields are included' });
     }
 
     try {
       // Retrieve user
-      const user = await getUser(params.userId);
-      return res.json(user ? { ...user, status: "success" } : null);
+      const user = await getUser(params.userId, true);
+      return res.json(user ? { ...user, status: 'success' } : null);
     } catch (e) {
-      console.error("user failed. Error: ", e);
-      return res.json({ status: "error", error: e.message });
+      console.error('user failed. Error: ', e);
+      return res.json({ status: 'error', error: e.message });
     }
   });
 });
@@ -65,8 +78,8 @@ exports.notify_event = functions.https.onRequest((req, res) => {
     // Check Fields
     const params = req.body;
     if (!params || !params.userId || !params.keyIndex || !params.encrypted) {
-      console.error("Log event failed. Params: ", params);
-      return res.status(400).json({ error: "Ensure all fields are included" });
+      console.error('Log event failed. Params: ', params);
+      return res.status(400).json({ error: 'Ensure all fields are included' });
     }
 
     try {
@@ -74,23 +87,32 @@ exports.notify_event = functions.https.onRequest((req, res) => {
       const result = await decryptVerify(params.encrypted, params.userId);
 
       if (result && result.verificationResult && result.message) {
-        const deviceId = result.message.type === "offer" ? result.message.providerId : result.message.requesterId;
+        const deviceId =
+          result.message.type === 'offer'
+            ? result.message.providerId
+            : result.message.requesterId;
 
         const transactionId =
-          result.message.type === "offer"
+          result.message.type === 'offer'
             ? result.message.providerTransactionId
             : result.message.requesterTransactionId;
 
         // Store event
-        await logEvent(params.userId, deviceId, transactionId, result.message, result.mam);
+        await logEvent(
+          params.userId,
+          deviceId,
+          transactionId,
+          result.message,
+          result.mam
+        );
         await updateWalletKeyIndex(params.userId, deviceId, params.keyIndex);
-        return res.json({ status: "success" });
+        return res.json({ status: 'success' });
       }
 
-      return res.json({ status: "error" });
+      return res.json({ status: 'error' });
     } catch (e) {
-      console.error("Log event failed.", e);
-      return res.json({ status: "error", error: e.message });
+      console.error('Log event failed.', e);
+      return res.json({ status: 'error', error: e.message });
     }
   });
 });
@@ -99,24 +121,34 @@ exports.events = functions.https.onRequest((req, res) => {
   cors(req, res, async () => {
     // Check Fields
     const params = req.body;
-    if (!params || !params.userId || !params.deviceId || !params.transactionId || !params.apiKey) {
-      console.error("Event request failed. Params: ", params);
-      return res.status(400).json({ error: "Ensure all fields are included" });
+    if (
+      !params ||
+      !params.userId ||
+      !params.deviceId ||
+      !params.transactionId ||
+      !params.apiKey
+    ) {
+      console.error('Event request failed. Params: ', params);
+      return res.status(400).json({ error: 'Ensure all fields are included' });
     }
 
     try {
       // Retrieve user
-      const user = await getUser(params.userId);
+      const user = await getUser(params.userId, true);
 
       // Check correct apiKey
       if (user && user.apiKey && user.apiKey === params.apiKey) {
-        const events = await getEvents(params.userId, params.deviceId, params.transactionId);
-        return res.json({ status: "success", events });
+        const events = await getEvents(
+          params.userId,
+          params.deviceId,
+          params.transactionId
+        );
+        return res.json({ status: 'success', events });
       }
-      return res.json({ status: "error", error: "wrong api key" });
+      return res.json({ status: 'error', error: 'wrong api key' });
     } catch (e) {
-      console.error("Event request failed. Error: ", e);
-      return res.json({ status: "error", error: e.message });
+      console.error('Event request failed. Error: ', e);
+      return res.json({ status: 'error', error: e.message });
     }
   });
 });
@@ -125,35 +157,38 @@ exports.device = functions.https.onRequest((req, res) => {
   cors(req, res, async () => {
     // Check Fields
     const params = req.body;
-    if (!params 
-      || !params.userId 
-      || !params.apiKey
-      || !params.name 
-      || !params.type 
-      || !params.location 
-      || !params.url
-      || !params.minOfferAmount 
-      || !params.maxEnergyPrice 
-      || !params.running 
-      || !params.dashboard
-      || !params.uuid
-      ) {
-      console.error("Device creation request failed. Params: ", params);
-      return res.status(400).json({ error: "Ensure all fields are included" });
+    if (
+      !params ||
+      !params.userId ||
+      !params.apiKey ||
+      !params.name ||
+      !params.type ||
+      !params.location ||
+      !params.url ||
+      !params.minOfferAmount ||
+      !params.maxEnergyPrice ||
+      !params.running ||
+      !params.dashboard ||
+      !params.uuid
+    ) {
+      console.error('Device creation request failed. Params: ', params);
+      return res.status(400).json({ error: 'Ensure all fields are included' });
     }
 
     try {
       const user = await getUser(params.userId, true, true);
-      
+
       // Check correct apiKey
       if (user && user.apiKey && user.apiKey === params.apiKey) {
         const settings = await getSettings();
 
         let wallet;
         let deviceId;
-        let image = "";
+        let image = '';
         const existingDevice = user.devices.find(
-          (dev) => (params.deviceId && dev.id === params.deviceId) || dev.uuid === params.uuid
+          dev =>
+            (params.deviceId && dev.id === params.deviceId) ||
+            dev.uuid === params.uuid
         );
 
         if (existingDevice) {
@@ -175,7 +210,7 @@ exports.device = functions.https.onRequest((req, res) => {
           marketplaceAPI: settings.marketplaceAPI,
           assetId: deviceId,
           assetName: params.name,
-          assetDescription: params.description || "",
+          assetDescription: params.description || '',
           type: params.type,
           assetOwner: user.userId,
           network: settings.tangle.network,
@@ -183,22 +218,25 @@ exports.device = functions.https.onRequest((req, res) => {
           assetWallet: wallet,
           marketplacePublicKey: settings.marketplacePublicKey,
           assetOwnerPublicKey: user.publicKey,
-          status: params.running === true ? "running" : "paused",
-          dashboard: params.dashboard === true ? "enabled" : "disabled",
+          status: params.running === true ? 'running' : 'paused',
+          dashboard: params.dashboard === true ? 'enabled' : 'disabled',
           uuid: params.uuid,
-          url: params.url
-        }
+          url: params.url,
+        };
 
-        console.log("Payload", JSON.stringify(payload));
+        console.log('Payload', JSON.stringify(payload));
 
         // Send payload to device
-        const headers = { "Content-Type": "application/json" };
-        const httpsAgent = new https.Agent({ rejectUnauthorized: false })
+        const headers = { 'Content-Type': 'application/json' };
+        const httpsAgent = new https.Agent({ rejectUnauthorized: false });
         let deviceResponse;
         try {
-          const response = await axios.post(`${params.url}/init`, payload, { headers, httpsAgent });
+          const response = await axios.post(`${params.url}/init`, payload, {
+            headers,
+            httpsAgent,
+          });
           deviceResponse = response;
-          console.log("API", response && JSON.stringify(response.data));
+          console.log('API', response && JSON.stringify(response.data));
         } catch (error) {
           console.error('AXIOS', error);
 
@@ -217,19 +255,20 @@ exports.device = functions.https.onRequest((req, res) => {
         }
 
         // Receive public key
-        if (deviceResponse 
-          && deviceResponse.data 
-          && deviceResponse.data.success 
-          && deviceResponse.data.publicKey 
+        if (
+          deviceResponse &&
+          deviceResponse.data &&
+          deviceResponse.data.success &&
+          deviceResponse.data.publicKey
         ) {
           const device = {
             running: params.running,
             id: deviceId,
             name: params.name,
             url: params.url,
-            description: params.description || "",
+            description: params.description || '',
             publicKey: deviceResponse.data.publicKey,
-            image: image || "",
+            image: image || '',
             type: params.type,
             location: params.location,
             dashboard: params.dashboard,
@@ -241,16 +280,19 @@ exports.device = functions.https.onRequest((req, res) => {
 
           // Store device info
           await setDevice(params.userId, device);
-          return res.json({ status: "success", deviceId });
+          return res.json({ status: 'success', deviceId });
         } else if (!deviceResponse.data.success && deviceResponse.data.error) {
-          return res.json({ status: "error", error: deviceResponse.data.error });
+          return res.json({ status: 'error', error: deviceResponse.data.error });
         }
-        return res.json({ status: "error", error: "Something went wrong" });
+        return res.json({ status: 'error', error: 'Something went wrong' });
       }
-      return res.json({ status: "error", error: "Wrong api key" });
+      return res.json({ status: 'error', error: 'Wrong api key' });
     } catch (e) {
-      console.error("Device creation request failed. Device not reachable", e);
-      return res.json({ status: "error", error: "Device creation request failed. Device not reachable" });
+      console.error('Device creation request failed. Device not reachable', e);
+      return res.json({
+        status: 'error',
+        error: 'Device creation request failed. Device not reachable',
+      });
     }
   });
 });
@@ -259,9 +301,15 @@ exports.image = functions.https.onRequest((req, res) => {
   cors(req, res, async () => {
     // Check Fields
     const params = req.body;
-    if (!params || !params.userId || !params.apiKey || !params.deviceId || !params.image) {
-      console.error("Image upload request failed. Params: ", params);
-      return res.status(400).json({ error: "Ensure all fields are included" });
+    if (
+      !params ||
+      !params.userId ||
+      !params.apiKey ||
+      !params.deviceId ||
+      !params.image
+    ) {
+      console.error('Image upload request failed. Params: ', params);
+      return res.status(400).json({ error: 'Ensure all fields are included' });
     }
 
     try {
@@ -269,38 +317,65 @@ exports.image = functions.https.onRequest((req, res) => {
 
       // Check correct apiKey
       if (user && user.apiKey && user.apiKey === params.apiKey) {
-        const device = user.devices.find((dev) => dev.id === params.deviceId);
+        const device = user.devices.find(dev => dev.id === params.deviceId);
         // Receive public key
         if (device) {
           // Update device info
           await setDevice(params.userId, { ...device, image: params.image });
-          return res.json({ status: "success" });
+          return res.json({ status: 'success' });
         }
-        return res.json({ status: "error", error: "no device found" });
+        return res.json({ status: 'error', error: 'no device found' });
       }
-      return res.json({ status: "error", error: "wrong api key" });
+      return res.json({ status: 'error', error: 'wrong api key' });
     } catch (e) {
-      console.error("Image upload request failed. Error: ", e);
-      return res.json({ status: "error", error: e.message });
+      console.error('Image upload request failed. Error: ', e);
+      return res.json({ status: 'error', error: e.message });
     }
   });
 });
+
+// exports.transferFunds = functions.https.onRequest((req, res) => {
+//   cors(req, res, async () => {
+//     // Check Fields
+//     const packet = req.body;
+//     if (
+//       (!packet || !packet.receiveAddress,
+//       !packet.address || !packet.seed || !packet.keyIndex)
+//     ) {
+//       console.error('transferFunds failed. Receiving Address: ', packet.address);
+//       return res.status(400).json({ error: 'Malformed Request' });
+//     }
+
+//     try {
+//       const transactions = await transferFunds(
+//         packet.receiveAddress,
+//         packet.address,
+//         packet.seed,
+//         packet.keyIndex
+//       );
+//       return res.json({ transactions });
+//     } catch (e) {
+//       console.error('transferFunds failed. Error: ', e.message);
+//       return res.json({ status: 'error', error: e.message });
+//     }
+//   });
+// });
 
 exports.faucet = functions.https.onRequest((req, res) => {
   cors(req, res, async () => {
     // Check Fields
     const packet = req.body;
     if (!packet || !packet.address) {
-      console.error("faucet failed. Receiving Address: ", packet.address);
-      return res.status(400).json({ error: "Malformed Request" });
+      console.error('faucet failed. Receiving Address: ', packet.address);
+      return res.status(400).json({ error: 'Malformed Request' });
     }
 
     try {
-      const transactions = await faucet(packet.address);
+      const transactions = await faucet(packet.address, packet.userId);
       return res.json({ transactions });
     } catch (e) {
-      console.error("faucet failed. Error: ", e.message);
-      return res.json({ status: "error", error: e.message });
+      console.error('faucet failed. Error: ', e.message);
+      return res.json({ status: 'error', error: e.message });
     }
   });
 });
@@ -310,16 +385,16 @@ exports.balance = functions.https.onRequest((req, res) => {
     // Check Fields
     const packet = req.body;
     if (!packet || !packet.address) {
-      console.error("balance failed. Receiving Address: ", packet.address);
-      return res.status(400).json({ error: "Malformed Request" });
+      console.error('balance failed. Receiving Address: ', packet.address);
+      return res.status(400).json({ error: 'Malformed Request' });
     }
 
     try {
       const balance = await getBalance(packet.address);
       return res.json({ balance });
     } catch (e) {
-      console.error("balance failed. Error: ", e.message);
-      return res.json({ status: "error", error: e.message });
+      console.error('balance failed. Error: ', e.message);
+      return res.json({ status: 'error', error: e.message });
     }
   });
 });
@@ -329,8 +404,8 @@ exports.info = functions.https.onRequest((req, res) => {
     // Check Fields
     const params = req.body;
     if (!params || !params.userId || !params.apiKey || !params.deviceId) {
-      console.error("Device info request failed. Params: ", params);
-      return res.status(400).json({ error: "Ensure all fields are included" });
+      console.error('Device info request failed. Params: ', params);
+      return res.status(400).json({ error: 'Ensure all fields are included' });
     }
 
     try {
@@ -342,13 +417,13 @@ exports.info = functions.https.onRequest((req, res) => {
         if (error) {
           throw new Error(error);
         } else {
-          return res.json({ status: "success", device });
+          return res.json({ status: 'success', device });
         }
       }
-      return res.json({ status: "error", error: "Wrong api key" });
+      return res.json({ status: 'error', error: 'Wrong api key' });
     } catch (e) {
-      console.error("Device info request failed", e);
-      return res.json({ status: "error", error: e.message });
+      console.error('Device info request failed', e);
+      return res.json({ status: 'error', error: e.message });
     }
   });
 });
@@ -358,23 +433,26 @@ exports.transactions = functions.https.onRequest((req, res) => {
     // Check Fields
     const params = req.body;
     if (!params || !params.userId || !params.deviceId || !params.apiKey) {
-      console.error("Transactions request failed. Params: ", params);
-      return res.status(400).json({ error: "Ensure all fields are included" });
+      console.error('Transactions request failed. Params: ', params);
+      return res.status(400).json({ error: 'Ensure all fields are included' });
     }
 
     try {
       // Retrieve user
-      const user = await getUser(params.userId);
+      const user = await getUser(params.userId, true);
 
       // Check correct apiKey
       if (user && user.apiKey && user.apiKey === params.apiKey) {
-        const transactions = await getTransactions(params.userId, params.deviceId);
-        return res.json({ status: "success", transactions });
+        const transactions = await getTransactions(
+          params.userId,
+          params.deviceId
+        );
+        return res.json({ status: 'success', transactions });
       }
-      return res.json({ status: "error", error: "wrong api key" });
+      return res.json({ status: 'error', error: 'wrong api key' });
     } catch (e) {
-      console.error("Transactions request failed. Error: ", e);
-      return res.json({ status: "error", error: e.message });
+      console.error('Transactions request failed. Error: ', e);
+      return res.json({ status: 'error', error: e.message });
     }
   });
 });
@@ -384,8 +462,8 @@ exports.fund = functions.https.onRequest((req, res) => {
     // Check Fields
     const params = req.body;
     if (!params || !params.userId || !params.keyIndex || !params.encrypted) {
-      console.error("Log event failed. Params: ", params);
-      return res.status(400).json({ error: "Ensure all fields are included" });
+      console.error('Log event failed. Params: ', params);
+      return res.status(400).json({ error: 'Ensure all fields are included' });
     }
 
     try {
@@ -393,31 +471,38 @@ exports.fund = functions.https.onRequest((req, res) => {
       const result = await decryptVerify(params.encrypted, params.userId);
 
       if (result && result.verificationResult && result.message) {
-        const deviceId = result.message.type === "offer" ? result.message.providerId : result.message.requesterId;
+        const deviceId =
+          result.message.type === 'offer'
+            ? result.message.providerId
+            : result.message.requesterId;
         const user = await getUser(params.userId, true, true);
         const settings = await getSettings();
-  
-        const existingDevice = user.devices.find(device => device.id === deviceId);
+
+        const existingDevice = user.devices.find(
+          device => device.id === deviceId
+        );
 
         if (existingDevice) {
           const { address, balance } = await checkBalance(existingDevice.wallet);
 
           if (balance < settings.deviceWalletAmount) {
-            console.log(`Fund device ${deviceId}, current balance: ${balance}. Wallet address: ${address}`);
+            console.log(
+              `Fund device ${deviceId}, current balance: ${balance}. Wallet address: ${address}`
+            );
             await faucet(address);
-            return res.json({ status: "success" });
+            return res.json({ status: 'success' });
           } else {
-            return res.json({ status: "error", error: "enough balance" });
+            return res.json({ status: 'error', error: 'enough balance' });
           }
         } else {
-          return res.json({ status: "error", error: "no device" });
+          return res.json({ status: 'error', error: 'no device' });
         }
       }
 
-      return res.json({ status: "error" });
+      return res.json({ status: 'error' });
     } catch (e) {
-      console.error("Log event failed.", e);
-      return res.json({ status: "error", error: e.message });
+      console.error('Log event failed.', e);
+      return res.json({ status: 'error', error: e.message });
     }
   });
 });

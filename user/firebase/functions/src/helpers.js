@@ -22,20 +22,28 @@ const decryptVerify = async (encrypted, userId) => {
         const encryptionService = EncryptionService();
 
         const decrypted = encryptionService.privateDecrypt(
-          user.privateKey, encrypted
+          user.privateKey,
+          encrypted
         );
 
-        const assetId = decrypted.message && decrypted.message.type === 'offer' 
-          ? decrypted.message && decrypted.message.providerId 
-          : decrypted.message && decrypted.message.requesterId;
+        const assetId =
+          decrypted.message && decrypted.message.type === 'offer'
+            ? decrypted.message && decrypted.message.providerId
+            : decrypted.message && decrypted.message.requesterId;
 
         const device = user.devices.find(asset => asset.id === assetId);
 
         const verificationResult = encryptionService.verifySignature(
-          device.publicKey, decrypted.message, decrypted.signature
-        );  
-              
-        return { verificationResult, message: decrypted.message, mam: decrypted.mam };
+          device.publicKey,
+          decrypted.message,
+          decrypted.signature
+        );
+
+        return {
+          verificationResult,
+          message: decrypted.message,
+          mam: decrypted.mam,
+        };
       }
       throw new Error('No user key');
     } else {
@@ -207,11 +215,18 @@ const repairWallet = async (seed, keyIndex) => {
   }
 };
 
-const faucet = async receiveAddress => {
+const faucet = async (receiveAddress, userId) => {
   const setting = await getSettings();
-  const wallet = setting && setting.wallet;
+  let wallet;
+  if (!userId) {
+    wallet = setting && setting.wallet;
+  } else {
+    const user = await getUser(userId, true);
+    wallet = user.wallet;
+  }
   let { keyIndex, seed, balance } = wallet;
   let address = await generateAddress(seed, keyIndex);
+
   const iotaWalletBalance = await getBalance(address);
 
   if (iotaWalletBalance === 0) {
@@ -245,5 +260,6 @@ module.exports = {
   faucet,
   getBalance,
   repairWallet,
-  checkBalance
+  checkBalance,
+  transferFunds,
 };

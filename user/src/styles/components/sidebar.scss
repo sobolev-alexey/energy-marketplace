@@ -25,7 +25,7 @@
             justify-content: space-between;
             padding-bottom: 10px;
             margin-bottom: 15px;
-            border-bottom: 1px solid #EEF2FA;
+            border-bottom: 1px solid #eef2fa;
             a {
                 color: #c3d0e4;
                 font-weight: 500;
@@ -43,8 +43,10 @@
 
 .logout {
     background: transparent;
+    color: #aab8c2;
+    font-size: 15px;
     &:hover {
-        color: #141414;
+        color: white;
         background: transparent;
         border: none;
         transition: all 0.5s;

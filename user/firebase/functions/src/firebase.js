@@ -1,11 +1,13 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 
-admin.initializeApp(functions.config().firebase);
+// admin.initializeApp(functions.config().firebase);
+admin.initializeApp({
+  credential: admin.credential.cert(require('../admin.json')),
+});
 
 exports.setUser = async (uid, obj) => {
   await admin.firestore().collection('users').doc(uid).set(obj);
-
   return true;
 };
 
@@ -191,37 +193,48 @@ exports.logMessage = async (userId, deviceId, messages) => {
     .firestore()
     .collection(`logs/${userId}/devices/${deviceId}/log`)
     .doc(timestamp)
-    .set({
-      ...messages.map(message => message),
-      timestamp,
-    }, { merge: true });
+    .set(
+      {
+        ...messages.map(message => message),
+        timestamp,
+      },
+      { merge: true }
+    );
 
   return true;
 };
 
 exports.logEvent = async (userId, deviceId, transactionId, event, mam) => {
-  const timestamp = (new Date()).toLocaleString().replace(/\//g, '.');
+  const timestamp = new Date().toLocaleString().replace(/\//g, '.');
 
   // Save logs by user and device
   await admin
     .firestore()
     .collection(`events/${userId}/devices/${deviceId}/transactions`)
     .doc(transactionId)
-    .set({ 
-      transactionId,
-      timestamp
-    }, { merge: true });
+    .set(
+      {
+        transactionId,
+        timestamp,
+      },
+      { merge: true }
+    );
 
   // Save logs by user and device
   await admin
     .firestore()
-    .collection(`events/${userId}/devices/${deviceId}/transactions/${transactionId}/events`)
+    .collection(
+      `events/${userId}/devices/${deviceId}/transactions/${transactionId}/events`
+    )
     .doc(timestamp)
-    .set({ 
-      ...event,
-      mam,
-      timestamp
-    }, { merge: true });
+    .set(
+      {
+        ...event,
+        mam,
+        timestamp,
+      },
+      { merge: true }
+    );
 
   return true;
 };

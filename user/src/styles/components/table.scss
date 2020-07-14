@@ -28,10 +28,6 @@ td:last-child {
     border-spacing: 0 15px;
 }
 
-.ant-table-wrapper {
-    padding-bottom: 40px;
-}
-
 .ant-table-column-sorters span {
     font-weight: 500;
 }
@@ -39,6 +35,47 @@ td:last-child {
 .ant-input-search {
     border-radius: 10px;
     height: 40px;
+}
+
+.ant-pagination-prev {
+    height: 34px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.ant-pagination-next {
+    height: 34px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.ant-pagination-jump-next {
+    height: 34px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.ant-pagination-prev .ant-pagination-item-link,
+.ant-pagination-next .ant-pagination-item-link {
+    border-radius: 5px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.ant-pagination-item {
+    border-radius: 5px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    height: 34px;
+}
+
+.ant-pagination-item a {
+    font-size: 15px;
 }
 
 .ant-table-cell {
@@ -49,12 +86,10 @@ td:last-child {
         font-weight: normal;
         font-size: 14px;
         line-height: 16px;
-
         .primary-row {
             color: #242529;
             margin-bottom: 10px;
         }
-
         .secondary-row {
             color: #878992;
         }

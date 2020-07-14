@@ -4,7 +4,6 @@
     padding: 25px 0px 110px 40px;
     width: 100%;
     flex-flow: column;
-    height: 100%;
 }
 
 .new-device-page-footer {
@@ -119,11 +118,9 @@
 .ant-switch {
     width: 55px;
     background-color: #dc817c;
-
     &:hover {
         background-color: rgb(170, 170, 170);
     }
-
     &.ant-switch-checked {
         background-color: #59ad9e;
     }

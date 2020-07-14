@@ -1,71 +1,81 @@
-import React from "react";
-import { useHistory } from "react-router-dom";
-import { Table } from "antd";
-import { EllipsisOutlined, PlayCircleOutlined, PauseCircleOutlined } from "@ant-design/icons";
+import React from 'react';
+import { useHistory } from 'react-router-dom';
+import { Table } from 'antd';
+import {
+  EllipsisOutlined,
+  PlayCircleOutlined,
+  PauseCircleOutlined,
+} from '@ant-design/icons';
+import { convertAmount } from '../utils/amountConverter';
 
 const overviewTableColumns = [
   {
-    title: "Name",
-    dataIndex: "name",
-    key: "name",
+    title: 'Name',
+    dataIndex: 'name',
+    key: 'name',
     ellipsis: true,
     sorter: (a, b) => a.name.localeCompare(b.name),
     render: (value, row) => (
-      <div className="table-item-wrapper">
-        <span className="primary-row">
-          { value.charAt(0).toUpperCase() + value.slice(1) }
+      <div className='table-item-wrapper'>
+        <span className='primary-row'>
+          {value.charAt(0).toUpperCase() + value.slice(1)}
         </span>
-        <span className="secondary-row">
-          { row.description }
-        </span>
+        <span className='secondary-row'>{row.description}</span>
       </div>
-      
     ),
   },
   {
-    title: "Type",
-    dataIndex: "type",
-    key: "type",
+    title: 'Type',
+    dataIndex: 'type',
+    key: 'type',
     filters: [
-      { text: "Producer", value: "producer" },
-      { text: "Consumer", value: "consumer" },
+      { text: 'Producer', value: 'producer' },
+      { text: 'Consumer', value: 'consumer' },
     ],
     onFilter: (value, record) => record.type.includes(value),
     sorter: (a, b) => a.type.localeCompare(b.type),
-    render: (value) => value.charAt(0).toUpperCase() + value.slice(1),
+    render: value => value.charAt(0).toUpperCase() + value.slice(1),
   },
   {
-    title: "Balance",
-    dataIndex: "balance",
-    key: "balance",
+    title: 'Balance',
+    dataIndex: 'balance',
+    key: 'balance',
     sorter: (a, b) => Number(a) - Number(b),
+    render: value => {
+      if (Number(value)) {
+        const balance = convertAmount(value);
+        return `${balance?.[0] || 0} ${balance?.[1] || 'Iota'}`;
+      } else {
+        return value;
+      }
+    },
   },
   {
-    title: "Status",
-    dataIndex: "running",
-    key: "running",
+    title: 'Status',
+    dataIndex: 'running',
+    key: 'running',
     filters: [
-      { text: "Running", value: "running" },
-      { text: "Paused", value: "paused" },
+      { text: 'Running', value: 'running' },
+      { text: 'Paused', value: 'paused' },
     ],
     onFilter: (value, record) => record.running.includes(value),
-    render: (running) =>
+    render: running =>
       running ? (
-        <span className="text-running">
-          <PlayCircleOutlined className={"icon-running"} /> Running
+        <span className='text-running'>
+          <PlayCircleOutlined className={'icon-running'} /> Running
         </span>
       ) : (
-        <span className="text-paused">
-          <PauseCircleOutlined className={"icon-paused"} /> Paused
+        <span className='text-paused'>
+          <PauseCircleOutlined className={'icon-paused'} /> Paused
         </span>
       ),
   },
   {
-    key: "x",
+    key: 'x',
     width: 80,
     render: () => (
       <div>
-        <EllipsisOutlined style={{ fontSize: "30px", color: "#aab8c2" }} />
+        <EllipsisOutlined style={{ fontSize: '30px', color: '#aab8c2' }} />
       </div>
     ),
   },
@@ -78,13 +88,12 @@ const DevicesTable = ({ data }) => {
   return (
     <Table
       onRow={record => ({
-          onClick: () => history.push(`/device/${record.id}`),
-        }
-      )}
-      className="ant-table-cell"
-      columns={ overviewTableColumns }
-      dataSource={ data }
-      rowKey={ item => item.id }
+        onClick: () => history.push(`/device/${record.id}`),
+      })}
+      className='ant-table-cell'
+      columns={overviewTableColumns}
+      dataSource={data}
+      rowKey={item => item.id}
       pagination={{ hideOnSinglePage: true }}
     />
   );

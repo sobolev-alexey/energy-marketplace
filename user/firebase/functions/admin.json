@@ -1,0 +1,12 @@
+{
+    "type": "service_account",
+    "project_id": "cityexchange-energymarketplace",
+    "private_key_id": "bf2a6619a20233b6488ec3ea417d4b3db6c56b0e",
+    "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDL5OU1QZWU1vuf\nNs1IYE4/7E2LrWRl6cfArp4JELttJlDPrh979Rkf6BHR1I/tC0pp+zpMVBpb7l0t\njXx5Px4SLxG03kIcysh45HKVdVAPqQzh0wMvxd07G03K5balRyPWPGfRlPcCQPOl\njE+cKr48cRnsK1V3/n4RIKeeInUBxnVVQLLeV4fo5Fu4kMjiJRUEzN3yLtdLByXI\nlZzupb+pHQq7w3wZaszJOtD/F9muqVBLc1Lm4c/5UA8JElQNF6tyngWqnmr6c9h8\nL1GtY39iBQBvrF34MSwYNBGB1H+VxeBUXS7b6pTLiZg/4aixN1Omr9npw8SXWuvF\ncHEJosGtAgMBAAECggEADgxJePLgC68IPr8EdwRTpkNxg4cnaX72L7tlBHp62P/D\n0s5/bG344WIYhpy4a3xuQxqquJzIa1iv/ALi9moEq2IQCT/3zb4KM/IheiGCdtT1\nIA+gb5RlZ4lV22RNjw1CVddrNV1BhSehrq1NKuHzCEnbbF8yXOy6Fa03TBKGfazl\n581zXH7/8vY0ydoOkBp9kzUQ9bZysQhBz3skAlIKJU6J2knucwqXFAygot2EqrNq\ntph6xC3l5MJ7d4xzkemleUixQIwCVj+NFt89mHVi853MkaJBiehnv5Mi9+vOigc5\ndbth89NrMfq89eWNIRJjJWy0NVLYGqqwrzVHL24OrQKBgQDl1NGYkCC4g15kBcqb\n8cmKiO0Ve0lXqyj38CBf0G48yLnPhoD2q3ESOAjAkIbZL0TlWqlOsBPoCNXeENQU\nOngHCcfB2Q6ZA1v2l3VhdhzwTVVQO7kzIDWbViMRSg9mo5zctiF9qzksBXklro5E\n0oZZTSE8vG1wXqFKh/c94ZQQzwKBgQDjHA10HPuEHos7TzFT+Eq1n4WD7tEn+yNg\n39qPBv3qteVNjY6tYNqkUV+y3mfBLgH40w8J+I+g1FLyEhbcwZSH4nXxp3fSeOKx\n3yD7rItXLfPKfwMw3eHSo33hgjYwXsoltJ0oPNPMlzzx77djFhBzeNmNJ1Axan4A\nPmqsy3vMwwKBgFMPj9QoOnsUlxdk9G1Ze7ICfFRoIwB5DixU7w5RoJV9IZH7lT4Q\nhaPE9nzJfsKdD7QoCMo0Xm1cTBaeVFcfLmO0yCmpjVoFWcYLxNM9QYYjHLMLcook\nmNsTzUahUmGQvc8ST5ZAPEBJlhflNutufjll4540pwSWXoo2C0ek78MHAoGAO8cM\ne32Nbk8j0q6bi0CVWYztdbaMcvuValBBlNgASaErA+i4n0YZBpssl0YXBS/48OeM\n09EK7Qg19OVyAxUo5UNkTAEKdum+sZbLdbMK0h2UR756togQgoLqBUtivASXLKmH\nnCm2jelY701rdbc/CUXL7W1lnDwtgh7rsSO2KEUCgYEAjr5USpc1BTL56MkrSIIi\nq3rTdniFxgEKqOWZZmTt6HVJxWLgMaIOxTHrGuvaM8n+X0PrdZ7WkFH/9+CtNMtv\nJNvuNmnSlgedbUluDaZ8XqcVyKczal1/6PwUQzd8KU///LlUQa4p0UyHkmqjE8M3\n7mXIfUb+8dwp9/ZaCZ3OfDo=\n-----END PRIVATE KEY-----\n",
+    "client_email": "firebase-adminsdk-qf8md@cityexchange-energymarketplace.iam.gserviceaccount.com",
+    "client_id": "116798456410591244441",
+    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+    "token_uri": "https://oauth2.googleapis.com/token",
+    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+    "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-qf8md%40cityexchange-energymarketplace.iam.gserviceaccount.com"
+}

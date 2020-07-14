@@ -62,6 +62,11 @@ button {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    &:hover {
+        border: none;
+        color: white;
+        transition: all 0.3s;
+    }
 }
 
 .cta3 {
@@ -153,9 +158,9 @@ button {
 .ant-btn {
     border-radius: 20px;
     width: 90px;
-    background: #3A3D42;
+    background: #3a3d42;
     color: white;
-    border: #3A3D42;
+    border: #3a3d42;
     &:hover {
         background: #141414;
         border: #141414;
