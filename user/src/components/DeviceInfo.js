@@ -17,9 +17,12 @@ const DeviceInfo = ({ device, transactions }) => {
   const [loading, setLoading] = useState(false);
   const [deviceBalance, setDeviceBalance] = useState();
   const [error, setError] = useState('');
-  const [show, setShow] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
+    if (!loading) {
+      getBalance();
+    }
     async function getBalance() {
       try {
         const response = await callApi('balance', device?.wallet);
@@ -29,16 +32,16 @@ const DeviceInfo = ({ device, transactions }) => {
           response?.balance
         ) {
           setDeviceBalance(convertAmount(Number(response?.balance)));
+          device.wallet.balance = convertAmount(Number(response?.balance))[0];
         } else {
           console.log('Balance ERROR', response?.error);
           setError(response?.error);
-          setShow(true);
+          setShowModal(true);
         }
       } catch (err) {
         console.error('Error while getting wallet balance', err);
       }
     }
-    getBalance();
   }, [loading]);
 
   const addDeviceFunds = async () => {
@@ -62,7 +65,7 @@ const DeviceInfo = ({ device, transactions }) => {
         } else {
           console.log('ERROR', response?.error);
           setError(response?.error);
-          setShow(true);
+          setShowModal(true);
         }
         setLoading(false);
       }
@@ -94,10 +97,6 @@ const DeviceInfo = ({ device, transactions }) => {
   }, [transactions]); // eslint-disable-line react-hooks/exhaustive-deps
 
   console.log('transactions Device info', transactions);
-  console.log('DEVICE', device);
-  console.log('USER', user);
-  console.log('USER SEED', user?.wallet);
-
   return (
     <div className='device-info'>
       <Row gutter={20}>
@@ -141,7 +140,6 @@ const DeviceInfo = ({ device, transactions }) => {
                 <React.Fragment>
                   <h1>
                     {deviceBalance?.[0]}
-                    <span className='wallet-balance3'>{deviceBalance?.[1]}</span>
                     <span className='wallet-balance3-device'> Iota </span>
                   </h1>
                   <br />
@@ -151,11 +149,20 @@ const DeviceInfo = ({ device, transactions }) => {
                       onClick={() => addDeviceFunds()}>
                       Add funds
                     </button>
-                    <Link to='/wallet' className='cta-device-withdraw'>
+                    {/* <Link to='/wallet' className='cta-device-withdraw'>
                       Withdraw
-                    </Link>
+                    </Link> */}
+                    <button className='cta-device-withdraw' onClick={() => {}}>
+                      Withdraw
+                    </button>
                   </Space>
-                  <CustomModal show={show} error={error} />
+                  {showModal && (
+                    <CustomModal
+                      error={error}
+                      callback={() => setShowModal(false)}
+                      show={showModal}
+                    />
+                  )}
                 </React.Fragment>
               )}
             </div>

@@ -15,33 +15,36 @@ const Sidebar = () => {
   const [loading, setLoading] = useState(false);
   const [userBalance, setUserBalance] = useState();
   const [error, setError] = useState('');
-  const [show, setShow] = useState(false);
-
-  // const balance = convertAmount(Number(user?.wallet?.balance));
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
+    if (!loading) {
+      getBalance();
+    }
     async function getBalance() {
       try {
         let user = await localStorage.getItem('user');
         user = JSON.parse(user);
-
+        console.log('LOCAL USER', user);
         const response = await callApi('balance', user?.wallet);
+
         if (
           !response?.error &&
           response?.status !== 'error' &&
           response?.balance
         ) {
           setUserBalance(convertAmount(Number(response?.balance)));
+          user.wallet.balance = convertAmount(Number(response?.balance))[0];
+          await localStorage.setItem('user', JSON.stringify(user));
         } else {
           console.log('Balance error', response?.error);
           setError(response?.error);
-          setShow(true);
+          setShowModal(true);
         }
       } catch (err) {
         console.error('Error while getting wallet balance', err);
       }
     }
-    getBalance();
   }, [loading]);
 
   const addFunds = async () => {
@@ -56,9 +59,39 @@ const Sidebar = () => {
       } else {
         console.log('Error', response?.error);
         setError(response?.error);
-        setShow(true);
+        setShowModal(true);
       }
       setLoading(false);
+    } catch (err) {
+      console.error('Error while adding funds', err);
+    }
+  };
+
+  const withdraw = async () => {
+    setLoading(true);
+    try {
+      let user = await localStorage.getItem('user');
+      user = JSON.parse(user);
+
+      if (user?.userId) {
+        const payload = {
+          wallet: user?.wallet,
+          userId: user.userId,
+        };
+        const response = await callApi('faucet', payload);
+
+        if (
+          !response?.error &&
+          response?.status !== 'error' &&
+          response?.transactions
+        ) {
+        } else {
+          console.log('ERROR', response?.error);
+          setError(response?.error);
+          setShowModal(true);
+        }
+        setLoading(false);
+      }
     } catch (err) {
       console.error('Error while adding funds', err);
     }
@@ -70,9 +103,6 @@ const Sidebar = () => {
     history.push('/');
   };
 
-  console.log('User balance', userBalance);
-  console.log('User', user);
-  console.log('User wallet', user?.wallet);
   return (
     <div className='sidebar-wrapper'>
       <Link to='/'>
@@ -86,17 +116,22 @@ const Sidebar = () => {
           <h1 className='wallet-balance'>
             {userBalance?.[0]}
             <span className='wallet-balance3'>{userBalance?.[1]}</span>
-            {console.log('User balance', userBalance)}
             <span className='wallet-balance3'> Iota </span>
           </h1>
           <br />
           <button className='custom-button' onClick={() => addFunds()}>
             Add funds
           </button>
-          <Link to='/wallet' className='cta'>
+          <button className='custom-button-withdraw' onClick={() => withdraw()}>
             Withdraw
-          </Link>
-          <CustomModal show={show} error={error} />
+          </button>
+          {showModal && (
+            <CustomModal
+              error={error}
+              callback={() => setShowModal(false)}
+              show={showModal}
+            />
+          )}
         </div>
       )}
       <div className='sidebar-footer'>

@@ -58,6 +58,19 @@
     margin-bottom: 15px;
 }
 
+.custom-button-withdraw {
+    font-weight: 500;
+    margin-bottom: 15px;
+    background: #242529;
+    border: 1px solid #f4f8f9;
+    color: #ffffff;
+    &:hover {
+        background: #242529;
+        border: 1px solid black;
+        transition: all 0.2s;
+    }
+}
+
 .main-wallet-text {
     color: white;
     font-weight: 300;

@@ -1,18 +1,18 @@
-import React, { useEffect, useState, useContext } from "react";
-import { Input, Select, Divider } from "antd";
-import { AppContext } from "../context/globalState";
-import callApi from "../utils/callApi";
-import { Layout, Loading, DevicesTable, OverviewHeader } from "../components";
+import React, { useEffect, useState, useContext } from 'react';
+import { Input, Select, Divider } from 'antd';
+import { AppContext } from '../context/globalState';
+import callApi from '../utils/callApi';
+import { Layout, Loading, DevicesTable, OverviewHeader } from '../components';
 
 const { Search } = Input;
 const { Option } = Select;
 
 const Overview = () => {
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
   const [devices, setDevices] = useState([]);
   const [filteredDevices, setFilteredDevices] = useState([]);
-  const [sortValue, setSortValue] = useState("");
+  const [sortValue, setSortValue] = useState('');
   const { user, setUser } = useContext(AppContext);
 
   useEffect(() => {
@@ -22,14 +22,19 @@ const Overview = () => {
           const response = await callApi('user', { userId: user?.userId });
 
           if (!response?.error && response?.status !== 'error') {
-            const devices = response?.devices?.map(device => ({ ...device, key: device.id, balance: device?.wallet?.balance }));
+            const devices = response?.devices?.map(device => ({
+              ...device,
+              key: device.id,
+              balance: device?.wallet?.balance,
+            }));
             setDevices(devices);
             setUser(response);
             const userData = { ...response, userId: user?.userId };
             delete userData?.devices;
-            await localStorage.setItem("user", JSON.stringify(userData));
+            await localStorage.setItem('user', JSON.stringify(userData));
+            console.log('LOCAL USER DATA OVERVIEW', userData);
           } else {
-            console.error("Error loading user data", response?.error);
+            console.error('Error loading user data', response?.error);
           }
           setLoading(false);
         }
@@ -37,48 +42,57 @@ const Overview = () => {
         console.error('Error while loading user data', err);
       }
     }
-    
+
     loadUser();
   }, [user?.userId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    setFilteredDevices(devices.filter((device) => device.name.toLowerCase().includes(searchQuery.toLowerCase())));
+    setFilteredDevices(
+      devices.filter(device =>
+        device.name.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    );
   }, [searchQuery, devices, sortValue]);
 
-  const setDevicesSort = (value) => {
-    if (value === "A-Z") {
-      setSortValue("A-Z");
+  const setDevicesSort = value => {
+    if (value === 'A-Z') {
+      setSortValue('A-Z');
       setFilteredDevices(devices.sort((a, b) => a.name.localeCompare(b.name)));
     } else {
-      setSortValue("Z-A");
-      setFilteredDevices(devices.sort((a, b) => a.name.localeCompare(b.name)).reverse());
+      setSortValue('Z-A');
+      setFilteredDevices(
+        devices.sort((a, b) => a.name.localeCompare(b.name)).reverse()
+      );
     }
   };
 
   return (
     <Layout>
       <OverviewHeader />
-      <div className="overview-page-wrapper">
+      <div className='overview-page-wrapper'>
         {loading ? (
           <Loading />
         ) : (
           <div>
-            <div className="overview-sub-header-wrapper">
-              <Select defaultValue="A-Z" style={{ width: "188px" }} onChange={setDevicesSort}>
-                <Option value="A-Z">Sort by: A-Z</Option>
-                <Option value="Z-A">Sort by: Z-A</Option>
+            <div className='overview-sub-header-wrapper'>
+              <Select
+                defaultValue='A-Z'
+                style={{ width: '188px' }}
+                onChange={setDevicesSort}>
+                <Option value='A-Z'>Sort by: A-Z</Option>
+                <Option value='Z-A'>Sort by: Z-A</Option>
               </Select>
 
               <Search
-                placeholder="Search for devices"
-                onChange={(e) => {
+                placeholder='Search for devices'
+                onChange={e => {
                   setSearchQuery(e.target.value);
                 }}
                 style={{ width: 300 }}
               />
             </div>
             <div>
-              <Divider className={"divider"} />
+              <Divider className={'divider'} />
               <DevicesTable data={filteredDevices} />
             </div>
           </div>
