@@ -402,7 +402,7 @@ exports.fund = functions.https.onRequest((req, res) => {
       const result = await decryptVerify(params.encrypted, params.userId);
 
       if (result && result.verificationResult && result.message) {
-        const deviceId = result.message.type === "offer" ? result.message.providerId : result.message.requesterId;
+        const deviceId = result.message.assetId;
         const user = await getUser(params.userId, true, true);
         const settings = await getSettings();
   
