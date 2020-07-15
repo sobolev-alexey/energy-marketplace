@@ -87,6 +87,8 @@ const NewDeviceForm = ({ device = {}, callback = null }) => {
       hideRequiredMark
       initialValues={{
         uuid: "ac4a33f0-ee20-41e4-9fcd-9f91ecf77d0f",
+        running: true,
+        dashboard: false,
         ...device
       }}
     >
