@@ -94,11 +94,13 @@ const Device = () => {
         }
 
         setLoading(true);
+        
         const response = await callApi('device', payload);
-
         if (response?.error || response?.status === 'error') {
           console.error("Error while deleting device", response?.error);
         }
+
+        setDevice(device => ({ ...device, running: !device.running }));
         setLoading(false);
       }
     } catch (err) {
