@@ -14,8 +14,8 @@ const DeviceInfo = ({ device, transactions }) => {
 
   useEffect(() => {
     const transactionsCount = transactions && Object.keys(transactions)?.length;
-    if (transactions && transactionsCount > 0) {
-      setTotal(transactionsCount);
+    if (typeof transactions === 'object') {
+      setTotal(transactionsCount || 0);
 
       let totalEnergy = 0;
       let totalPrice = 0;
@@ -29,12 +29,11 @@ const DeviceInfo = ({ device, transactions }) => {
           }
         })
       });
-      setEnergy(totalEnergy);
+      setEnergy(totalEnergy || 0);
       setPrice((totalPrice / totalCount || 0).toFixed(2));
     }
   }, [transactions]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  console.log('transactions', transactions);
   const balance = convertAmount(Number(device?.wallet?.balance));
 
   return (
@@ -92,7 +91,7 @@ const DeviceInfo = ({ device, transactions }) => {
               : <span> ENERGY PRODUCED </span>
             }
             <h1 className="transaction-info-device">
-              { !energy ? (
+              { energy === undefined ? (
                 <Loading />
               ) : (
                 <React.Fragment>
@@ -106,7 +105,7 @@ const DeviceInfo = ({ device, transactions }) => {
           <Card hoverable className="device-info-card">
             <span> TOTAL TRANSACTIONS </span> 
             <h1 className="transaction-info-device"> 
-              { !total ? (
+              { total === undefined ? (
                 <Loading />
               ) : (
                 <React.Fragment>
@@ -120,7 +119,7 @@ const DeviceInfo = ({ device, transactions }) => {
           <Card hoverable className="device-info-card">
             <span> AVERAGE ENERGY PRICE </span>
             <h1 className="transaction-info-device">
-              { !total ? (
+              { price === undefined ? (
                 <Loading />
               ) : (
                 <React.Fragment>
