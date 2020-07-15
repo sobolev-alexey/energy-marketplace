@@ -159,7 +159,6 @@ exports.device = functions.https.onRequest((req, res) => {
 
         let wallet;
         let deviceId;
-        let image = "";
         const existingDevice = user.devices.find(
           (dev) => (params.deviceId && dev.id === params.deviceId) || dev.uuid === params.uuid
         );
@@ -167,7 +166,6 @@ exports.device = functions.https.onRequest((req, res) => {
         if (existingDevice) {
           wallet = existingDevice && existingDevice.wallet;
           deviceId = existingDevice && existingDevice.id;
-          image = existingDevice && existingDevice.image;
         } else {
           // Create device wallet
           wallet = await getNewWallet();
@@ -237,7 +235,7 @@ exports.device = functions.https.onRequest((req, res) => {
             url: params.url,
             description: params.description || "",
             publicKey: deviceResponse.data.publicKey,
-            image: image || "",
+            image: params.image || "",
             type: params.type,
             location: params.location,
             dashboard: params.dashboard,
@@ -425,7 +423,7 @@ exports.fund = functions.https.onRequest((req, res) => {
 
       return res.json({ status: "error" });
     } catch (e) {
-      console.error("Log event failed.", e);
+      console.error("Fund device failed.", e);
       return res.json({ status: "error", error: e.message });
     }
   });
