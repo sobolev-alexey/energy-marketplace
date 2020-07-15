@@ -32,7 +32,6 @@ const Overview = () => {
             const userData = { ...response, userId: user?.userId };
             delete userData?.devices;
             await localStorage.setItem('user', JSON.stringify(userData));
-            console.log('LOCAL USER DATA OVERVIEW', userData);
           } else {
             console.error('Error loading user data', response?.error);
           }

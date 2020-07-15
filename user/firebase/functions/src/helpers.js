@@ -4,7 +4,6 @@ const {
   composeAPI,
   FailMode,
   LinearWalkStrategy,
-  RandomWalkStrategy,
   SuccessMode,
 } = require('@iota/client-load-balancer');
 const {
@@ -224,7 +223,6 @@ const repairWallet = async (seed, keyIndex) => {
 const withdraw = async (userId, deviceId) => {
   const setting = await getSettings();
   const user = await getUser(userId, true);
-  const device = await getDevice(user.userId, deviceId);
   let wallet;
   let receiveAddress = '';
 
@@ -232,6 +230,7 @@ const withdraw = async (userId, deviceId) => {
     wallet = setting && user.wallet;
     receiveAddress = setting.wallet.address;
   } else {
+    const device = await getDevice(user.userId, deviceId);
     wallet = setting && device.wallet;
     receiveAddress = user.wallet.address;
   }

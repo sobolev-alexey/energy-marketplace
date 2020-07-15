@@ -34,7 +34,7 @@ const DeviceInfo = ({ device, transactions }) => {
           setDeviceBalance(convertAmount(Number(response?.balance)));
           device.wallet.balance = convertAmount(Number(response?.balance))[0];
         } else {
-          console.log('Balance ERROR', response?.error);
+          console.log('Balance error', response?.error);
           setError(response?.error);
           setShowModal(true);
         }

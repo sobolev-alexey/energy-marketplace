@@ -25,7 +25,6 @@ const Sidebar = () => {
       try {
         let user = await localStorage.getItem('user');
         user = JSON.parse(user);
-        console.log('LOCAL USER', user);
         const response = await callApi('balance', user?.wallet);
 
         if (
