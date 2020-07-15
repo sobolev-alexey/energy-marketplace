@@ -204,8 +204,8 @@ const repairWallet = async (seed, keyIndex) => {
 };
 
 const faucet = async receiveAddress => {
-  const setting = await getSettings();
-  const wallet = setting && setting.wallet;
+  const settings = await getSettings();
+  const wallet = settings && settings.wallet;
   let { keyIndex, seed } = wallet;
   let address = await generateAddress(seed, keyIndex);
   const iotaWalletBalance = await getBalance(address);

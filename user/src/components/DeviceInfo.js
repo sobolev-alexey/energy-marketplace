@@ -43,7 +43,7 @@ const DeviceInfo = ({ device, transactions }) => {
           <Card
             className="device-overview-card"
             hoverable
-            cover={<img className="device-image" alt="example" src={device?.image} />}
+            cover={device?.image && <img className="device-image" alt="image" src={device?.image} />}
           >
             <Meta title={device?.name.charAt(0).toUpperCase() + device?.name.slice(1)} description={(
               <div className="description">
