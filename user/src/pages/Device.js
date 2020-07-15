@@ -11,7 +11,7 @@ const Device = () => {
   let history = useHistory();
   const { deviceId } = useParams();
   const [device, setDevice] = useState();
-  const [transactions, setTransactions] = useState([]);
+  const [transactions, setTransactions] = useState();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
