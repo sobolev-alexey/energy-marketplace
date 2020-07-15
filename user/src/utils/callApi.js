@@ -7,8 +7,6 @@ const callApi = async (url, payload) => {
       "Content-Type": "application/json",
     };
     const response = await axios.post(`${serverAPI}/${url}`, payload, { headers });
-    console.log("API", response?.data);
-
     return response?.data;
   } catch (error) {
     return { error };

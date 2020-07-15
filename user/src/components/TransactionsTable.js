@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useRef } from "react";
 import { Table, Input, Button, Space } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import { MessageList } from ".";
@@ -119,15 +119,10 @@ const TransactionsTable = ({ data }) => {
     },
   ];
   
-
-  console.log(444, data && Object.keys(data).length, data);
-
   const items = data && Object.keys(data)
     .map(key => data[key]
     .sort((a, b) => b.timestamp.localeCompare(a.timestamp))[0]
   );
-
-  console.log(555, items);
 
   const handleSearch = confirm => {
     confirm();
