@@ -4,8 +4,6 @@ import { SearchOutlined } from "@ant-design/icons";
 import { MessageList } from ".";
 
 const TransactionsTable = ({ data }) => {
-  const [searchText, setSearchText] = useState('');
-  const [searchedColumn, setSearchedColumn] = useState('');
   const searchInput = useRef(null);
 
   const getColumnSearchProps = dataIndex => ({
@@ -16,13 +14,13 @@ const TransactionsTable = ({ data }) => {
           placeholder={dataIndex.charAt(0).toUpperCase() + dataIndex.slice(1)}
           value={selectedKeys[0]}
           onChange={e => setSelectedKeys(e.target.value ? [e.target.value] : [])}
-          onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
+          onPressEnter={() => handleSearch(confirm)}
           style={{ width: 200, marginBottom: 8, display: 'block' }}
         />
         <Space>
           <Button
             type="primary"
-            onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
+            onClick={() => handleSearch(confirm)}
             icon={<SearchOutlined />}
             size="small"
             style={{ width: 90 }}
@@ -131,15 +129,12 @@ const TransactionsTable = ({ data }) => {
 
   console.log(555, items);
 
-  const handleSearch = (selectedKeys, confirm, dataIndex) => {
+  const handleSearch = confirm => {
     confirm();
-    setSearchText(selectedKeys[0]);
-    setSearchedColumn(dataIndex);
   };
 
   const handleReset = clearFilters => {
     clearFilters();
-    setSearchText('');
   };
 
   return (
