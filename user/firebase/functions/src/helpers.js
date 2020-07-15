@@ -10,9 +10,11 @@ const {
 const {
   getSettings,
   getUser,
+  getDevice,
   updateWalletAddressKeyIndex,
 } = require('./firebase');
 const { EncryptionService } = require('./encryption');
+const { settings } = require('cluster');
 
 const decryptVerify = async (encrypted, userId) => {
   try {
@@ -126,6 +128,11 @@ const transferFunds = async (
     const security = settings.tangle.security;
     const balance = await getBalance(address);
 
+    console.log('receiveAddress', receiveAddress);
+    console.log('address', address);
+    console.log('keyIndex', keyIndex);
+    console.log('seed', seed);
+
     // Depth or how far to go for tip selection entry point
     const depth = settings.tangle.depth;
 
@@ -215,14 +222,53 @@ const repairWallet = async (seed, keyIndex) => {
   }
 };
 
+const withdraw = async (userId, deviceId) => {
+  const setting = await getSettings();
+  const user = await getUser(userId, true);
+  let wallet;
+  let receiveAddress = '';
+
+  if (!deviceId) {
+    wallet = setting && user.wallet;
+    receiveAddress = setting.wallet.address;
+  } else {
+    const device = await getDevice(userId, deviceId);
+    wallet = setting && device.wallet;
+    receiveAddress = user.wallet.address;
+  }
+  let { keyIndex, seed, balance } = wallet;
+  let address = await generateAddress(seed, keyIndex);
+
+  const iotaWalletBalance = await getBalance(address);
+
+  if (iotaWalletBalance === 0) {
+    const newIotaWallet = await repairWallet(seed, keyIndex);
+    if (newIotaWallet && newIotaWallet.address && newIotaWallet.keyIndex) {
+      address = newIotaWallet.address;
+      keyIndex = newIotaWallet.keyIndex;
+    }
+  }
+
+  return await transferFunds(
+    receiveAddress,
+    address,
+    keyIndex,
+    seed,
+    balance,
+    updateWalletAddressKeyIndex
+  );
+};
+
 const faucet = async (receiveAddress, userId) => {
   const setting = await getSettings();
+  console.log('Settings Device wallet amount', setting.deviceWalletAmount);
+  console.log('Settings User wallet amount', setting.userWalletAmount);
   let wallet;
   if (!userId) {
     wallet = setting && setting.wallet;
   } else {
     const user = await getUser(userId, true);
-    wallet = user.wallet;
+    wallet = setting && user.wallet;
   }
   let { keyIndex, seed, balance } = wallet;
   let address = await generateAddress(seed, keyIndex);
@@ -262,4 +308,5 @@ module.exports = {
   repairWallet,
   checkBalance,
   transferFunds,
+  withdraw,
 };

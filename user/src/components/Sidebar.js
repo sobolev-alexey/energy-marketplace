@@ -67,7 +67,7 @@ const Sidebar = () => {
     }
   };
 
-  const withdraw = async () => {
+  const userWithdraw = async () => {
     setLoading(true);
     try {
       let user = await localStorage.getItem('user');
@@ -75,10 +75,9 @@ const Sidebar = () => {
 
       if (user?.userId) {
         const payload = {
-          wallet: user?.wallet,
           userId: user.userId,
         };
-        const response = await callApi('faucet', payload);
+        const response = await callApi('withdraw', payload);
 
         if (
           !response?.error &&
@@ -122,7 +121,9 @@ const Sidebar = () => {
           <button className='custom-button' onClick={() => addFunds()}>
             Add funds
           </button>
-          <button className='custom-button-withdraw' onClick={() => withdraw()}>
+          <button
+            className='custom-button-withdraw'
+            onClick={() => userWithdraw()}>
             Withdraw
           </button>
           {showModal && (

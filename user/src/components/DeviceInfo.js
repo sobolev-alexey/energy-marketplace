@@ -74,6 +74,36 @@ const DeviceInfo = ({ device, transactions }) => {
     }
   };
 
+  const deviceWithdraw = async () => {
+    setLoading(true);
+    try {
+      let user = await localStorage.getItem('user');
+      user = JSON.parse(user);
+
+      if (user?.userId && device?.deviceId) {
+        const payload = {
+          userId: user.userId,
+          deviceId: device.deviceId,
+        };
+        const response = await callApi('withdraw', payload);
+
+        if (
+          !response?.error &&
+          response?.status !== 'error' &&
+          response?.transactions
+        ) {
+        } else {
+          console.log('ERROR', response?.error);
+          setError(response?.error);
+          setShowModal(true);
+        }
+        setLoading(false);
+      }
+    } catch (err) {
+      console.error('Error while adding funds', err);
+    }
+  };
+
   useEffect(() => {
     const transactionsCount = transactions && Object.keys(transactions)?.length;
     if (transactions && transactionsCount > 0) {
@@ -139,7 +169,7 @@ const DeviceInfo = ({ device, transactions }) => {
               ) : (
                 <React.Fragment>
                   <h1>
-                    {deviceBalance?.[0]}
+                    {deviceBalance?.[0] || 0}
                     <span className='wallet-balance3-device'> Iota </span>
                   </h1>
                   <br />
@@ -152,7 +182,9 @@ const DeviceInfo = ({ device, transactions }) => {
                     {/* <Link to='/wallet' className='cta-device-withdraw'>
                       Withdraw
                     </Link> */}
-                    <button className='cta-device-withdraw' onClick={() => {}}>
+                    <button
+                      className='cta-device-withdraw'
+                      onClick={() => deviceWithdraw()}>
                       Withdraw
                     </button>
                   </Space>

@@ -3,248 +3,239 @@ const admin = require('firebase-admin');
 
 // admin.initializeApp(functions.config().firebase);
 admin.initializeApp({
-  credential: admin.credential.cert(require('../admin.json')),
+    credential: admin.credential.cert(require('../admin.json')),
 });
 
-exports.setUser = async (uid, obj) => {
-  await admin.firestore().collection('users').doc(uid).set(obj);
-  return true;
+exports.setUser = async(uid, obj) => {
+    await admin.firestore().collection('users').doc(uid).set(obj);
+    return true;
 };
 
-exports.setDevice = async (userId, device) => {
-  await admin
-    .firestore()
-    .collection(`users/${userId}/devices`)
-    .doc(device.id)
-    .set(device, { merge: true });
+exports.setDevice = async(userId, device) => {
+    await admin
+        .firestore()
+        .collection(`users/${userId}/devices`)
+        .doc(device.id)
+        .set(device, { merge: true });
 
-  return true;
+    return true;
 };
 
-exports.getUser = async (userId, internal = false, wallet = false) => {
-  // Get user
-  const userDocument = await admin
-    .firestore()
-    .collection('users')
-    .doc(userId)
-    .get();
+exports.getUser = async(userId, internal = false, wallet = false) => {
+    // Get user
+    const userDocument = await admin
+        .firestore()
+        .collection('users')
+        .doc(userId)
+        .get();
 
-  // Check and return user
-  if (userDocument.exists) {
-    const user = userDocument.data();
-
-    if (!internal) {
-      delete user.privateKey;
-      delete user.publicKey;
-      delete user.userId;
-    }
-
-    if (user.wallet && !internal) {
-      delete user.wallet.seed;
-      delete user.wallet.keyIndex;
-    }
-
-    // Get user devices
-    const devicesSnapshot = await admin
-      .firestore()
-      .collection('users')
-      .doc(userId)
-      .collection('devices')
-      .get();
-
-    user.devices = devicesSnapshot.docs.map(document => {
-      if (document.exists) {
-        const device = document.data();
+    // Check and return user
+    if (userDocument.exists) {
+        const user = userDocument.data();
 
         if (!internal) {
-          delete device.publicKey;
+            delete user.privateKey;
+            delete user.publicKey;
+            delete user.userId;
         }
 
-        if (device.wallet && !wallet) {
-          delete device.wallet.seed;
-          delete device.wallet.keyIndex;
+        if (user.wallet && !internal) {
+            delete user.wallet.seed;
+            delete user.wallet.keyIndex;
         }
 
-        delete device.key;
-        return device;
-      } else {
-        return null;
-      }
+        // Get user devices
+        const devicesSnapshot = await admin
+            .firestore()
+            .collection('users')
+            .doc(userId)
+            .collection('devices')
+            .get();
+
+        user.devices = devicesSnapshot.docs.map(document => {
+            if (document.exists) {
+                const device = document.data();
+
+                if (!internal) {
+                    delete device.publicKey;
+                }
+
+                if (device.wallet && !wallet) {
+                    delete device.wallet.seed;
+                    delete device.wallet.keyIndex;
+                }
+
+                delete device.key;
+                return device;
+            } else {
+                return null;
+            }
+        });
+
+        return user;
+    }
+
+    console.log('User not in DB:', userId);
+    return null;
+};
+
+exports.getTransactions = async(userId, deviceId) => {
+    // Get device's events
+    const transactionsSnapshot = await admin
+        .firestore()
+        .collection(`events/${userId}/devices/${deviceId}/transactions/`)
+        .limit(150)
+        .get();
+
+    const transactions = {};
+    const promises = [];
+    transactionsSnapshot.forEach(transactionSnapshot => {
+        if (transactionSnapshot.exists) {
+            const transaction = transactionSnapshot.data();
+
+            if (transaction.transactionId) {
+                promises.push({
+                    [transaction.transactionId]: transactionSnapshot.ref
+                        .collection('events')
+                        .get(),
+                });
+            }
+        }
     });
 
-    return user;
-  }
+    for await (const promiseObj of promises) {
+        const transactionId = Object.keys(promiseObj)[0];
 
-  console.log('User not in DB:', userId);
-  return null;
-};
+        const eventsRef = await promiseObj[transactionId];
+        if (eventsRef.size > 0) {
+            const events = eventsRef.docs
+                .filter(event => event.exists)
+                .map(event => ({...event.data(), transactionId }));
 
-exports.getTransactions = async (userId, deviceId) => {
-  // Get device's events
-  const transactionsSnapshot = await admin
-    .firestore()
-    .collection(`events/${userId}/devices/${deviceId}/transactions/`)
-    .limit(150)
-    .get();
-
-  const transactions = {};
-  const promises = [];
-  transactionsSnapshot.forEach(transactionSnapshot => {
-    if (transactionSnapshot.exists) {
-      const transaction = transactionSnapshot.data();
-
-      if (transaction.transactionId) {
-        promises.push({
-          [transaction.transactionId]: transactionSnapshot.ref
-            .collection('events')
-            .get(),
-        });
-      }
+            transactions[transactionId] = events;
+        }
     }
-  });
 
-  for await (const promiseObj of promises) {
-    const transactionId = Object.keys(promiseObj)[0];
+    return transactions;
+};
 
-    const eventsRef = await promiseObj[transactionId];
-    if (eventsRef.size > 0) {
-      const events = eventsRef.docs
-        .filter(event => event.exists)
-        .map(event => ({ ...event.data(), transactionId }));
+exports.getEvents = async(userId, deviceId, transactionId) => {
+    // Get events
+    const querySnapshot = await admin
+        .firestore()
+        .collection(
+            `events/${userId}/devices/${deviceId}/transactions/${transactionId}/events`
+        )
+        .get();
 
-      transactions[transactionId] = events;
+    // Check there is data
+    if (querySnapshot.size === 0) return [];
+
+    // Return data
+    return querySnapshot.docs.filter(doc => doc.exists && doc.data());
+};
+
+exports.updateWalletAddressKeyIndex = async(address, keyIndex, userId) => {
+    await admin
+        .firestore()
+        .collection('settings')
+        .doc('settings')
+        .set({ wallet: { address, keyIndex } }, { merge: true });
+    return true;
+};
+
+exports.getSettings = async() => {
+    // Get settings
+    const doc = await admin
+        .firestore()
+        .collection('settings')
+        .doc('settings')
+        .get();
+    if (doc.exists) {
+        return doc.data();
     }
-  }
 
-  return transactions;
+    const message = 'getSettings failed. Setting does not exist';
+    console.error(message, doc);
+    throw Error(message);
 };
 
-exports.getEvents = async (userId, deviceId, transactionId) => {
-  // Get events
-  const querySnapshot = await admin
-    .firestore()
-    .collection(
-      `events/${userId}/devices/${deviceId}/transactions/${transactionId}/events`
-    )
-    .get();
+exports.getDevice = async(userId, deviceId) => {
+    // Get user's device
+    const devicesSnapshot = await admin
+        .firestore()
+        .collection(`users/${userId}/devices`)
+        .doc(deviceId)
+        .get();
 
-  // Check there is data
-  if (querySnapshot.size === 0) return [];
+    if (!devicesSnapshot.exists) {
+        const message = 'getDevice failed. Device does not exist';
+        console.error(message, devicesSnapshot);
+        return { error: message };
+    }
 
-  // Return data
-  return querySnapshot.docs.filter(doc => doc.exists && doc.data());
+    const device = devicesSnapshot.data();
+    delete device.publicKey;
+    delete device.key;
+    if (device.wallet) {
+        delete device.wallet.seed; // Should I delete these?
+        delete device.wallet.keyIndex; // Should I delete these?
+    }
+
+    return { device };
 };
 
-exports.updateWalletAddressKeyIndex = async (address, keyIndex, userId) => {
-  await admin
-    .firestore()
-    .collection('settings')
-    .doc('settings')
-    .set({ wallet: { address, keyIndex } }, { merge: true });
-  return true;
+exports.logMessage = async(userId, deviceId, messages) => {
+    const timestamp = new Date().toLocaleString().replace(/\//g, '.');
+
+    // Save logs by user and device
+    await admin
+        .firestore()
+        .collection(`logs/${userId}/devices/${deviceId}/log`)
+        .doc(timestamp)
+        .set({
+            ...messages.map(message => message),
+            timestamp,
+        }, { merge: true });
+
+    return true;
 };
 
-exports.getSettings = async () => {
-  // Get settings
-  const doc = await admin
-    .firestore()
-    .collection('settings')
-    .doc('settings')
-    .get();
-  if (doc.exists) {
-    return doc.data();
-  }
+exports.logEvent = async(userId, deviceId, transactionId, event, mam) => {
+    const timestamp = new Date().toLocaleString().replace(/\//g, '.');
 
-  const message = 'getSettings failed. Setting does not exist';
-  console.error(message, doc);
-  throw Error(message);
+    // Save logs by user and device
+    await admin
+        .firestore()
+        .collection(`events/${userId}/devices/${deviceId}/transactions`)
+        .doc(transactionId)
+        .set({
+            transactionId,
+            timestamp,
+        }, { merge: true });
+
+    // Save logs by user and device
+    await admin
+        .firestore()
+        .collection(
+            `events/${userId}/devices/${deviceId}/transactions/${transactionId}/events`
+        )
+        .doc(timestamp)
+        .set({
+            ...event,
+            mam,
+            timestamp,
+        }, { merge: true });
+
+    return true;
 };
 
-exports.getDevice = async (userId, deviceId) => {
-  // Get user's device
-  const devicesSnapshot = await admin
-    .firestore()
-    .collection(`users/${userId}/devices`)
-    .doc(deviceId)
-    .get();
+exports.updateWalletKeyIndex = async(userId, deviceId, keyIndex) => {
+    await admin
+        .firestore()
+        .collection(`users/${userId}/devices`)
+        .doc(deviceId)
+        .set({ wallet: { keyIndex } }, { merge: true });
 
-  if (!devicesSnapshot.exists) {
-    const message = 'getDevice failed. Device does not exist';
-    console.error(message, devicesSnapshot);
-    return { error: message };
-  }
-
-  const device = devicesSnapshot.data();
-  delete device.publicKey;
-  delete device.key;
-  if (device.wallet) {
-    delete device.wallet.seed;
-    delete device.wallet.keyIndex;
-  }
-
-  return { device };
-};
-
-exports.logMessage = async (userId, deviceId, messages) => {
-  const timestamp = new Date().toLocaleString().replace(/\//g, '.');
-
-  // Save logs by user and device
-  await admin
-    .firestore()
-    .collection(`logs/${userId}/devices/${deviceId}/log`)
-    .doc(timestamp)
-    .set(
-      {
-        ...messages.map(message => message),
-        timestamp,
-      },
-      { merge: true }
-    );
-
-  return true;
-};
-
-exports.logEvent = async (userId, deviceId, transactionId, event, mam) => {
-  const timestamp = new Date().toLocaleString().replace(/\//g, '.');
-
-  // Save logs by user and device
-  await admin
-    .firestore()
-    .collection(`events/${userId}/devices/${deviceId}/transactions`)
-    .doc(transactionId)
-    .set(
-      {
-        transactionId,
-        timestamp,
-      },
-      { merge: true }
-    );
-
-  // Save logs by user and device
-  await admin
-    .firestore()
-    .collection(
-      `events/${userId}/devices/${deviceId}/transactions/${transactionId}/events`
-    )
-    .doc(timestamp)
-    .set(
-      {
-        ...event,
-        mam,
-        timestamp,
-      },
-      { merge: true }
-    );
-
-  return true;
-};
-
-exports.updateWalletKeyIndex = async (userId, deviceId, keyIndex) => {
-  await admin
-    .firestore()
-    .collection(`users/${userId}/devices`)
-    .doc(deviceId)
-    .set({ wallet: { keyIndex } }, { merge: true });
-
-  return true;
+    return true;
 };

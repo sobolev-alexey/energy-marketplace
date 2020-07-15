@@ -21,7 +21,7 @@ const {
   faucet,
   getBalance,
   checkBalance,
-  transferFunds,
+  withdraw,
 } = require('./helpers');
 const { EncryptionService } = require('./encryption');
 
@@ -334,33 +334,6 @@ exports.image = functions.https.onRequest((req, res) => {
   });
 });
 
-// exports.transferFunds = functions.https.onRequest((req, res) => {
-//   cors(req, res, async () => {
-//     // Check Fields
-//     const packet = req.body;
-//     if (
-//       (!packet || !packet.receiveAddress,
-//       !packet.address || !packet.seed || !packet.keyIndex)
-//     ) {
-//       console.error('transferFunds failed. Receiving Address: ', packet.address);
-//       return res.status(400).json({ error: 'Malformed Request' });
-//     }
-
-//     try {
-//       const transactions = await transferFunds(
-//         packet.receiveAddress,
-//         packet.address,
-//         packet.seed,
-//         packet.keyIndex
-//       );
-//       return res.json({ transactions });
-//     } catch (e) {
-//       console.error('transferFunds failed. Error: ', e.message);
-//       return res.json({ status: 'error', error: e.message });
-//     }
-//   });
-// });
-
 exports.faucet = functions.https.onRequest((req, res) => {
   cors(req, res, async () => {
     // Check Fields
@@ -375,6 +348,31 @@ exports.faucet = functions.https.onRequest((req, res) => {
       return res.json({ transactions });
     } catch (e) {
       console.error('faucet failed. Error: ', e.message);
+      return res.json({ status: 'error', error: e.message });
+    }
+  });
+});
+
+exports.withdraw = functions.https.onRequest((req, res) => {
+  cors(req, res, async () => {
+    // Check Fields
+    const packet = req.body;
+    if (!packet || !packet.userId || !packet.deviceId) {
+      console.error(
+        'withdraw failed. User ID: ' +
+          packet.userId +
+          '\n' +
+          'Device ID: ' +
+          packet.deviceId
+      );
+      return res.status(400).json({ error: 'Malformed Request' });
+    }
+
+    try {
+      const transactions = await withdraw(packet.userId, packet.deviceId);
+      return res.json({ transactions });
+    } catch (e) {
+      console.error('withdraw failed. Error: ', e.message);
       return res.json({ status: 'error', error: e.message });
     }
   });
