@@ -18,17 +18,14 @@ const decryptVerify = async (encrypted, userId) => {
     if (encrypted && userId) {
       const user = await getUser(userId, true);
       if (user && user.privateKey) {
+
         const encryptionService = EncryptionService();
 
         const decrypted = encryptionService.privateDecrypt(
           user.privateKey, encrypted
         );
 
-        const assetId = decrypted.message && decrypted.message.type === 'offer' 
-          ? decrypted.message && decrypted.message.providerId 
-          : decrypted.message && decrypted.message.requesterId;
-
-        const device = user.devices.find(asset => asset.id === assetId);
+        const device = user.devices.find(asset => asset.id === decrypted.message.assetId);
 
         const verificationResult = encryptionService.verifySignature(
           device.publicKey, decrypted.message, decrypted.signature
@@ -209,7 +206,7 @@ const repairWallet = async (seed, keyIndex) => {
 const faucet = async receiveAddress => {
   const setting = await getSettings();
   const wallet = setting && setting.wallet;
-  let { keyIndex, seed, balance } = wallet;
+  let { keyIndex, seed } = wallet;
   let address = await generateAddress(seed, keyIndex);
   const iotaWalletBalance = await getBalance(address);
 
@@ -226,7 +223,7 @@ const faucet = async receiveAddress => {
     address,
     keyIndex,
     seed,
-    balance,
+    settings.deviceWalletAmount,
     updateWalletAddressKeyIndex
   );
 };

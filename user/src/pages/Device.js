@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router";
+import { useHistory } from "react-router-dom";
 import { Tabs } from "antd";
 import { Layout, Loading, DeviceForm, DeviceHeader, DeviceInfo, TransactionsTable } from "../components";
 import callApi from "../utils/callApi";
@@ -7,9 +8,10 @@ import callApi from "../utils/callApi";
 const { TabPane } = Tabs;
 
 const Device = () => {
+  let history = useHistory();
   const { deviceId } = useParams();
   const [device, setDevice] = useState();
-  const [transactions, setTransactions] = useState([]);
+  const [transactions, setTransactions] = useState();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -78,13 +80,68 @@ const Device = () => {
     }
   }
 
+  const changeDeviceStatus = async () => {
+    try {
+      let user = await localStorage.getItem("user");
+      user = JSON.parse(user);
+
+      if (user?.userId && user?.apiKey && device?.id) {
+        const payload = {
+          userId: user.userId,
+          apiKey: user.apiKey,
+          ...device,
+          running: !device.running
+        }
+
+        setLoading(true);
+        
+        const response = await callApi('device', payload);
+        if (response?.error || response?.status === 'error') {
+          console.error("Error while deleting device", response?.error);
+        }
+
+        setDevice(device => ({ ...device, running: !device.running }));
+        setLoading(false);
+      }
+    } catch (err) {
+      console.error('Error while deleting device', err);
+    }
+  }
+
+  const removeDevice = async () => {
+    try {
+      let user = await localStorage.getItem("user");
+      user = JSON.parse(user);
+
+      if (user?.userId && user?.apiKey && device?.id) {
+        setLoading(true);
+        const response = await callApi('remove', { 
+          userId: user?.userId,
+          apiKey: user?.apiKey,
+          deviceId
+        });
+
+        if (response?.error || response?.status === 'error') {
+          console.error("Error while deleting device", response?.error);
+        }
+        history.push("/overview");
+      }
+    } catch (err) {
+      console.error('Error while deleting device', err);
+    }
+  }
+
   return (
     <Layout>
      {loading ? (
           <Loading />
       ) : (
         <React.Fragment>
-          <DeviceHeader device={device} />
+          <DeviceHeader 
+            device={device} 
+            onChangeStatus={changeDeviceStatus} 
+            onDelete={removeDevice} 
+          />
           <div className="device-page-wrapper">
             <Tabs tabBarGutter={50} centered defaultActiveKey="1">
               <TabPane tab="Overview" key="1">

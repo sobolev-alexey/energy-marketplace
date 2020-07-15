@@ -28,6 +28,7 @@
     "cors": "^2.8.5",
     "firebase-admin": "^8.13.0",
     "firebase-functions": "^3.8.0",
+    "firebase-tools": "^8.5.0",
     "lodash": "^4.17.19",
     "node-rsa": "^1.0.8",
     "randomstring": "^1.1.5",

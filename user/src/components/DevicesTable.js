@@ -82,8 +82,6 @@ const overviewTableColumns = [
 
 const DevicesTable = ({ data }) => {
   let history = useHistory();
-  console.log(data);
-
   return (
     <Table
       onRow={record => ({

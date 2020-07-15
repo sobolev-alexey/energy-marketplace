@@ -55,12 +55,12 @@ const Login = () => {
             onChange={(e) => setEmail(e.target.value)}
             rules={[
               {
-                type: 'email',
-                message: 'This is not a valid email!',
+                type: "email",
+                message: "This is not a valid email!",
               },
               {
                 required: true,
-                message: 'Please provide your email!',
+                message: "Please provide your email!",
               },
             ]}
           >
@@ -81,7 +81,7 @@ const Login = () => {
               },
               {
                 required: true,
-                message: 'Please provide your password!',
+                message: "Please provide your password!",
               },
             ]}
           >

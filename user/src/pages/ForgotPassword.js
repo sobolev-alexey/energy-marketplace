@@ -21,7 +21,7 @@ const ForgotPassword = () => {
 
   const callback = () => {
     const config = {
-      title: 'Password reset',
+      title: "Password reset",
       content: (
         <div>
           <p>We have sent a reset password email to your email</p>
@@ -60,12 +60,12 @@ const ForgotPassword = () => {
             onChange={(e) => setEmail(e.target.value)}
             rules={[
               {
-                type: 'email',
-                message: 'This is not a valid email!',
+                type: "email",
+                message: "This is not a valid email!",
               },
               {
                 required: true,
-                message: 'Please provide your email!',
+                message: "Please provide your email!",
               },
             ]}
           >

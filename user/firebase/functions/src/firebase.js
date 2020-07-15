@@ -48,12 +48,6 @@ exports.getUser = async (userId, internal = false, wallet = false) => {
     user.devices = devicesSnapshot.docs.map(document => {
       if (document.exists) {
         const device = document.data();
-
-        if (!internal) {
-          delete device.publicKey;
-        }
-
-        delete device.key;
         return device;
       } else {
         return null;
@@ -169,22 +163,6 @@ exports.getDevice = async (userId, deviceId) => {
   return { device };
 };
 
-exports.logMessage = async (userId, deviceId, messages) => {
-  const timestamp = new Date().toLocaleString().replace(/\//g, '.');
-
-  // Save logs by user and device
-  await admin
-    .firestore()
-    .collection(`logs/${userId}/devices/${deviceId}/log`)
-    .doc(timestamp)
-    .set({
-      ...messages.map(message => message),
-      timestamp,
-    }, { merge: true });
-
-  return true;
-};
-
 exports.logEvent = async (userId, deviceId, transactionId, event, mam) => {
   const timestamp = (new Date()).toLocaleString().replace(/\//g, '.');
 
@@ -218,6 +196,23 @@ exports.updateWalletKeyIndex = async (userId, deviceId, keyIndex) => {
     .collection(`users/${userId}/devices`)
     .doc(deviceId)
     .set({ wallet: { keyIndex } }, { merge: true });
+
+  return true;
+};
+
+exports.deleteDevice = async (userId, deviceId) => {
+  // Remove Device
+  await admin
+    .firestore()
+    .collection(`users/${userId}/devices`)
+    .doc(deviceId)
+    .delete();
+
+  await admin
+    .firestore()
+    .collection(`events/${userId}/devices`)
+    .doc(deviceId)
+    .delete();
 
   return true;
 };

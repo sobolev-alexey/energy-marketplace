@@ -59,12 +59,12 @@ const Register = () => {
             onChange={(e) => setRevealFields(true) || setEmail(e.target.value)}
             rules={[
               {
-                type: 'email',
-                message: 'This is not a valid email!',
+                type: "email",
+                message: "This is not a valid email!",
               },
               {
                 required: true,
-                message: 'Please provide your email!',
+                message: "Please provide your email!",
               },
             ]}
           >
@@ -85,7 +85,7 @@ const Register = () => {
                 },
                 {
                   required: true,
-                  message: 'Please provide your password!',
+                  message: "Please provide your password!",
                 },
               ]}
             >
@@ -94,13 +94,13 @@ const Register = () => {
             <Form.Item
               name={["confirm"]}
               label="Confirm Password"
-              dependencies={['password']}
+              dependencies={["password"]}
               hasFeedback
               onChange={(e) => setConfirm(e.target.value)}
               rules={[
                 {
                   required: true,
-                  message: 'Please provide your password!',
+                  message: "Please provide your password!",
                 },
                 { 
                   validator: (_, value) => 
@@ -110,10 +110,10 @@ const Register = () => {
                 },
                 ({ getFieldValue }) => ({
                   validator(rule, value) {
-                    if (!value || getFieldValue('password') === value) {
+                    if (!value || getFieldValue("password") === value) {
                       return Promise.resolve();
                     }
-                    return Promise.reject('The two passwords that you entered do not match!');
+                    return Promise.reject("The two passwords that you entered do not match!");
                   },
                 }),
               ]}
