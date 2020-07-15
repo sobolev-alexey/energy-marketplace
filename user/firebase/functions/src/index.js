@@ -357,7 +357,7 @@ exports.withdraw = functions.https.onRequest((req, res) => {
   cors(req, res, async () => {
     // Check Fields
     const packet = req.body;
-    if (!packet || !packet.userId || !packet.deviceId) {
+    if (!packet || !packet.userId) {
       console.error(
         'withdraw failed. User ID: ' +
           packet.userId +

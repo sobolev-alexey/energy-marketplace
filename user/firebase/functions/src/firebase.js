@@ -1,10 +1,7 @@
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 
-// admin.initializeApp(functions.config().firebase);
-admin.initializeApp({
-    credential: admin.credential.cert(require('../admin.json')),
-});
+admin.initializeApp(functions.config().firebase);
 
 exports.setUser = async(uid, obj) => {
     await admin.firestore().collection('users').doc(uid).set(obj);

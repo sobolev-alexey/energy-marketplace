@@ -14,7 +14,6 @@ const {
   updateWalletAddressKeyIndex,
 } = require('./firebase');
 const { EncryptionService } = require('./encryption');
-const { settings } = require('cluster');
 
 const decryptVerify = async (encrypted, userId) => {
   try {
@@ -225,6 +224,7 @@ const repairWallet = async (seed, keyIndex) => {
 const withdraw = async (userId, deviceId) => {
   const setting = await getSettings();
   const user = await getUser(userId, true);
+  const device = await getDevice(user.userId, deviceId);
   let wallet;
   let receiveAddress = '';
 
@@ -232,7 +232,6 @@ const withdraw = async (userId, deviceId) => {
     wallet = setting && user.wallet;
     receiveAddress = setting.wallet.address;
   } else {
-    const device = await getDevice(userId, deviceId);
     wallet = setting && device.wallet;
     receiveAddress = user.wallet.address;
   }
