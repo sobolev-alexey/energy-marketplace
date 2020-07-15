@@ -24,7 +24,7 @@ const Overview = () => {
           if (!response?.error && response?.status !== 'error') {
             const devices = response?.devices?.map(device => ({ ...device, key: device.id, balance: device?.wallet?.balance }));
             setDevices(devices);
-            setUser(response);
+            setUser({ ...response, userId: user?.userId });
             const userData = { ...response, userId: user?.userId };
             delete userData?.devices;
             await localStorage.setItem("user", JSON.stringify(userData));
