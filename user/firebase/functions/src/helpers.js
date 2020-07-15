@@ -3,7 +3,7 @@ const { generateAddress, createPrepareTransfers } = require('@iota/core');
 const {
   composeAPI,
   FailMode,
-  LinearWalkStrategy,
+  RandomWalkStrategy,
   SuccessMode,
 } = require('@iota/client-load-balancer');
 const {
@@ -19,31 +19,20 @@ const decryptVerify = async (encrypted, userId) => {
     if (encrypted && userId) {
       const user = await getUser(userId, true);
       if (user && user.privateKey) {
+
         const encryptionService = EncryptionService();
 
         const decrypted = encryptionService.privateDecrypt(
-          user.privateKey,
-          encrypted
+          user.privateKey, encrypted
         );
 
-        const assetId =
-          decrypted.message && decrypted.message.type === 'offer'
-            ? decrypted.message && decrypted.message.providerId
-            : decrypted.message && decrypted.message.requesterId;
-
-        const device = user.devices.find(asset => asset.id === assetId);
+        const device = user.devices.find(asset => asset.id === decrypted.message.assetId);
 
         const verificationResult = encryptionService.verifySignature(
-          device.publicKey,
-          decrypted.message,
-          decrypted.signature
-        );
-
-        return {
-          verificationResult,
-          message: decrypted.message,
-          mam: decrypted.mam,
-        };
+          device.publicKey, decrypted.message, decrypted.signature
+        );  
+              
+        return { verificationResult, message: decrypted.message, mam: decrypted.mam };
       }
       throw new Error('No user key');
     } else {
@@ -93,7 +82,7 @@ const getBalance = async address => {
 
 const getApi = async settings => {
   const api = await composeAPI({
-    nodeWalkStrategy: new LinearWalkStrategy(
+    nodeWalkStrategy: new RandomWalkStrategy(
       settings.nodes.map(provider => ({ provider }))
     ),
     depth: settings.tangle.depth,
@@ -125,11 +114,6 @@ const transferFunds = async (
     const prepareTransfers = createPrepareTransfers();
     const security = settings.tangle.security;
     const balance = await getBalance(address);
-
-    console.log('receiveAddress', receiveAddress);
-    console.log('address', address);
-    console.log('keyIndex', keyIndex);
-    console.log('seed', seed);
 
     // Depth or how far to go for tip selection entry point
     const depth = settings.tangle.depth;
@@ -230,7 +214,7 @@ const withdraw = async (userId, deviceId) => {
     wallet = setting && user.wallet;
     receiveAddress = setting.wallet.address;
   } else {
-    const device = await getDevice(user.userId, deviceId);
+    const device = await getDevice(userId, deviceId);
     wallet = setting && device.wallet;
     receiveAddress = user.wallet.address;
   }
@@ -259,8 +243,6 @@ const withdraw = async (userId, deviceId) => {
 
 const faucet = async (receiveAddress, userId) => {
   const setting = await getSettings();
-  console.log('Settings Device wallet amount', setting.deviceWalletAmount);
-  console.log('Settings User wallet amount', setting.userWalletAmount);
   let wallet;
   if (!userId) {
     wallet = setting && setting.wallet;
@@ -268,9 +250,8 @@ const faucet = async (receiveAddress, userId) => {
     const user = await getUser(userId, true);
     wallet = setting && user.wallet;
   }
-  let { keyIndex, seed, balance } = wallet;
+  let { keyIndex, seed } = wallet;
   let address = await generateAddress(seed, keyIndex);
-
   const iotaWalletBalance = await getBalance(address);
 
   if (iotaWalletBalance === 0) {
@@ -280,13 +261,12 @@ const faucet = async (receiveAddress, userId) => {
       keyIndex = newIotaWallet.keyIndex;
     }
   }
-
   return await transferFunds(
     receiveAddress,
     address,
     keyIndex,
     seed,
-    balance,
+    settings.deviceWalletAmount,
     updateWalletAddressKeyIndex
   );
 };

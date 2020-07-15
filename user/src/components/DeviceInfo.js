@@ -128,40 +128,34 @@ const DeviceInfo = ({ device, transactions }) => {
 
   console.log('transactions Device info', transactions);
   return (
-    <div className='device-info'>
+    <div className="device-info">
       <Row gutter={20}>
         <Col span={16}>
           <Card
-            className='device-overview-card'
+            className="device-overview-card"
             hoverable
-            cover={
-              <img className='device-image' alt='example' src={device?.image} />
-            }>
-            <Meta
-              title={device?.name.charAt(0).toUpperCase() + device?.name.slice(1)}
-              description={
-                <div className='description'>
-                  {device?.description.charAt(0).toUpperCase() +
-                    device?.description.slice(1)}
-                  <br />
-                  <br />
-                  {device?.url}
-                </div>
-              }
-            />
+            cover={<img className="device-image" alt="example" src={device?.image} />}
+          >
+            <Meta title={device?.name.charAt(0).toUpperCase() + device?.name.slice(1)} description={(
+              <div className="description">
+                { device?.description.charAt(0).toUpperCase() + device?.description.slice(1) }
+                <br /><br />
+                { device?.url }
+              </div>
+              )} />
             {device?.running ? (
-              <span className='text-running'>
-                <PlayCircleOutlined className={'icon-running'} /> Running
+              <span className="text-running">
+                <PlayCircleOutlined className={"icon-running"} /> Running
               </span>
             ) : (
-              <span className='text-paused'>
-                <PauseCircleOutlined className={'icon-paused'} /> Paused
+              <span className="text-paused">
+                <PauseCircleOutlined className={"icon-paused"} /> Paused
               </span>
             )}
           </Card>
         </Col>
         <Col span={8}>
-          <Card hoverable className='device-info-card'>
+        <Card hoverable className='device-info-card'>
             <span> DEVICE WALLET </span>
             <div className='wallet-info-device'>
               {!deviceBalance ? (
@@ -179,9 +173,6 @@ const DeviceInfo = ({ device, transactions }) => {
                       onClick={() => addDeviceFunds()}>
                       Add funds
                     </button>
-                    {/* <Link to='/wallet' className='cta-device-withdraw'>
-                      Withdraw
-                    </Link> */}
                     <button
                       className='cta-device-withdraw'
                       onClick={() => deviceWithdraw()}>
@@ -203,40 +194,46 @@ const DeviceInfo = ({ device, transactions }) => {
       </Row>
       <Row gutter={16}>
         <Col span={8}>
-          <Card hoverable className='device-info-card'>
-            {device?.type === 'requester' ? (
-              <span> ENERGY CONSUMED </span>
-            ) : (
-              <span> ENERGY PRODUCED </span>
-            )}
-            <h1 className='transaction-info-device'>
-              {!energy ? (
+          <Card hoverable className="device-info-card">
+            { 
+              device?.type === 'requester'
+              ? <span> ENERGY CONSUMED </span>
+              : <span> ENERGY PRODUCED </span>
+            }
+            <h1 className="transaction-info-device">
+              { energy === undefined ? (
                 <Loading />
               ) : (
                 <React.Fragment>
-                  {energy} <span className='wallet-balance3-device'> W </span>
+                  { energy } <span className="wallet-balance3-device"> W </span>
                 </React.Fragment>
               )}
             </h1>
           </Card>
         </Col>
         <Col span={8}>
-          <Card hoverable className='device-info-card'>
-            <span> TOTAL TRANSACTIONS </span>
-            <h1 className='transaction-info-device'>
-              {!total ? <Loading /> : <React.Fragment>{total}</React.Fragment>}
+          <Card hoverable className="device-info-card">
+            <span> TOTAL TRANSACTIONS </span> 
+            <h1 className="transaction-info-device"> 
+              { total === undefined ? (
+                <Loading />
+              ) : (
+                <React.Fragment>
+                  { total }
+                </React.Fragment>
+              )}
             </h1>
           </Card>
         </Col>
         <Col span={8}>
-          <Card hoverable className='device-info-card'>
+          <Card hoverable className="device-info-card">
             <span> AVERAGE ENERGY PRICE </span>
-            <h1 className='transaction-info-device'>
-              {!total ? (
+            <h1 className="transaction-info-device">
+              { price === undefined ? (
                 <Loading />
               ) : (
                 <React.Fragment>
-                  {price} <span className='wallet-balance3-device'> Iota </span>
+                  { price } <span className="wallet-balance3-device"> Iota </span>
                 </React.Fragment>
               )}
             </h1>

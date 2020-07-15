@@ -98,26 +98,26 @@ const Sidebar = () => {
   const callback = async () => {
     setLoggedIn(false);
     await localStorage.clear();
-    history.push('/');
+    history.push("/");
   };
 
   return (
-    <div className='sidebar-wrapper'>
-      <Link to='/'>
-        <img src={logo} alt='Logo' className='sidebar-logo' />
+    <div className="sidebar-wrapper">
+      <Link to="/">
+        <img src={logo} alt="Logo" className="sidebar-logo" />
       </Link>
       {loading ? (
-        <Loading />
-      ) : (
-        <div className='sidebar-content'>
-          <h5 className='main-wallet-text'> MAIN WALLLET </h5>
-          <h1 className='wallet-balance'>
+          <Loading />
+        ) : (
+        <div className="sidebar-content">
+          <h5 className="main-wallet-text"> MAIN WALLLET </h5>
+          <h1 className="wallet-balance">
             {userBalance?.[0]}
             <span className='wallet-balance3'>{userBalance?.[1]}</span>
             <span className='wallet-balance3'> Iota </span>
           </h1>
           <br />
-          <button className='custom-button' onClick={() => addFunds()}>
+          <button className="custom-button" onClick={() => addFunds()}>
             Add funds
           </button>
           <button
@@ -134,11 +134,9 @@ const Sidebar = () => {
           )}
         </div>
       )}
-      <div className='sidebar-footer'>
-        <button className='logout' onClick={() => logout(callback)}>
-          <LogoutOutlined rotate={180} />
-          <span> </span>
-          Logout
+      <div className="sidebar-footer">
+        <button className="logout" onClick={() => logout(callback)}>
+          <LogoutOutlined rotate={180} /> Logout
         </button>
       </div>
     </div>

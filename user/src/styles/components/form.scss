@@ -110,9 +110,11 @@
 .ant-switch {
     width: 55px;
     background-color: #dc817c;
+
     &:hover {
         background-color: rgb(170, 170, 170);
     }
+    
     &.ant-switch-checked {
         background-color: #59ad9e;
     }
