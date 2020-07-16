@@ -25,13 +25,10 @@ const DeviceInfo = ({ device, transactions }) => {
     async function getBalance() {
       try {
         const response = await callApi('balance', device?.wallet);
-        if (
-          !response?.error &&
-          response?.status !== 'error' &&
-          response?.balance
-        ) {
-          setDeviceBalance(convertAmount(Number(response?.balance)));
-          device.wallet.balance = convertAmount(Number(response?.balance))[0];
+        if (response?.balance && !response?.error && response?.status !== 'error') {
+          const balance = convertAmount(Number(response?.balance));
+          setDeviceBalance(balance);
+          device.wallet.balance = balance[0];
         } else {
           console.log('Balance error', response?.error);
           setError(response?.error);
@@ -41,67 +38,8 @@ const DeviceInfo = ({ device, transactions }) => {
         console.error('Error while getting wallet balance', err);
       }
     }
-  }, [loading]);
+  }, [loading, device]);
 
-  const addDeviceFunds = async () => {
-    setLoading(true);
-    try {
-      let user = await localStorage.getItem('user');
-      user = JSON.parse(user);
-
-      if (user?.userId) {
-        const payload = {
-          wallet: device?.wallet,
-          userId: user.userId,
-        };
-        const response = await callApi('faucet', payload);
-
-        if (
-          !response?.error &&
-          response?.status !== 'error' &&
-          response?.transactions
-        ) {
-        } else {
-          console.log('ERROR', response?.error);
-          setError(response?.error);
-          setShowModal(true);
-        }
-        setLoading(false);
-      }
-    } catch (err) {
-      console.error('Error while adding funds', err);
-    }
-  };
-
-  const deviceWithdraw = async () => {
-    setLoading(true);
-    try {
-      let user = await localStorage.getItem('user');
-      user = JSON.parse(user);
-
-      if (user?.userId && device?.deviceId) {
-        const payload = {
-          userId: user.userId,
-          deviceId: device.deviceId,
-        };
-        const response = await callApi('withdraw', payload);
-
-        if (
-          !response?.error &&
-          response?.status !== 'error' &&
-          response?.transactions
-        ) {
-        } else {
-          console.log('ERROR', response?.error);
-          setError(response?.error);
-          setShowModal(true);
-        }
-        setLoading(false);
-      }
-    } catch (err) {
-      console.error('Error while adding funds', err);
-    }
-  };
 
   useEffect(() => {
     const transactionsCount = transactions && Object.keys(transactions)?.length;
@@ -125,6 +63,55 @@ const DeviceInfo = ({ device, transactions }) => {
     }
   }, [transactions]); // eslint-disable-line react-hooks/exhaustive-deps
 
+
+  const addDeviceFunds = async () => {
+    setLoading(true);
+    try {
+      let user = await localStorage.getItem('user');
+      user = JSON.parse(user);
+
+      if (user?.userId) {
+        const payload = {
+          wallet: device?.wallet,
+          userId: user?.userId,
+        };
+        const response = await callApi('faucet', payload);
+
+        if (response?.error || response?.status === 'error') {
+          setError(response?.error);
+          setShowModal(true);
+        }
+        setLoading(false);
+      }
+    } catch (err) {
+      console.error('Error while adding funds', err);
+    }
+  };
+
+  const deviceWithdraw = async () => {
+    setLoading(true);
+    try {
+      let user = await localStorage.getItem('user');
+      user = JSON.parse(user);
+
+      if (user?.userId && device?.deviceId) {
+        const payload = {
+          userId: user?.userId,
+          deviceId: device?.deviceId,
+        };
+        const response = await callApi('withdraw', payload);
+
+        if (response?.error || response?.status === 'error') {
+          setError(response?.error);
+          setShowModal(true);
+        }
+        setLoading(false);
+      }
+    } catch (err) {
+      console.error('Error while adding funds', err);
+    }
+  };
+
   return (
     <div className="device-info">
       <Row gutter={20}>
@@ -132,7 +119,7 @@ const DeviceInfo = ({ device, transactions }) => {
           <Card
             className="device-overview-card"
             hoverable
-            cover={device?.image && <img className="device-image" alt="image" src={device?.image} />}
+            cover={device?.image && <img className="device-image" alt={device?.name} src={device?.image} />}
           >
             <Meta title={device?.name.charAt(0).toUpperCase() + device?.name.slice(1)} description={(
               <div className="description">
@@ -166,14 +153,10 @@ const DeviceInfo = ({ device, transactions }) => {
                   </h1>
                   <br />
                   <Space size={10}>
-                    <button
-                      className='cta-device'
-                      onClick={() => addDeviceFunds()}>
+                    <button className='cta-device' onClick={addDeviceFunds}>
                       Add funds
                     </button>
-                    <button
-                      className='cta-device-withdraw'
-                      onClick={() => deviceWithdraw()}>
+                    <button className='cta-device-withdraw' onClick={deviceWithdraw}>
                       Withdraw
                     </button>
                   </Space>

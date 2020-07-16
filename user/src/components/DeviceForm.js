@@ -289,7 +289,7 @@ const NewDeviceForm = ({ existingDevice = {}, callback = null }) => {
               valuePropName="fileList"
               extra={
                 device?.image && !imageUrl && 
-                <img className="upload-device-image" alt="image" src={device?.image} />
+                <img className="upload-device-image" alt={device?.name} src={device?.image} />
               }
             >
               <React.Fragment>
