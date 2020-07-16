@@ -102,7 +102,7 @@ const Login = () => {
           </Space>
           <br />
           <br />
-          <span>{error}</span>
+          <span className="error-message">{error}</span>
         </Form>
       </div>
     </div>
