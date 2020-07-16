@@ -66,7 +66,6 @@ exports.getTransactions = async (userId, deviceId) => {
   const transactionsSnapshot = await admin
     .firestore()
     .collection(`events/${userId}/devices/${deviceId}/transactions/`)
-    .limit(150)
     .get();
 
   const transactions = {};

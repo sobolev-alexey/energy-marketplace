@@ -57,6 +57,12 @@
 
 .ant-card {
     border-radius: 20px;
+
+    .ant-card-cover {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
 }
 
 .device-info-card {
