@@ -25,7 +25,7 @@ const DeviceInfo = ({ device, transactions }) => {
     async function getBalance() {
       try {
         const response = await callApi('balance', device?.wallet);
-        if (response?.balance && !response?.error && response?.status !== 'error') {
+        if (!response?.error && response?.status !== 'error') {
           const balance = convertAmount(Number(response?.balance));
           setDeviceBalance(balance);
           device.wallet.balance = balance[0];

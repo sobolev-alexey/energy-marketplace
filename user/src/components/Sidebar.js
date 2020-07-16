@@ -27,7 +27,7 @@ const Sidebar = () => {
         user = JSON.parse(user);
         const response = await callApi('balance', user?.wallet);
 
-        if (response?.balance && !response?.error && response?.status !== 'error') {
+        if (!response?.error && response?.status !== 'error') {
           const balance = convertAmount(Number(response?.balance));
           setUserBalance(balance);
           user.wallet.balance = balance[0];
