@@ -64,16 +64,14 @@ const DeviceInfo = ({ device, transactions }) => {
   }, [transactions]); // eslint-disable-line react-hooks/exhaustive-deps
 
 
-  const addDeviceFunds = async () => {
+  const addFunds = async () => {
     setLoading(true);
     try {
-      let user = await localStorage.getItem('user');
-      user = JSON.parse(user);
-
-      if (user?.userId) {
+      if (user?.userId && device?.deviceId) {
         const payload = {
-          wallet: device?.wallet,
           userId: user?.userId,
+          apiKey: user?.apiKey,
+          deviceId: device?.deviceId,
         };
         const response = await callApi('faucet', payload);
 
@@ -88,15 +86,13 @@ const DeviceInfo = ({ device, transactions }) => {
     }
   };
 
-  const deviceWithdraw = async () => {
+  const withdraw = async () => {
     setLoading(true);
     try {
-      let user = await localStorage.getItem('user');
-      user = JSON.parse(user);
-
       if (user?.userId && device?.deviceId) {
         const payload = {
           userId: user?.userId,
+          apiKey: user?.apiKey,
           deviceId: device?.deviceId,
         };
         const response = await callApi('withdraw', payload);
@@ -153,10 +149,10 @@ const DeviceInfo = ({ device, transactions }) => {
                   </h1>
                   <br />
                   <Space size={10}>
-                    <button className='cta-device' onClick={addDeviceFunds}>
+                    <button className='cta-device' onClick={addFunds}>
                       Add funds
                     </button>
-                    <button className='cta-device-withdraw' onClick={deviceWithdraw}>
+                    <button className='cta-device-withdraw' onClick={withdraw}>
                       Withdraw
                     </button>
                   </Space>
