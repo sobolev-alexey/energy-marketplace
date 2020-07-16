@@ -295,21 +295,33 @@ exports.image = functions.https.onRequest((req, res) => {
 exports.withdraw = functions.https.onRequest((req, res) => {
   cors(req, res, async () => {
     // Check Fields
-    const packet = req.body;
-    if (!packet || !packet.userId) {
-      console.error(
-        'withdraw failed. User ID: ' +
-          packet.userId +
-          '\n' +
-          'Device ID: ' +
-          packet.deviceId
-      );
-      return res.status(400).json({ error: 'Malformed Request' });
+    const params = req.body;
+    if (!params || !params.userId || !params.apiKey) {
+      console.error("Faucet request failed. Params: ", params);
+      return res.status(400).json({ error: "Ensure all fields are included" });
     }
 
     try {
-      const transactions = await withdraw(packet.userId, packet.deviceId);
-      return res.json({ transactions });
+      const user = await getUser(params.userId, true);
+
+      // Check correct apiKey
+      if (user && user.apiKey && user.apiKey === params.apiKey) {
+        if (params.deviceId) {
+          // Withdraw from device wallet
+          const { device, error } = await getDevice(params.userId, params.deviceId);
+          if (error) {
+            throw new Error(error);
+          } else {
+            await withdraw(user.userId, device.wallet, user.wallet.address, device.id);
+            return res.json({ status: "success" });
+          }
+        } else {
+          // Withdraw from user wallet
+          await withdraw(user.userId, user.wallet, params.withdrawAddress || null);
+          return res.json({ status: "success" });
+        }
+      }
+      return res.json({ status: "error", error: "Wrong api key" });
     } catch (e) {
       console.error('withdraw failed. Error: ', e.message);
       return res.json({ status: 'error', error: e.message });
@@ -320,15 +332,33 @@ exports.withdraw = functions.https.onRequest((req, res) => {
 exports.faucet = functions.https.onRequest((req, res) => {
   cors(req, res, async () => {
     // Check Fields
-    const packet = req.body;
-    if (!packet || !packet.address) {
-      console.error("faucet failed. Receiving Address: ", packet.address);
-      return res.status(400).json({ error: "Malformed Request" });
+    const params = req.body;
+    if (!params || !params.userId || !params.apiKey) {
+      console.error("Faucet request failed. Params: ", params);
+      return res.status(400).json({ error: "Ensure all fields are included" });
     }
 
     try {
-      const transactions = await faucet(packet.address);
-      return res.json({ transactions });
+      const user = await getUser(params.userId, true);
+
+      // Check correct apiKey
+      if (user && user.apiKey && user.apiKey === params.apiKey) {
+        if (params.deviceId) {
+          // Fund device wallet
+          const { device, error } = await getDevice(params.userId, params.deviceId);
+          if (error) {
+            throw new Error(error);
+          } else {
+            await faucet('device', device.wallet, user);
+            return res.json({ status: "success" });
+          }
+        } else {
+          // Fund user wallet
+          await faucet('user', user.wallet, null);
+          return res.json({ status: "success" });
+        }
+      }
+      return res.json({ status: "error", error: "Wrong api key" });
     } catch (e) {
       console.error("faucet failed. Error: ", e.message);
       return res.json({ status: "error", error: e.message });
@@ -449,39 +479,6 @@ exports.fund = functions.https.onRequest((req, res) => {
       return res.json({ status: "error" });
     } catch (e) {
       console.error("Fund device failed.", e);
-      return res.json({ status: "error", error: e.message });
-    }
-  });
-});
-
-exports.remove = functions.https.onRequest((req, res) => {
-  cors(req, res, async () => {
-    const params = req.body;
-    // Add device key into the list
-    if (!params || !params.userId || !params.apiKey || !params.deviceId) {
-      console.error('remove device failed. Packet: ', params);
-      return res.status(400).json({ error: 'Ensure all fields are included' });
-    }
-
-    try {
-      await tools.firestore
-        .delete(`events/${params.userId}/devices/${params.deviceId}/transactions`, {
-          project: 'cityexchange-energymarketplace',
-          recursive: true,
-          yes: true,
-          // token: functions.config().fb.token
-        });
-
-      const user = await getUser(params.userId, true);
-
-      // Check correct apiKey
-      if (user && user.apiKey && user.apiKey === params.apiKey) {
-        await deleteDevice(params.userId, params.deviceId);
-        return res.json({ status: "success" });
-      }
-      return res.json({ status: "error", error: "Wrong api key" });
-    } catch (e) {
-      console.error("Remove device request failed", e);
       return res.json({ status: "error", error: e.message });
     }
   });
