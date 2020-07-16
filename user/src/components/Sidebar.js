@@ -46,26 +46,31 @@ const Sidebar = () => {
   const addFunds = async () => {
     setLoading(true);
     try {
-      const response = await callApi('faucet', user?.wallet);
-      
-      if (response?.error || response?.status === 'error') {
-        setError(response?.error);
-        setShowModal(true);
+      if (user?.userId) {
+        const response = await callApi('faucet', { 
+          userId: user?.userId,
+          apiKey: user?.apiKey,
+        });
+        
+        if (response?.error || response?.status === 'error') {
+          setError(response?.error);
+          setShowModal(true);
+        }
+        setLoading(false);
       }
-      setLoading(false);
     } catch (err) {
       console.error('Error while adding funds', err);
     }
   };
 
-  const userWithdraw = async () => {
+  const withdraw = async () => {
     setLoading(true);
     try {
-      let user = await localStorage.getItem('user');
-      user = JSON.parse(user);
-
       if (user?.userId) {
-        const response = await callApi('withdraw', { userId: user.userId });
+        const response = await callApi('withdraw', { 
+          userId: user?.userId,
+          apiKey: user?.apiKey,
+        });
 
         if (response?.error || response?.status === 'error') {
           setError(response?.error);
@@ -102,7 +107,7 @@ const Sidebar = () => {
           <button className="custom-button" onClick={addFunds}>
             Add funds
           </button>
-          <button className='custom-button-withdraw' onClick={userWithdraw}>
+          <button className='custom-button-withdraw' onClick={withdraw}>
             Withdraw
           </button>
           {showModal && (
