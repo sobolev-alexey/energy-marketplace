@@ -12,34 +12,11 @@ const DeviceInfo = ({ device, transactions }) => {
   const [energy, setEnergy] = useState();
   const [total, setTotal] = useState();
   const [price, setPrice] = useState();
-  const { user } = useContext(AppContext);
+  const { user, updateUser } = useContext(AppContext);
   const [loading, setLoading] = useState(false);
-  const [deviceBalance, setDeviceBalance] = useState();
+  const [deviceBalance, setDeviceBalance] = useState(convertAmount(Number(device?.wallet?.balance)));
   const [error, setError] = useState('');
   const [showModal, setShowModal] = useState(false);
-
-  useEffect(() => {
-    if (!loading) {
-      getBalance();
-    }
-    async function getBalance() {
-      try {
-        const response = await callApi('balance', device?.wallet);
-        if (!response?.error && response?.status !== 'error') {
-          const balance = convertAmount(Number(response?.balance));
-          setDeviceBalance(balance);
-          device.wallet.balance = balance[0];
-        } else {
-          console.log('Balance error', response?.error);
-          setError(response?.error);
-          setShowModal(true);
-        }
-      } catch (err) {
-        console.error('Error while getting wallet balance', err);
-      }
-    }
-  }, [loading, device]);
-
 
   useEffect(() => {
     const transactionsCount = transactions && Object.keys(transactions)?.length;
@@ -67,11 +44,11 @@ const DeviceInfo = ({ device, transactions }) => {
   const addFunds = async () => {
     setLoading(true);
     try {
-      if (user?.userId && device?.deviceId) {
+      if (user?.userId && device?.id) {
         const payload = {
           userId: user?.userId,
           apiKey: user?.apiKey,
-          deviceId: device?.deviceId,
+          deviceId: device?.id,
         };
         const response = await callApi('faucet', payload);
 
@@ -79,6 +56,8 @@ const DeviceInfo = ({ device, transactions }) => {
           setError(response?.error);
           setShowModal(true);
         }
+        await getBalance();
+        await updateUser();
         setLoading(false);
       }
     } catch (err) {
@@ -89,11 +68,11 @@ const DeviceInfo = ({ device, transactions }) => {
   const withdraw = async () => {
     setLoading(true);
     try {
-      if (user?.userId && device?.deviceId) {
+      if (user?.userId && device?.id) {
         const payload = {
           userId: user?.userId,
           apiKey: user?.apiKey,
-          deviceId: device?.deviceId,
+          deviceId: device?.id,
         };
         const response = await callApi('withdraw', payload);
 
@@ -101,12 +80,30 @@ const DeviceInfo = ({ device, transactions }) => {
           setError(response?.error);
           setShowModal(true);
         }
+        await getBalance();
+        await updateUser();
         setLoading(false);
       }
     } catch (err) {
       console.error('Error while adding funds', err);
     }
   };
+
+  const getBalance = async () => {
+    try {
+      const response = await callApi('balance', device?.wallet);
+      if (!response?.error && response?.status !== 'error') {
+        const balance = convertAmount(Number(response?.balance));
+        setDeviceBalance(balance);
+      } else {
+        console.log('Balance error', response?.error);
+        setError(response?.error);
+        setShowModal(true);
+      }
+    } catch (err) {
+      console.error('Error while getting wallet balance', err);
+    }
+  }
 
   return (
     <div className="device-info">
@@ -139,13 +136,13 @@ const DeviceInfo = ({ device, transactions }) => {
         <Card hoverable className='device-info-card'>
             <span> DEVICE WALLET </span>
             <div className='wallet-info-device'>
-              {!deviceBalance ? (
+              {loading ? (
                 <Loading />
               ) : (
                 <React.Fragment>
                   <h1>
                     {deviceBalance?.[0] || 0}
-                    <span className='wallet-balance3-device'> Iota </span>
+                    <span className='wallet-balance3-device'> {deviceBalance?.[1]} </span>
                   </h1>
                   <br />
                   <Space size={10}>
