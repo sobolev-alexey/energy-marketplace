@@ -1,11 +1,13 @@
 import * as firebase from "firebase/app";
 import "firebase/auth";
+import "firebase/storage";
 import firebaseConfig from "../firebase.config";
 
 !firebase.apps.length && firebase.initializeApp(firebaseConfig);
 firebase.auth().useDeviceLanguage();
 
 const auth = firebase.auth();
+const storage = firebase.storage();
 
 const signInWithCredentials = (action, email, password, callback, errorCallback) => {
   auth.setPersistence(firebase.auth.Auth.Persistence.SESSION)
@@ -49,5 +51,6 @@ export {
   logout,
   resetPassword,
   signInWithGoogle,
-  signInWithCredentials
+  signInWithCredentials,
+  storage
 };

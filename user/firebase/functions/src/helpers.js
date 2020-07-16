@@ -205,20 +205,20 @@ const repairWallet = async (seed, keyIndex) => {
 };
 
 const withdraw = async (userId, deviceId) => {
-  const setting = await getSettings();
+  const settings = await getSettings();
   const user = await getUser(userId, true);
   let wallet;
   let receiveAddress = '';
 
   if (!deviceId) {
-    wallet = setting && user.wallet;
-    receiveAddress = setting.wallet.address;
+    wallet = user && user.wallet;
+    receiveAddress = settings.wallet.address;
   } else {
     const device = await getDevice(userId, deviceId);
-    wallet = setting && device.wallet;
+    wallet = device && device.wallet;
     receiveAddress = user.wallet.address;
   }
-  let { keyIndex, seed, balance } = wallet;
+  let { keyIndex, seed } = wallet;
   let address = await generateAddress(seed, keyIndex);
 
   const iotaWalletBalance = await getBalance(address);
@@ -236,19 +236,19 @@ const withdraw = async (userId, deviceId) => {
     address,
     keyIndex,
     seed,
-    balance,
+    settings.deviceWalletAmount,
     updateWalletAddressKeyIndex
   );
 };
 
 const faucet = async (receiveAddress, userId) => {
-  const setting = await getSettings();
+  const settings = await getSettings();
   let wallet;
   if (!userId) {
-    wallet = setting && setting.wallet;
+    wallet = settings && settings.wallet;
   } else {
     const user = await getUser(userId, true);
-    wallet = setting && user.wallet;
+    wallet = user && user.wallet;
   }
   let { keyIndex, seed } = wallet;
   let address = await generateAddress(seed, keyIndex);

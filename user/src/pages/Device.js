@@ -148,7 +148,7 @@ const Device = () => {
                 <DeviceInfo device={device} transactions={transactions} />
               </TabPane>
               <TabPane tab="Settings" key="2">
-                <DeviceForm device={device} callback={loadDevice} />
+                <DeviceForm existingDevice={device} callback={loadDevice} />
               </TabPane>
               <TabPane tab="Transactions" key="3">
                 <div className="transactions-tab-wrapper">

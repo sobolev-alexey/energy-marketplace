@@ -123,3 +123,23 @@
 .ant-form-item-children-icon {
     display: none;
 }
+
+.ant-upload {
+    display: flex;
+    flex-direction: column;
+}
+
+.ant-upload-list-picture {
+    .ant-upload-list-item {
+        border: none;
+    }
+}
+ 
+.ant-upload-list-item-card-actions-btn {
+    background: unset;
+    border: unset;
+}
+
+.upload-device-image {
+    width: 100px;
+}

@@ -114,7 +114,6 @@ const Sidebar = () => {
           <h1 className="wallet-balance">
             {userBalance?.[0]}
             <span className='wallet-balance3'>{userBalance?.[1]}</span>
-            <span className='wallet-balance3'> Iota </span>
           </h1>
           <br />
           <button className="custom-button" onClick={() => addFunds()}>

@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useContext } from 'react';
 import callApi from '../utils/callApi';
 import { AppContext } from '../context/globalState';
-import { Link } from 'react-router-dom';
 import { Card, Space, Row, Col } from 'antd';
 import { PlayCircleOutlined, PauseCircleOutlined } from '@ant-design/icons';
 import { convertAmount } from '../utils/amountConverter';
@@ -106,8 +105,8 @@ const DeviceInfo = ({ device, transactions }) => {
 
   useEffect(() => {
     const transactionsCount = transactions && Object.keys(transactions)?.length;
-    if (transactions && transactionsCount > 0) {
-      setTotal(transactionsCount);
+    if (typeof transactions === 'object') {
+      setTotal(transactionsCount || 0);
 
       let totalEnergy = 0;
       let totalPrice = 0;
@@ -121,12 +120,11 @@ const DeviceInfo = ({ device, transactions }) => {
           }
         });
       });
-      setEnergy(totalEnergy);
+      setEnergy(totalEnergy || 0);
       setPrice((totalPrice / totalCount || 0).toFixed(2));
     }
   }, [transactions]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  console.log('transactions Device info', transactions);
   return (
     <div className="device-info">
       <Row gutter={20}>
@@ -134,7 +132,7 @@ const DeviceInfo = ({ device, transactions }) => {
           <Card
             className="device-overview-card"
             hoverable
-            cover={<img className="device-image" alt="example" src={device?.image} />}
+            cover={device?.image && <img className="device-image" alt="image" src={device?.image} />}
           >
             <Meta title={device?.name.charAt(0).toUpperCase() + device?.name.slice(1)} description={(
               <div className="description">

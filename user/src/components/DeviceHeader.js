@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Space } from "antd";
 import { PauseOutlined, CaretRightOutlined, LeftCircleFilled, DeleteOutlined } from "@ant-design/icons";
 
-const DeviceHeader = ({ device }) => (
+const DeviceHeader = ({ device, onChangeStatus, onDelete }) => (
   <div className="header-wrapper2">
     <Space size={40} align="center">
       <Link to="/">
@@ -13,17 +13,17 @@ const DeviceHeader = ({ device }) => (
     </Space>
 
     <Space size={25} align="center">
-      <button className="delete-button">
+      <button className="delete-button" onClick={onDelete}>
         <DeleteOutlined style={{ fontSize: "22px" }} />
         Delete
       </button>
-      {device.status === "paused" ? (
-        <button onClick={() => !device.status} className="cta4">
+      {device.running ? (
+        <button onClick={onChangeStatus} className="cta4">
           <PauseOutlined style={{ fontSize: "32px" }} />
           Pause operation <span> </span>
         </button>
       ) : (
-        <button onClick={() => !device.status} className="cta4">
+        <button onClick={onChangeStatus} className="cta4">
           <CaretRightOutlined style={{ fontSize: "32px" }} />
           Continue operation <span> </span>
         </button>

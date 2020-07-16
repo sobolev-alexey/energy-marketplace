@@ -1,28 +1,59 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { Link, useHistory } from "react-router-dom";
 import { Form, Select, Input, InputNumber, Upload, Col, Row, Space, Switch } from "antd";
-import firebase from "../firebase.config";
 import callApi from "../utils/callApi";
+import { storage } from "../utils/firebase";
 import { Loading, CustomModal } from ".";
 
 const { Option } = Select;
 
-const normFile = (e) => {
-  console.log("Upload event:", e);
-
-  if (Array.isArray(e)) {
-    return e;
-  }
-  return e && e.fileList;
-};
-
 const uuid_regex = "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$";
 
-const NewDeviceForm = ({ device = {}, callback = null }) => {
+const NewDeviceForm = ({ existingDevice = {}, callback = null }) => {
   let history = useHistory();
+  const form = useRef();
+  const [device, setDevice] = useState(existingDevice);
+  const [imageUrl, setImageUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [error, setError] = useState();
+
+  const uploadFile = async ({ file, onSuccess }) => {
+    console.log("uploadFile", device?.deviceId, file);
+    const promise = new Promise(async (resolve, reject) => {
+      try {
+        let retries = 0;
+        while (retries++ < 40) {
+          if (device?.deviceId) {
+              break;
+          }            
+          await new Promise(resolved => setTimeout(resolved, 500));
+        }
+        
+        if (device?.deviceId && file) {
+          storage
+            .ref(`${device?.deviceId}/` + file?.name)
+            .put(file)
+            .then(snapshot => snapshot.ref.getDownloadURL())
+            .then(url => {
+              console.log("uploadFile success", url);
+              setImageUrl(url);
+              onSuccess(() => form.current.submit());
+              resolve(url)
+            })
+            .catch(error => {
+              console.log("uploadFile error", error);
+            });
+        }
+        reject();
+      } catch (error) {
+        console.log('uploadFile error', error);
+        reject();
+      }
+    });
+
+    return promise;
+  };
 
   const onFinish = async (values) => {
     console.log("Received values of form: ", values);
@@ -55,15 +86,19 @@ const NewDeviceForm = ({ device = {}, callback = null }) => {
           maxEnergyPrice, 
           uuid,
           running,
-          dashboard
+          dashboard,
+          image: imageUrl || existingDevice?.image
         }
+        console.log('Device', payload);
+
         const response = await callApi('device', payload);
         setLoading(false);
         
         if (!response?.error && response?.status !== 'error') {
           console.log(response?.status);
           if (response?.deviceId) {
-            history.push(`/device/${response?.deviceId}`);
+            setDevice({ ...payload, deviceId: response?.deviceId });
+            // history.push(`/device/${response?.deviceId}`);
           } else {
             history.push("/overview");
           }
@@ -72,6 +107,7 @@ const NewDeviceForm = ({ device = {}, callback = null }) => {
           setShowModal(true);
         }
       }
+
       typeof callback === 'function' && callback();
     } catch (err) {
       console.error('Error while loading user data', err);
@@ -82,9 +118,11 @@ const NewDeviceForm = ({ device = {}, callback = null }) => {
     <Form 
       size="large" 
       layout="vertical" 
+      ref={form}
       name="device-form" 
       onFinish={onFinish} 
       hideRequiredMark
+      validateTrigger="onSubmit"
       initialValues={{
         uuid: "ac4a33f0-ee20-41e4-9fcd-9f91ecf77d0f",
         running: true,
@@ -249,16 +287,21 @@ const NewDeviceForm = ({ device = {}, callback = null }) => {
               name="device-image"
               label="Device image"
               valuePropName="fileList"
-              getValueFromEvent={normFile}
-              extra={<span> No file selected </span>}
+              extra={
+                device?.image && !imageUrl && 
+                <img className="upload-device-image" alt="image" src={device?.image} />
+              }
             >
-              <Upload 
-                name="deviceImage" 
-                listType="picture"
-                action={`https://${firebase?.storageBucket}/devices`}
-              >
-                <button className="ant-btn-lg1"> Select file </button>
-              </Upload>
+              <React.Fragment>
+                <Upload 
+                  name="deviceImage" 
+                  listType="picture"
+                  accept="image/*"
+                  customRequest={uploadFile}
+                >
+                  <button className="ant-btn-lg1"> Select image </button>
+                </Upload>
+              </React.Fragment>
             </Form.Item>
           </Col>
         </Row>
@@ -273,7 +316,7 @@ const NewDeviceForm = ({ device = {}, callback = null }) => {
               Cancel
             </Link>
             <button className="cta-running" type="submit">
-              Add a device
+              { existingDevice?.id ? "Update device" : "Add device" }
             </button>
           </Space>
         )}
