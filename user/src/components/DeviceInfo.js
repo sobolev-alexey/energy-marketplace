@@ -109,23 +109,31 @@ const DeviceInfo = ({ device, transactions }) => {
     <div className="device-info">
       <Row gutter={20}>
         <Col span={16}>
-          <Card
-            className="device-overview-card"
-            hoverable
-            cover={device?.image && <img className="device-image" alt={device?.name} src={device?.image} />}
-          >
-            {
-              device?.dashboard && device?.url ? (
-                <a 
-                  target='_blank'
-                  rel='noopener noreferrer'
-                  href={`${device?.url}/admin/board`}
+          {
+            device?.dashboard && device?.url ? (
+              <a 
+                target='_blank'
+                rel='noopener noreferrer'
+                href={`${device?.url}/admin/board`}
+              >
+                <Card
+                  className="device-overview-card"
+                  hoverable
+                  cover={device?.image && <img className="device-image" alt={device?.name} src={device?.image} />}
                 >
                   <DeviceCard device={device} />
-                </a>
-               ) : <DeviceCard device={device} />
-            }
-          </Card>
+                </Card>
+              </a>
+            ) : (
+              <Card
+                className="device-overview-card"
+                hoverable
+                cover={device?.image && <img className="device-image" alt={device?.name} src={device?.image} />}
+              >
+                <DeviceCard device={device} />
+              </Card>
+            )
+          }
         </Col>
         <Col span={8}>
         <Card hoverable className='device-info-card'>

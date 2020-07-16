@@ -76,7 +76,7 @@ const ForgotPassword = () => {
             Reset Password
           </button>
           <br />
-          <span>{error}</span>
+          <span className="error-message">{error}</span>
         </Form>
         {contextHolder}
       </div>

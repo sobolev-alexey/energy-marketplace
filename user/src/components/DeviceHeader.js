@@ -9,7 +9,7 @@ const DeviceHeader = ({ device, onChangeStatus, onDelete }) => (
       <Link to="/">
         <LeftCircleFilled className={"cta3"} />
       </Link>
-      <h5> {device.name} </h5>
+      <h5> {device?.name.charAt(0).toUpperCase() + device?.name.slice(1)} </h5>
     </Space>
 
     <Space size={25} align="center">

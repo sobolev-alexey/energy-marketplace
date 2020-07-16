@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useHistory } from 'react-router';
 import callApi from '../utils/callApi';
@@ -13,35 +13,13 @@ const Sidebar = () => {
   let history = useHistory();
   const { setLoggedIn, user } = useContext(AppContext);
   const [loading, setLoading] = useState(false);
-  const [userBalance, setUserBalance] = useState();
+  const [balance, setBalance] = useState(convertAmount(Number(user?.wallet?.balance)));
   const [error, setError] = useState('');
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
-    if (!loading) {
-      getBalance();
-    }
-    async function getBalance() {
-      try {
-        let user = await localStorage.getItem('user');
-        user = JSON.parse(user);
-        const response = await callApi('balance', user?.wallet);
-
-        if (!response?.error && response?.status !== 'error') {
-          const balance = convertAmount(Number(response?.balance));
-          setUserBalance(balance);
-          user.wallet.balance = balance[0];
-          await localStorage.setItem('user', JSON.stringify(user));
-        } else {
-          console.log('Balance error', response?.error);
-          setError(response?.error);
-          setShowModal(true);
-        }
-      } catch (err) {
-        console.error('Error while getting wallet balance', err);
-      }
-    }
-  }, [loading]);
+    setBalance(convertAmount(Number(user?.wallet?.balance)));
+  }, [user?.wallet?.balance]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const addFunds = async () => {
     setLoading(true);
@@ -56,6 +34,7 @@ const Sidebar = () => {
           setError(response?.error);
           setShowModal(true);
         }
+        await getBalance();
         setLoading(false);
       }
     } catch (err) {
@@ -76,6 +55,7 @@ const Sidebar = () => {
           setError(response?.error);
           setShowModal(true);
         }
+        await getBalance();
         setLoading(false);
       }
     } catch (err) {
@@ -89,6 +69,29 @@ const Sidebar = () => {
     history.push("/");
   };
 
+  const getBalance = async () => {
+    try {
+      let user = await localStorage.getItem('user');
+      user = JSON.parse(user);
+      
+      if (user && user?.wallet?.address) {
+        const response = await callApi('balance', user?.wallet);
+
+        if (!response?.error && response?.status !== 'error') {
+          const balance = convertAmount(Number(response?.balance));
+          setBalance(balance);
+          await localStorage.setItem('user', JSON.stringify({ ...user, wallet: { ...user.wallet, balance: balance[0] } }));
+        } else {
+          console.log('Balance error', response?.error);
+          setError(response?.error);
+          setShowModal(true);
+        }
+      }
+    } catch (err) {
+      console.error('Error while getting wallet balance', err);
+    }
+  }
+
   return (
     <div className="sidebar-wrapper">
       <Link to="/">
@@ -100,8 +103,8 @@ const Sidebar = () => {
         <div className="sidebar-content">
           <h5 className="main-wallet-text"> MAIN WALLLET </h5>
           <h1 className="wallet-balance">
-            {userBalance?.[0]}
-            <span className='wallet-balance3'>&nbsp;{userBalance?.[1]}</span>
+            {balance?.[0]}
+            <span className='wallet-balance3'>&nbsp;{balance?.[1]}</span>
           </h1>
           <br />
           <button className="custom-button" onClick={addFunds}>
