@@ -105,30 +105,22 @@ const transferFunds = async (
   seed,
   value,
   updateFn,
-  userId = null
+  userId = null,
+  deviceId = null
 ) => {
   try {
     const settings = await getSettings();
     const api = await getApi(settings);
     const { getInclusionStates, sendTrytes } = api;
     const prepareTransfers = createPrepareTransfers();
-    const security = settings.tangle.security;
     const balance = await getBalance(address);
 
-    // Depth or how far to go for tip selection entry point
     const depth = settings.tangle.depth;
-
-    // Difficulty of Proof-of-Work required to attach transaction to tangle.
-    // Minimum value on mainnet is `14`, `9` on devnet.
     const minWeightMagnitude = settings.tangle.mwm;
+    const security = settings.tangle.security;
 
     if (balance === 0) {
-      console.error(
-        'transferFunds. Insufficient balance',
-        address,
-        balance,
-        userId
-      );
+      console.error('transferFunds. Insufficient balance', address, balance, userId);
       return null;
     }
 
@@ -152,7 +144,7 @@ const transferFunds = async (
         .then(async trytes => {
           sendTrytes(trytes, depth, minWeightMagnitude)
             .then(async transactions => {
-              await updateFn(remainderAddress, keyIndex + 1, userId);
+              await updateFn(remainderAddress, keyIndex + 1, userId, deviceId);
 
               const hashes = transactions.map(transaction => transaction.hash);
 
@@ -185,7 +177,8 @@ const transferFunds = async (
 const repairWallet = async (seed, keyIndex) => {
   try {
     // Iterating through keyIndex ordered by likelyhood
-    for (const value of [-2, -1, 1, 2, 3, 4, -3, -4, -5, -6, -7, 5, 6, 7]) {
+    // for (const value of [-2, -1, 1, 2, 3, 4, -3, -4, -5, -6, -7, 5, 6, 7]) {
+    for (const value of [...Array.from(Array(50).keys()), ...Array.from(Array(10).keys()).map(val => -val)]) {
       const newIndex = Number(keyIndex) + Number(value);
       if (newIndex >= 0) {
         const newAddress = await generateAddress(seed, newIndex);
@@ -194,80 +187,92 @@ const repairWallet = async (seed, keyIndex) => {
           console.log(
             `Repair wallet executed. Old keyIndex: ${keyIndex}, new keyIndex: ${newIndex}. New wallet balance: ${newBalance}. New address: ${newAddress}`
           );
-          return { address: newAddress, keyIndex: newIndex };
+          return { address: newAddress, balance: newBalance, keyIndex: newIndex };
         }
       }
     }
+    return null;
   } catch (error) {
     console.log('Repair wallet Error', error);
     return error;
   }
 };
 
-const withdraw = async (userId, deviceId) => {
+const withdraw = async (userId, wallet, withdrawAddress, deviceId = null) => {
   const settings = await getSettings();
-  const user = await getUser(userId, true);
-  let wallet;
-  let receiveAddress = '';
 
-  if (!deviceId) {
-    wallet = user && user.wallet;
-    receiveAddress = settings.wallet.address;
-  } else {
-    const device = await getDevice(userId, deviceId);
-    wallet = device && device.wallet;
-    receiveAddress = user.wallet.address;
-  }
   let { keyIndex, seed } = wallet;
   let address = await generateAddress(seed, keyIndex);
+  let walletBalance = await getBalance(address);
 
-  const iotaWalletBalance = await getBalance(address);
-
-  if (iotaWalletBalance === 0) {
-    const newIotaWallet = await repairWallet(seed, keyIndex);
-    if (newIotaWallet && newIotaWallet.address && newIotaWallet.keyIndex) {
-      address = newIotaWallet.address;
-      keyIndex = newIotaWallet.keyIndex;
+  if (walletBalance === 0) {
+    const newWallet = await repairWallet(seed, keyIndex);
+    if (newWallet && newWallet.address && newWallet.keyIndex) {
+      address = newWallet.address;
+      keyIndex = newWallet.keyIndex;
+      walletBalance = newWallet.balance;
+    } else {
+      throw new Error('Withdraw failed: sender wallet has no funds');
     }
   }
 
   return await transferFunds(
-    receiveAddress,
+    withdrawAddress || settings.wallet.address,
     address,
     keyIndex,
     seed,
-    settings.deviceWalletAmount,
-    updateWalletAddressKeyIndex
+    walletBalance,
+    updateWalletAddressKeyIndex,
+    userId,
+    deviceId
   );
 };
 
-const faucet = async (receiveAddress, userId) => {
+const faucet = async (mode, receiverWallet, sender) => {
   const settings = await getSettings();
   let wallet;
-  if (!userId) {
+  let amount;
+
+  if (mode === 'device') {
+    wallet = sender && sender.wallet;
+    amount = settings.deviceWalletAmount;
+  } else if (mode === 'user') {
     wallet = settings && settings.wallet;
-  } else {
-    const user = await getUser(userId, true);
-    wallet = user && user.wallet;
+    amount = settings.userWalletAmount;
   }
+
   let { keyIndex, seed } = wallet;
   let address = await generateAddress(seed, keyIndex);
-  const iotaWalletBalance = await getBalance(address);
+  const walletBalance = await getBalance(address);
 
-  if (iotaWalletBalance === 0) {
-    const newIotaWallet = await repairWallet(seed, keyIndex);
-    if (newIotaWallet && newIotaWallet.address && newIotaWallet.keyIndex) {
-      address = newIotaWallet.address;
-      keyIndex = newIotaWallet.keyIndex;
+  if (walletBalance === 0) {
+    const newWallet = await repairWallet(seed, keyIndex);
+    if (newWallet && newWallet.address && newWallet.keyIndex && newWallet.balance >= amount) {
+      address = newWallet.address;
+      keyIndex = newWallet.keyIndex;
+    } else {
+      throw new Error('Faucet failed: sender wallet has no funds');
     }
   }
+
+  let receiverWalletAddress = await generateAddress(receiverWallet.seed, receiverWallet.keyIndex);
+  const receiverWalletBalance = await getBalance(receiverWalletAddress);
+
+  if (receiverWalletBalance === 0) {
+    const newReceiverWallet = await repairWallet(receiverWallet.seed, receiverWallet.keyIndex);
+    if (newReceiverWallet && newReceiverWallet.address) {
+      receiverWalletAddress = newReceiverWallet.address;
+    }
+  }
+
   return await transferFunds(
-    receiveAddress,
+    receiverWalletAddress,
     address,
     keyIndex,
     seed,
-    settings.deviceWalletAmount,
-    updateWalletAddressKeyIndex
+    amount,
+    updateWalletAddressKeyIndex,
+    sender && sender.userId
   );
 };
 
