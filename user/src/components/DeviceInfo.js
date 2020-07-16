@@ -114,22 +114,17 @@ const DeviceInfo = ({ device, transactions }) => {
             hoverable
             cover={device?.image && <img className="device-image" alt={device?.name} src={device?.image} />}
           >
-            <Meta title={device?.name.charAt(0).toUpperCase() + device?.name.slice(1)} description={(
-              <div className="description">
-                { device?.description.charAt(0).toUpperCase() + device?.description.slice(1) }
-                <br /><br />
-                { device?.url }
-              </div>
-              )} />
-            {device?.running ? (
-              <span className="text-running">
-                <PlayCircleOutlined className={"icon-running"} /> Running
-              </span>
-            ) : (
-              <span className="text-paused">
-                <PauseCircleOutlined className={"icon-paused"} /> Paused
-              </span>
-            )}
+            {
+              device?.dashboard && device?.url ? (
+                <a 
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  href={`${device?.url}/admin/board`}
+                >
+                  <DeviceCard device={device} />
+                </a>
+               ) : <DeviceCard device={device} />
+            }
           </Card>
         </Col>
         <Col span={8}>
@@ -217,5 +212,26 @@ const DeviceInfo = ({ device, transactions }) => {
     </div>
   );
 };
+
+const DeviceCard = ({ device }) => (
+  <React.Fragment>
+    <Meta title={device?.name.charAt(0).toUpperCase() + device?.name.slice(1)} description={(
+      <div className="description">
+        { device?.description.charAt(0).toUpperCase() + device?.description.slice(1) }
+        <br /><br />
+        { device?.url }
+      </div>
+      )} />
+    {device?.running ? (
+      <span className="text-running">
+        <PlayCircleOutlined className={"icon-running"} /> Running
+      </span>
+    ) : (
+      <span className="text-paused">
+        <PauseCircleOutlined className={"icon-paused"} /> Paused
+      </span>
+    )}
+  </React.Fragment>
+)
 
 export default DeviceInfo;
