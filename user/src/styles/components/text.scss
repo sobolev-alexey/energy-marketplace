@@ -21,7 +21,6 @@ a {
 h1 {
     font-weight: 800;
     color: #242529;
-    font-size: 20px;
     line-height: 20px;
     @include breakPoint(small) {
         @include font-size(24px);

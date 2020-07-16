@@ -131,6 +131,7 @@ const NewDeviceForm = ({ existingDevice = {}, callback = null }) => {
       }}
     >
       <div className="device-page-wrapper">
+       <div className='device-page-content'>
         <Row justify="space-between">
           <Col>
             <Form.Item
@@ -288,7 +289,7 @@ const NewDeviceForm = ({ existingDevice = {}, callback = null }) => {
               valuePropName="fileList"
               extra={
                 device?.image && !imageUrl && 
-                <img className="upload-device-image" alt="image" src={device?.image} />
+                <img className="upload-device-image" alt={device?.name} src={device?.image} />
               }
             >
               <React.Fragment>
@@ -304,6 +305,7 @@ const NewDeviceForm = ({ existingDevice = {}, callback = null }) => {
             </Form.Item>
           </Col>
         </Row>
+        </div>
       </div>
       <div className="new-device-page-footer">
         {loading ? (

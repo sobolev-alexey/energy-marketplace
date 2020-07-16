@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { auth } from "../utils/firebase";
 import firebaseConfig from "../firebase.config";
+import callApi from '../utils/callApi';
 
 export const AppContext = React.createContext({});
 
@@ -40,11 +41,26 @@ const GlobalState = ({ children }) => {
     });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  const updateUser = async () => {
+    try {
+      const response = await callApi('user', { userId: user?.userId });
+      if (!response?.error && response?.status !== 'error') {
+        setUser({ ...response, userId: user?.userId });
+        await localStorage.setItem("user", JSON.stringify({ ...response, userId: user?.userId }));
+      } else {
+        console.log('Balance error', response?.error);
+      }
+    } catch (err) {
+      console.error('Error while getting wallet balance', err);
+    }
+  }
+
   return (
     <AppContext.Provider value={{ 
       isLoggedIn, setLoggedIn,
       user, setUser,
-      device, setDevice
+      device, setDevice,
+      updateUser
     }}>
       {children}
     </AppContext.Provider>

@@ -117,12 +117,28 @@ exports.getEvents = async (userId, deviceId, transactionId) => {
   return querySnapshot.docs.filter(doc => doc.exists && doc.data());
 };
 
-exports.updateWalletAddressKeyIndex = async (address, keyIndex, userId) => {
-  await admin
-    .firestore()
-    .collection('settings')
-    .doc('settings')
-    .set({ wallet: { address, keyIndex } }, { merge: true });
+exports.updateWalletAddressKeyIndex = async (address, keyIndex, userId = null, deviceId = null) => {
+  if (userId) {
+    if (deviceId) {
+      await admin
+        .firestore()
+        .collection(`users/${userId}/devices`)
+        .doc(deviceId)
+        .set({ wallet: { address, keyIndex } }, { merge: true });
+    } else {
+      await admin
+        .firestore()
+        .collection('users')
+        .doc(userId)
+        .set({ wallet: { address, keyIndex } }, { merge: true });
+    }
+  } else {
+    await admin
+      .firestore()
+      .collection('settings')
+      .doc('settings')
+      .set({ wallet: { address, keyIndex } }, { merge: true });
+  }
   return true;
 };
 

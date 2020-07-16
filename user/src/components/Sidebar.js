@@ -1,16 +1,87 @@
-import React, { useContext } from "react";
-import { Link } from "react-router-dom";
-import { useHistory } from "react-router";
-import { LogoutOutlined } from "@ant-design/icons";
-import { AppContext } from "../context/globalState";
-import { logout } from "../utils/firebase";
-import { convertAmount } from "../utils/amountConverter";
-import logo from "../assets/logo.svg";
-import { Loading } from "../components";
+import React, { useEffect, useState, useContext } from 'react';
+import { Link } from 'react-router-dom';
+import { useHistory } from 'react-router';
+import callApi from '../utils/callApi';
+import { LogoutOutlined } from '@ant-design/icons';
+import { AppContext } from '../context/globalState';
+import { logout } from '../utils/firebase';
+import logo from '../assets/logo.svg';
+import { convertAmount } from '../utils/amountConverter';
+import { Loading, CustomModal } from '../components';
 
 const Sidebar = () => {
   let history = useHistory();
   const { setLoggedIn, user } = useContext(AppContext);
+  const [loading, setLoading] = useState(false);
+  const [userBalance, setUserBalance] = useState();
+  const [error, setError] = useState('');
+  const [showModal, setShowModal] = useState(false);
+
+  useEffect(() => {
+    if (!loading) {
+      getBalance();
+    }
+    async function getBalance() {
+      try {
+        let user = await localStorage.getItem('user');
+        user = JSON.parse(user);
+        const response = await callApi('balance', user?.wallet);
+
+        if (!response?.error && response?.status !== 'error') {
+          const balance = convertAmount(Number(response?.balance));
+          setUserBalance(balance);
+          user.wallet.balance = balance[0];
+          await localStorage.setItem('user', JSON.stringify(user));
+        } else {
+          console.log('Balance error', response?.error);
+          setError(response?.error);
+          setShowModal(true);
+        }
+      } catch (err) {
+        console.error('Error while getting wallet balance', err);
+      }
+    }
+  }, [loading]);
+
+  const addFunds = async () => {
+    setLoading(true);
+    try {
+      if (user?.userId) {
+        const response = await callApi('faucet', { 
+          userId: user?.userId,
+          apiKey: user?.apiKey,
+        });
+        
+        if (response?.error || response?.status === 'error') {
+          setError(response?.error);
+          setShowModal(true);
+        }
+        setLoading(false);
+      }
+    } catch (err) {
+      console.error('Error while adding funds', err);
+    }
+  };
+
+  const withdraw = async () => {
+    setLoading(true);
+    try {
+      if (user?.userId) {
+        const response = await callApi('withdraw', { 
+          userId: user?.userId,
+          apiKey: user?.apiKey,
+        });
+
+        if (response?.error || response?.status === 'error') {
+          setError(response?.error);
+          setShowModal(true);
+        }
+        setLoading(false);
+      }
+    } catch (err) {
+      console.error('Error while withdrawing funds', err);
+    }
+  };
 
   const callback = async () => {
     setLoggedIn(false);
@@ -18,33 +89,39 @@ const Sidebar = () => {
     history.push("/");
   };
 
-  const balance = convertAmount(Number(user?.wallet?.balance));
-
   return (
     <div className="sidebar-wrapper">
       <Link to="/">
         <img src={logo} alt="Logo" className="sidebar-logo" />
       </Link>
-      {!user?.wallet ? (
+      {loading ? (
           <Loading />
         ) : (
         <div className="sidebar-content">
           <h5 className="main-wallet-text"> MAIN WALLLET </h5>
           <h1 className="wallet-balance">
-            { balance?.[0] || 0 } <span className="wallet-balance3"> { balance?.[1] || "Iota" } </span>
+            {userBalance?.[0]}
+            <span className='wallet-balance3'>&nbsp;{userBalance?.[1]}</span>
           </h1>
           <br />
-          <button className="custom-button" onClick={() => console.log("Add funds")}>
+          <button className="custom-button" onClick={addFunds}>
             Add funds
           </button>
-          <Link to="/wallet" className="cta">
+          <button className='custom-button-withdraw' onClick={withdraw}>
             Withdraw
-          </Link>
+          </button>
+          {showModal && (
+            <CustomModal
+              error={error}
+              callback={() => setShowModal(false)}
+              show={showModal}
+            />
+          )}
         </div>
       )}
       <div className="sidebar-footer">
-        <button className="logout" style={{ fontSize: "15px", color: "#aab8c2" }} onClick={() => logout(callback)}>
-          <LogoutOutlined rotate={180} style={{ fontSize: "15px", color: "#aab8c2" }} /> Logout
+        <button className="logout" onClick={() => logout(callback)}>
+          <LogoutOutlined rotate={180} /> Logout
         </button>
       </div>
     </div>

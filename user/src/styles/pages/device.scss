@@ -4,15 +4,19 @@
     flex-flow: column;
     padding: 25px 0 0 0;
     width: 100%;
-
     .ant-col {
         width: 90%;
     }
 }
 
+.device-page-content {
+    padding: 0 40px;
+}
+
 .transactions-tab-wrapper {
     padding: 0 40px 0 40px;
     width: 100%;
+    height: 100%;
 }
 
 .device-info {

@@ -79,7 +79,6 @@ const overviewTableColumns = [
     ),
   },
 ];
-
 const DevicesTable = ({ data }) => {
   let history = useHistory();
   return (
@@ -93,6 +92,7 @@ const DevicesTable = ({ data }) => {
       dataSource={ data }
       rowKey={ item => item.id }
       pagination={{ hideOnSinglePage: true }}
+      scroll={{ y: 800 }}
     />
   );
 };

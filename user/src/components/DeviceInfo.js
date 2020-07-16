@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { Card, Space, Row, Col } from "antd";
-import { PlayCircleOutlined, PauseCircleOutlined } from "@ant-design/icons";
-import { convertAmount } from "../utils/amountConverter";
-import { Loading } from ".";
+import React, { useEffect, useState, useContext } from 'react';
+import callApi from '../utils/callApi';
+import { AppContext } from '../context/globalState';
+import { Card, Space, Row, Col } from 'antd';
+import { PlayCircleOutlined, PauseCircleOutlined } from '@ant-design/icons';
+import { convertAmount } from '../utils/amountConverter';
+import { Loading, CustomModal } from '.';
 
 const { Meta } = Card;
 
@@ -11,6 +12,11 @@ const DeviceInfo = ({ device, transactions }) => {
   const [energy, setEnergy] = useState();
   const [total, setTotal] = useState();
   const [price, setPrice] = useState();
+  const { user, updateUser } = useContext(AppContext);
+  const [loading, setLoading] = useState(false);
+  const [deviceBalance, setDeviceBalance] = useState(convertAmount(Number(device?.wallet?.balance)));
+  const [error, setError] = useState('');
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     const transactionsCount = transactions && Object.keys(transactions)?.length;
@@ -27,14 +33,77 @@ const DeviceInfo = ({ device, transactions }) => {
             totalPrice += Number(entry?.energyPrice);
             totalCount++;
           }
-        })
+        });
       });
       setEnergy(totalEnergy || 0);
       setPrice((totalPrice / totalCount || 0).toFixed(2));
     }
   }, [transactions]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const balance = convertAmount(Number(device?.wallet?.balance));
+
+  const addFunds = async () => {
+    setLoading(true);
+    try {
+      if (user?.userId && device?.id) {
+        const payload = {
+          userId: user?.userId,
+          apiKey: user?.apiKey,
+          deviceId: device?.id,
+        };
+        const response = await callApi('faucet', payload);
+
+        if (response?.error || response?.status === 'error') {
+          setError(response?.error);
+          setShowModal(true);
+        }
+        await getBalance();
+        await updateUser();
+        setLoading(false);
+      }
+    } catch (err) {
+      console.error('Error while adding funds', err);
+    }
+  };
+
+  const withdraw = async () => {
+    setLoading(true);
+    try {
+      if (user?.userId && device?.id) {
+        const payload = {
+          userId: user?.userId,
+          apiKey: user?.apiKey,
+          deviceId: device?.id,
+        };
+        const response = await callApi('withdraw', payload);
+
+        if (response?.error || response?.status === 'error') {
+          setError(response?.error);
+          setShowModal(true);
+        }
+        await getBalance();
+        await updateUser();
+        setLoading(false);
+      }
+    } catch (err) {
+      console.error('Error while adding funds', err);
+    }
+  };
+
+  const getBalance = async () => {
+    try {
+      const response = await callApi('balance', device?.wallet);
+      if (!response?.error && response?.status !== 'error') {
+        const balance = convertAmount(Number(response?.balance));
+        setDeviceBalance(balance);
+      } else {
+        console.log('Balance error', response?.error);
+        setError(response?.error);
+        setShowModal(true);
+      }
+    } catch (err) {
+      console.error('Error while getting wallet balance', err);
+    }
+  }
 
   return (
     <div className="device-info">
@@ -43,7 +112,7 @@ const DeviceInfo = ({ device, transactions }) => {
           <Card
             className="device-overview-card"
             hoverable
-            cover={device?.image && <img className="device-image" alt="image" src={device?.image} />}
+            cover={device?.image && <img className="device-image" alt={device?.name} src={device?.image} />}
           >
             <Meta title={device?.name.charAt(0).toUpperCase() + device?.name.slice(1)} description={(
               <div className="description">
@@ -64,20 +133,35 @@ const DeviceInfo = ({ device, transactions }) => {
           </Card>
         </Col>
         <Col span={8}>
-          <Card hoverable className="device-info-card">
+        <Card hoverable className='device-info-card'>
             <span> DEVICE WALLET </span>
-            <h1 className="transaction-info-device">
-              { balance?.[0] || 0 } <span className="wallet-balance3-device"> { balance?.[1] || "Iota" } </span>
-            </h1>
-            <div>
-              <Space size={10}>
-                <button className="cta-device" onClick={() => console.log("Add funds")}>
-                  Add funds
-                </button>
-                <Link to="/wallet" className="cta-device-withdraw">
-                  Withdraw
-                </Link>
-              </Space>
+            <div className='wallet-info-device'>
+              {loading ? (
+                <Loading />
+              ) : (
+                <React.Fragment>
+                  <h1>
+                    {deviceBalance?.[0] || 0}
+                    <span className='wallet-balance3-device'> {deviceBalance?.[1]} </span>
+                  </h1>
+                  <br />
+                  <Space size={10}>
+                    <button className='cta-device' onClick={addFunds}>
+                      Add funds
+                    </button>
+                    <button className='cta-device-withdraw' onClick={withdraw}>
+                      Withdraw
+                    </button>
+                  </Space>
+                  {showModal && (
+                    <CustomModal
+                      error={error}
+                      callback={() => setShowModal(false)}
+                      show={showModal}
+                    />
+                  )}
+                </React.Fragment>
+              )}
             </div>
           </Card>
         </Col>
@@ -132,6 +216,6 @@ const DeviceInfo = ({ device, transactions }) => {
       </Row>
     </div>
   );
-}
+};
 
 export default DeviceInfo;

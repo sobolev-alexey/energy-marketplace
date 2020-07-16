@@ -25,7 +25,7 @@
             justify-content: space-between;
             padding-bottom: 10px;
             margin-bottom: 15px;
-            border-bottom: 1px solid #EEF2FA;
+            border-bottom: 1px solid #eef2fa;
             a {
                 color: #c3d0e4;
                 font-weight: 500;
@@ -43,8 +43,10 @@
 
 .logout {
     background: transparent;
+    color: #aab8c2;
+    font-size: 15px;
     &:hover {
-        color: #141414;
+        color: white;
         background: transparent;
         border: none;
         transition: all 0.5s;
@@ -54,6 +56,19 @@
 .custom-button {
     font-weight: 500;
     margin-bottom: 15px;
+}
+
+.custom-button-withdraw {
+    font-weight: 500;
+    margin-bottom: 15px;
+    background: #242529;
+    border: 1px solid #f4f8f9;
+    color: #ffffff;
+    &:hover {
+        background: #242529;
+        border: 1px solid black;
+        transition: all 0.2s;
+    }
 }
 
 .main-wallet-text {
@@ -73,6 +88,15 @@
     color: #242529;
     font-size: 30px;
     position: relative;
+}
+
+.wallet-info-device {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    justify-content: space-evenly;
+    align-items: center;
 }
 
 .wallet-balance2 {

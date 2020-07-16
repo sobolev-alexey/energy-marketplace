@@ -17,7 +17,7 @@ const {
   logEvent,
   updateWalletKeyIndex,
 } = require("./firebase");
-const { decryptVerify, getNewWallet, faucet, getBalance, checkBalance } = require("./helpers");
+const { decryptVerify, getNewWallet, faucet, getBalance, checkBalance, withdraw } = require("./helpers");
 const { EncryptionService } = require("./encryption");
 
 // Setup User with an API Key
@@ -292,18 +292,73 @@ exports.image = functions.https.onRequest((req, res) => {
   });
 });
 
-exports.faucet = functions.https.onRequest((req, res) => {
+exports.withdraw = functions.https.onRequest((req, res) => {
   cors(req, res, async () => {
     // Check Fields
-    const packet = req.body;
-    if (!packet || !packet.address) {
-      console.error("faucet failed. Receiving Address: ", packet.address);
-      return res.status(400).json({ error: "Malformed Request" });
+    const params = req.body;
+    if (!params || !params.userId || !params.apiKey) {
+      console.error("Faucet request failed. Params: ", params);
+      return res.status(400).json({ error: "Ensure all fields are included" });
     }
 
     try {
-      const transactions = await faucet(packet.address);
-      return res.json({ transactions });
+      const user = await getUser(params.userId, true);
+
+      // Check correct apiKey
+      if (user && user.apiKey && user.apiKey === params.apiKey) {
+        if (params.deviceId) {
+          // Withdraw from device wallet
+          const { device, error } = await getDevice(params.userId, params.deviceId);
+          if (error) {
+            throw new Error(error);
+          } else {
+            await withdraw(user.userId, device.wallet, user.wallet.address, device.id);
+            return res.json({ status: "success" });
+          }
+        } else {
+          // Withdraw from user wallet
+          await withdraw(user.userId, user.wallet, params.withdrawAddress || null);
+          return res.json({ status: "success" });
+        }
+      }
+      return res.json({ status: "error", error: "Wrong api key" });
+    } catch (e) {
+      console.error('withdraw failed. Error: ', e.message);
+      return res.json({ status: 'error', error: e.message });
+    }
+  });
+});
+
+exports.faucet = functions.https.onRequest((req, res) => {
+  cors(req, res, async () => {
+    // Check Fields
+    const params = req.body;
+    if (!params || !params.userId || !params.apiKey) {
+      console.error("Faucet request failed. Params: ", params);
+      return res.status(400).json({ error: "Ensure all fields are included" });
+    }
+
+    try {
+      const user = await getUser(params.userId, true);
+
+      // Check correct apiKey
+      if (user && user.apiKey && user.apiKey === params.apiKey) {
+        if (params.deviceId) {
+          // Fund device wallet
+          const { device, error } = await getDevice(params.userId, params.deviceId);
+          if (error) {
+            throw new Error(error);
+          } else {
+            await faucet('device', device.wallet, user);
+            return res.json({ status: "success" });
+          }
+        } else {
+          // Fund user wallet
+          await faucet('user', user.wallet, null);
+          return res.json({ status: "success" });
+        }
+      }
+      return res.json({ status: "error", error: "Wrong api key" });
     } catch (e) {
       console.error("faucet failed. Error: ", e.message);
       return res.json({ status: "error", error: e.message });

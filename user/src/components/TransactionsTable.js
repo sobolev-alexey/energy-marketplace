@@ -139,6 +139,7 @@ const TransactionsTable = ({ data }) => {
       dataSource={ items }
       rowKey={ item => `${item?.transactionId}-${item?.status}` }
       pagination={{ hideOnSinglePage: true }}
+      scroll={{ y: 800 }}
       expandable={{
         expandRowByClick: true,
         expandedRowRender: (record, index) => (
@@ -146,6 +147,7 @@ const TransactionsTable = ({ data }) => {
             columns={transactionDetailsTableColumns}
             dataSource={data[record.transactionId]} 
             pagination={false} 
+            scroll={{ y: 800 }}
             rowKey={ item => item?.status }
             expandable={{
               expandRowByClick: true,
