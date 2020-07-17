@@ -3,12 +3,10 @@ import cors from 'cors';
 import express, { Application } from 'express';
 import isEmpty from 'lodash/isEmpty';
 import { UI } from 'bull-board';
-// import logger from 'morgan';
 import { serverPortNumber, websocketPortNumber } from '../config.json';
 import { IDataResponse } from '../models/api/IDataResponse';
 import { IRoute } from '../models/app/IRoute';
 import { IConfiguration } from '../models/configuration/IConfiguration';
-import { arenaConfig } from './queueHelper';
 import { readData } from './databaseHelper';
 
 /**
@@ -38,13 +36,12 @@ export class AppHelper {
         app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
         app.use(bodyParser.json());
 
-        // app.use(logger('dev'));
-
         // Queue UI
         const asset: any = await readData('asset');
         if (asset?.dashboard === 'enabled') {
-            app.use('/admin/board', UI);
-            app.use('/admin/arena', arenaConfig);
+            console.log('Enabling dashboard', asset?.dashboard);
+
+            app.use('/dashboard', UI);
         }
 
         app.use(cors({
@@ -129,18 +126,8 @@ export class AppHelper {
                         response = await routes[i].inline(config, params, body);
                     }
                     if (routes[i].func === 'init') {
-                        setTimeout(() => {
-                            console.log('Restarting...');
-                            process.on('exit', () => {
-                                require('child_process').spawn(process.argv.shift(), process.argv, {
-                                    cwd: process.cwd(),
-                                    detached : true,
-                                    stdio: 'inherit'
-                                });
-                            });
-                            process.exit();
-                        // tslint:disable-next-line:align
-                        }, 1000);
+                        console.log('Restarting...');
+                        process.exit(1);
                     }
                 } catch (err) {
                     res.status(err.httpCode || 400);

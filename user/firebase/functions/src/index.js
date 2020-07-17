@@ -189,8 +189,8 @@ exports.device = functions.https.onRequest((req, res) => {
           assetWallet: wallet,
           marketplacePublicKey: settings.marketplacePublicKey,
           assetOwnerPublicKey: user.publicKey,
-          status: params.running === true ? "running" : "paused",
-          dashboard: params.dashboard === true ? "enabled" : "disabled",
+          status: params.running === true || params.running === "true" ? "running" : "paused",
+          dashboard: params.dashboard === true || params.dashboard === "true" ? "enabled" : "disabled",
           uuid: params.uuid,
           url: params.url
         }
