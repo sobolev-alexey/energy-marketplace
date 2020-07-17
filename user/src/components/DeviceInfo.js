@@ -114,7 +114,7 @@ const DeviceInfo = ({ device, transactions }) => {
               <a 
                 target='_blank'
                 rel='noopener noreferrer'
-                href={`${device?.url}/admin/board`}
+                href={`${device?.url}/dashboard`}
               >
                 <Card
                   className="device-overview-card"
