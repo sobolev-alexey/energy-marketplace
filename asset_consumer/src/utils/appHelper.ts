@@ -126,8 +126,11 @@ export class AppHelper {
                         response = await routes[i].inline(config, params, body);
                     }
                     if (routes[i].func === 'init') {
-                        console.log('Restarting...');
-                        process.exit(1);
+                        setTimeout(() => {
+                            console.log('Restarting...');
+                            process.exit(1);
+                        // tslint:disable-next-line:align
+                        }, 1000);
                     }
                 } catch (err) {
                     res.status(err.httpCode || 400);
