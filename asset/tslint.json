@@ -212,7 +212,7 @@
             "allow-leading-underscore"
         ],
         "align": [
-            true,
+            false,
             "parameters",
             "arguments",
             "statements"
@@ -221,7 +221,7 @@
         "eofline": true,
         "import-spacing": true,
         "indent": [
-            true,
+            false,
             "spaces"
         ],
         "linebreak-style": false,
