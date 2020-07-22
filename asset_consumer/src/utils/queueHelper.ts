@@ -62,17 +62,17 @@ const settings = {
     }
 };
 
-const consumeEnergyQueue = new Queue('consumeEnergy', { redis, prefix: `{provider}`, settings });
-const produceEnergyQueue = new Queue('produceEnergy', { redis, prefix: `{provider}`, settings });
-const transactionQueue = new Queue('createTransaction', { redis, prefix: `{provider}`, settings });
-const energyProvisionQueue = new Queue('energyProvision', { redis, prefix: `{provider}`, settings });
-const processContractQueue = new Queue('processContract', { redis, prefix: `{provider}`, settings });
-const processPaymentQueue = new Queue('processPayment', { redis, prefix: `{provider}`, settings });
-const processPaymentRequestQueue = new Queue('processPaymentRequest', { redis, prefix: `{provider}`, settings });
-const issueClaimQueue = new Queue('issueClaim', { redis, prefix: `{provider}`, settings });
-const cancelTransactionQueue = new Queue('cancelTransaction', { redis, prefix: `{provider}`, settings });
-const confirmPaymentProcessingQueue = new Queue('confirmPaymentProcessing', { redis, prefix: `{provider}`, settings });
-const confirmPaymentQueue = new Queue('confirmPayment', { redis, prefix: `{provider}`, settings });
+const consumeEnergyQueue = new Queue('consumeEnergyConsumer', { redis, prefix: `{requester}`, settings });
+const produceEnergyQueue = new Queue('produceEnergyConsumer', { redis, prefix: `{requester}`, settings });
+const transactionQueue = new Queue('createTransactionConsumer', { redis, prefix: `{requester}`, settings });
+const energyProvisionQueue = new Queue('energyProvisionConsumer', { redis, prefix: `{requester}`, settings });
+const processContractQueue = new Queue('processContractConsumer', { redis, prefix: `{requester}`, settings });
+const processPaymentQueue = new Queue('processPaymentConsumer', { redis, prefix: `{requester}`, settings });
+const processPaymentRequestQueue = new Queue('processPaymentRequestConsumer', { redis, prefix: `{requester}`, settings });
+const issueClaimQueue = new Queue('issueClaimConsumer', { redis, prefix: `{requester}`, settings });
+const cancelTransactionQueue = new Queue('cancelTransactionConsumer', { redis, prefix: `{requester}`, settings });
+const confirmPaymentProcessingQueue = new Queue('confirmPaymentProcessingConsumer', { redis, prefix: `{requester}`, settings });
+const confirmPaymentQueue = new Queue('confirmPaymentConsumer', { redis, prefix: `{requester}`, settings });
 
 export const queues = {
     consumeEnergy: consumeEnergyQueue,

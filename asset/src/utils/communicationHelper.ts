@@ -29,9 +29,7 @@ export const sendRequest = async (
 
     try {
         console.log('sendRequest', endpoint);
-        const headers = { 'Content-Type': 'application/json' };
-        const httpsAgent = new https.Agent({ rejectUnauthorized: false });
-        const axiosResponse = await ax.post<IResponse>(endpoint, request, { headers, httpsAgent });
+        const axiosResponse = await ax.post<IResponse>(endpoint, request);
 
         response = axiosResponse.data;
         console.log('sendRequest response', response);

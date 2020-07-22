@@ -198,11 +198,9 @@ exports.device = functions.https.onRequest((req, res) => {
         console.log("Payload", JSON.stringify(payload));
 
         // Send payload to device
-        const headers = { "Content-Type": "application/json" };
-        const httpsAgent = new https.Agent({ rejectUnauthorized: false })
         let deviceResponse;
         try {
-          const response = await axios.post(`${params.url}/init`, payload, { headers, httpsAgent });
+          const response = await axios.post(`${params.url}/init`, payload);
           deviceResponse = response;
           console.log("API", response && JSON.stringify(response.data));
         } catch (error) {
