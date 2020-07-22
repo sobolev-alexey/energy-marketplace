@@ -9,7 +9,6 @@ const {
 const {
   getSettings,
   getUser,
-  getDevice,
   updateWalletAddressKeyIndex,
 } = require('./firebase');
 const { EncryptionService } = require('./encryption');
@@ -36,7 +35,7 @@ const decryptVerify = async (encrypted, userId) => {
           device.publicKey, decrypted.message, decrypted.signature
         );  
               
-        return { verificationResult, message: decrypted.message, mam: decrypted.mam };
+        return { verificationResult, message: decrypted.message, mam: decrypted.mam, assetId };
       }
       throw new Error('No user key');
     } else {
