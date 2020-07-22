@@ -1,5 +1,4 @@
 import axios from 'axios';
-import https from 'https';
 import io from 'socket.io-client';
 import { log } from './loggerHelper';
 

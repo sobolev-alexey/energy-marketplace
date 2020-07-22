@@ -2,7 +2,6 @@ const functions = require("firebase-functions");
 const tools = require('firebase-tools');
 const cors = require("cors")({ origin: true });
 const axios = require("axios");
-const https = require("https");
 const { v4: uuid } = require("uuid");
 const randomstring = require("randomstring");
 const {
