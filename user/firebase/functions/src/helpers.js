@@ -26,7 +26,11 @@ const decryptVerify = async (encrypted, userId) => {
           user.privateKey, encrypted
         );
 
-        const device = user.devices.find(asset => asset.id === decrypted.message.assetId);
+        const assetId = decrypted.message.type === 'offer'
+          ? decrypted.message.providerId
+          : decrypted.message.requesterId;
+
+        const device = user.devices.find(asset => asset.id === assetId);
 
         const verificationResult = encryptionService.verifySignature(
           device.publicKey, decrypted.message, decrypted.signature
