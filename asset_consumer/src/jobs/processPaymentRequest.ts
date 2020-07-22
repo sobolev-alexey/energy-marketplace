@@ -29,8 +29,7 @@ export default async (job, done) => {
                     };
 
                     await transactionLog(invalidTransaction);
-                    await log(`Payment request verification failed. ${transaction}`);
-                    throw new Error(`Payment request verification failed. ${transaction}`);
+                    await log(`Payment request verification failed. ${JSON.stringify(transaction)}`);
                 }
                 done(null);
             } else {
@@ -39,7 +38,7 @@ export default async (job, done) => {
         }
     } catch (error) {
         console.error('processPaymentRequest', error);
-        await log(`processPaymentRequest Error ${error.toString()}`);
-        done(new Error(`processPaymentRequest Error ${error.toString()}`));
+        await log(`processPaymentRequest ${error.toString()}`);
+        done(new Error(`processPaymentRequest ${error.toString()}`));
     }
 };
