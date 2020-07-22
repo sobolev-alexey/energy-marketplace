@@ -97,8 +97,8 @@ export async function verifyRequest(request: any): Promise<any> {
 
         return true;
     } catch (error) {
-        await log(`Payment request verification failed. ${error}`);
-        console.log('Payment request verification failed', request, error);
+        await log(`verifyRequest failed. ${JSON.stringify(error)}`);
+        console.log('verifyRequest failed', request, error);
         return false;
     }
 }
