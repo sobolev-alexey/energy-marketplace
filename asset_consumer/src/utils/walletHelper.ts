@@ -178,14 +178,14 @@ export const processPaymentQueue = async () => {
             requesterId: asset.assetId
           };
 
-          await signPublishEncryptSend(payload, 'fund');
+          return await signPublishEncryptSend(payload, 'fund');
+        } else {
+            return await transferFunds(
+                wallet,
+                totalAmount,
+                paymentQueue
+            );
         }
-
-        return await transferFunds(
-            wallet,
-            totalAmount,
-            paymentQueue
-        );
     } catch (error) {
         console.error('transferFunds catch', error);
         return error;
