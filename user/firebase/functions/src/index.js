@@ -83,16 +83,14 @@ exports.notify_event = functions.https.onRequest((req, res) => {
       const result = await decryptVerify(params.encrypted, params.userId);
 
       if (result && result.verificationResult && result.message) {
-        const deviceId = result.message.type === "offer" ? result.message.providerId : result.message.requesterId;
-
         const transactionId =
           result.message.type === "offer"
             ? result.message.providerTransactionId
             : result.message.requesterTransactionId;
 
         // Store event
-        await logEvent(params.userId, deviceId, transactionId, result.message, result.mam);
-        await updateWalletKeyIndex(params.userId, deviceId, params.keyIndex);
+        await logEvent(params.userId, result.assetId, transactionId, result.message, result.mam);
+        await updateWalletKeyIndex(params.userId, result.assetId, params.keyIndex);
         return res.json({ status: "success" });
       }
 
@@ -452,27 +450,25 @@ exports.fund = functions.https.onRequest((req, res) => {
       const result = await decryptVerify(params.encrypted, params.userId);
 
       if (result && result.verificationResult && result.message) {
-        const deviceId = result.message.assetId;
         const user = await getUser(params.userId, true, true);
-        const settings = await getSettings();
   
-        const existingDevice = user.devices.find(device => device.id === deviceId);
+        const { device, error } = await getDevice(params.userId, result.assetId);
 
-        if (existingDevice) {
-          const { address, balance } = await checkBalance(existingDevice.wallet);
+        if (error) {
+          throw new Error(error);
+        } else {
+          const { address, balance } = await checkBalance(device.wallet);
+          const settings = await getSettings();
 
           if (balance < settings.deviceWalletAmount) {
-            console.log(`Fund device ${deviceId}, current balance: ${balance}. Wallet address: ${address}`);
-            await faucet(address);
+            console.log(`Fund device ${result.assetId}, Balance: ${balance}, Wallet address: ${address}`);
+            await faucet('device', device.wallet, user);
             return res.json({ status: "success" });
           } else {
             return res.json({ status: "error", error: "enough balance" });
           }
-        } else {
-          return res.json({ status: "error", error: "no device" });
         }
       }
-
       return res.json({ status: "error" });
     } catch (e) {
       console.error("Fund device failed.", e);
