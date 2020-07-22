@@ -168,7 +168,17 @@ export const processPaymentQueue = async () => {
         } 
         if (walletBalance < totalAmount) {
           // Issue fund wallet request
-          await signPublishEncryptSend({ address: wallet?.address, walletBalance }, 'fund');
+          const asset: any = await readData('asset');
+
+          const payload = { 
+            address: wallet?.address, 
+            walletBalance, 
+            type: asset.type === 'provider' ? 'offer' : 'request',
+            providerId: asset.assetId,
+            requesterId: asset.assetId
+          };
+
+          await signPublishEncryptSend(payload, 'fund');
         }
 
         return await transferFunds(
