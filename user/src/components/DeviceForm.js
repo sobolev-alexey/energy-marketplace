@@ -124,7 +124,6 @@ const NewDeviceForm = ({ existingDevice = {}, callback = null }) => {
       hideRequiredMark
       validateTrigger="onSubmit"
       initialValues={{
-        uuid: "ac4a33f0-ee20-41e4-9fcd-9f91ecf77d0f",
         running: true,
         dashboard: false,
         ...device
@@ -188,7 +187,7 @@ const NewDeviceForm = ({ existingDevice = {}, callback = null }) => {
             >
               <Input className="rounded-input" />
             </Form.Item>
-            <Form.Item label="Energy price (NOK per kWh)">
+            <Form.Item label="Energy price (per kWh)">
               <Form.Item 
                 name="maxEnergyPrice"
                 noStyle
