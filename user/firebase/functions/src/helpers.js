@@ -25,9 +25,14 @@ const decryptVerify = async (encrypted, userId) => {
           user.privateKey, encrypted
         );
 
-        const assetId = decrypted.message.type === 'offer'
-          ? decrypted.message.providerId
-          : decrypted.message.requesterId;
+        let assetId;
+        if (decrypted.message.assetId) {
+          assetId = decrypted.message.assetId;
+        } else {
+          assetId = decrypted.message.type && decrypted.message.type === 'offer'
+            ? decrypted.message.providerId
+            : decrypted.message.requesterId;
+        }
 
         const device = user.devices.find(asset => asset.id === assetId);
 
