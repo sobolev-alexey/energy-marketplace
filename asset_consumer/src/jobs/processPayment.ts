@@ -18,10 +18,9 @@ export default async (job, done) => {
 
         const balance = await getBalance(wallet?.address);
         if (balance <= paymentAmount) {
-            const fundWalletRequest = {
-                assetId: job?.data?.requesterId,
-                walletAddress: wallet?.address,
-                minFundingAmount: paymentAmount
+            const fundWalletRequest = { 
+                address: wallet?.address, 
+                assetId: job?.data?.requesterId
             };
             const fundWalletResponse = await signPublishEncryptSend(fundWalletRequest, 'fund');
 

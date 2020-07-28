@@ -172,10 +172,7 @@ export const processPaymentQueue = async () => {
 
           const payload = { 
             address: wallet?.address, 
-            walletBalance, 
-            type: asset.type === 'provider' ? 'offer' : 'request',
-            providerId: asset.assetId,
-            requesterId: asset.assetId
+            assetId: asset.assetId
           };
 
           return await signPublishEncryptSend(payload, 'fund');
