@@ -51,6 +51,29 @@ const decryptVerify = async (encrypted, userId) => {
   }
 };
 
+const decryptVerifyMarketplace = async encrypted => {
+  try {
+    if (encrypted) {
+      const settings = await getSettings();
+      const encryptionService = EncryptionService();
+
+      const decrypted = encryptionService.privateDecrypt(
+        settings.backend.privateKey, encrypted
+      );
+
+      const verificationResult = encryptionService.verifySignature(
+        decodeURIComponent(device.marketplacePublicKey), decrypted.message, decrypted.signature
+      );  
+              
+      return { verificationResult, message: decrypted.message };
+    } else {
+      throw new Error('No encrypted payload found');
+    }
+  } catch (error) {
+    throw new Error(error);
+  }
+};
+
 const generateSeed = (length = 81) => {
   const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ9';
   let seed = '';
@@ -293,6 +316,7 @@ const checkBalance = async ({ seed, keyIndex }) => {
 
 module.exports = {
   decryptVerify,
+  decryptVerifyMarketplace,
   getNewWallet,
   faucet,
   getBalance,

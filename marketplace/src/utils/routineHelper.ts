@@ -3,6 +3,7 @@ import { log } from './loggerHelper';
 import { fetch, publish } from './mamHelper';
 import { EncryptionService, IMessagePayload, IReceivedMessagePayload } from './encryptionHelper';
 import { sendRequest } from './communicationHelper';
+import { transactionGUIAPI, transactionGUIPublicKey } from '../config.json';
 
 export async function decryptVerify(request: any): Promise<{
     verificationResult: boolean;
@@ -136,6 +137,54 @@ export async function signPublishEncryptSend(
 
             return response;
         }
+    } catch (error) {
+        console.error('signPublishEncryptSend', error);
+        await log(`signPublishEncryptSend Error ${error.toString()}`);
+        return null;
+    }
+}
+
+export async function signPublishEncryptSendMarketplace(payload: any): Promise<{success: boolean}> {
+    try {
+        // Retrieve encryption keys
+        const keys: any = await readData('keys');
+        if (!keys || !keys.privateKey) {
+            throw new Error('No keypair found in database');
+        }
+
+        // Sign payload
+        const encryptionService = new EncryptionService();
+        const signature: Buffer = encryptionService.signMessage(
+            keys?.privateKey, payload
+        );
+
+        console.log('signPublishEncryptSendMarketplace 01', payload);
+        let transactionId;
+        if (payload?.type === 'offer') {
+            transactionId = payload?.providerId;
+        } else if (payload?.type === 'request') {
+            transactionId = payload?.requesterId;
+        }
+
+        const mam = await readData('mam', 'transactionId', transactionId);
+        console.log('signPublishEncryptSendMarketplace 02', transactionId, mam);
+
+        // Encrypt payload and signature with asset's public key
+        const messagePayload: any = { message: payload, signature, mam };
+        // console.log(444, messagePayload);
+
+        const encrypted: string = encryptionService.publicEncrypt(
+            transactionGUIPublicKey, JSON.stringify(messagePayload)
+        );
+
+        console.log('signPublishEncryptSendMarketplace 03', messagePayload);
+
+        // Send encrypted payload and signature to asset
+        // tslint:disable-next-line:no-unnecessary-local-variable
+        const response = await sendRequest(`${transactionGUIAPI}/marketplace`, { encrypted });
+        console.log('signPublishEncryptSendMarketplace 04', response);
+
+        return response;
     } catch (error) {
         console.error('signPublishEncryptSend', error);
         await log(`signPublishEncryptSend Error ${error.toString()}`);

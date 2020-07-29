@@ -10,5 +10,7 @@
     "mamMode": "RESTRICTED",
     "tag": "ENERGYBROKER",
     "bidManagerURL": "http://localhost:5050",
-    "redisHost": "127.0.0.1"
+    "redisHost": "127.0.0.1",
+    "transactionGUIAPI": "https://us-central1-cityexchange-energymarketplace.cloudfunctions.net",
+    "transactionGUIPublicKey": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAkbkfSwTIMbPgjHWuNhgc\ncAtvkcaHHWpQhOno02j/06jsJ6LJu1b+5H0as9W9dnMmVwQDDkJVd2zIrWBs7/v4\ndKyBksDwbwgN3k6RkxAsnNjeXg4gV3gQIAwmreh8ys63tHtDoWPXtUPchWdE0qEK\n2InUV3yvKuRT2rPeB/3hdF5Ld4KXxW9gLlGpspK1z4bmxwUSDw7hQ0I2ZWVKPxLu\ngbwZ21oNDrIyjUwNXjI6dolmDttiD3L2etlLqK3FrIP86H7+80B3N30uEXBM9KUW\ndaQww594EycbAh0KvHwJza4WOztP2ZMGVxjLgzPv72Q0twRt1qdugkI7JeKcTHZk\n5QIDAQAB\n-----END PUBLIC KEY-----"
 }
