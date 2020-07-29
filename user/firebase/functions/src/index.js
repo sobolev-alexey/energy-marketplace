@@ -14,9 +14,19 @@ const {
   getDevice,
   deleteDevice,
   logEvent,
+  logMarketplaceEvent,
   updateWalletKeyIndex,
+  storeBackendKeys
 } = require("./firebase");
-const { decryptVerify, getNewWallet, faucet, getBalance, checkBalance, withdraw } = require("./helpers");
+const { 
+  decryptVerify, 
+  decryptVerifyMarketplace,
+  getNewWallet, 
+  faucet, 
+  getBalance, 
+  checkBalance, 
+  withdraw 
+} = require("./helpers");
 const { EncryptionService } = require("./encryption");
 
 // Setup User with an API Key
@@ -509,3 +519,37 @@ exports.remove = functions.https.onRequest((req, res) => {
     }
   });
 });
+
+exports.marketplace = functions.https.onRequest((req, res) => {
+  cors(req, res, async () => {
+    // Check Fields
+    const params = req.body;
+    if (!params || !params.encrypted) {
+      console.error("Marketplace event failed. Params: ", params);
+      return res.status(400).json({ error: "Ensure all fields are included" });
+    }
+
+    try {
+      // Decrypt payload and verify signature
+      const result = await decryptVerifyMarketplace(params.encrypted, params.userId);
+
+      if (result && result.verificationResult && result.message) {
+        const transactionId =
+          result.message.type === "offer"
+            ? result.message.providerTransactionId
+            : result.message.requesterTransactionId;
+
+        console.log('marketplace', transactionId, JSON.stringify(result.message));
+        // Store event
+        await logMarketplaceEvent(transactionId, result.message);
+        return res.json({ status: "success" });
+      }
+
+      return res.json({ status: "error" });
+    } catch (e) {
+      console.error("Marketplace event failed.", e);
+      return res.json({ status: "error", error: e.message });
+    }
+  });
+});
+

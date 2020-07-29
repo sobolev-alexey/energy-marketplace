@@ -206,6 +206,30 @@ exports.logEvent = async (userId, deviceId, transactionId, event, mam) => {
   return true;
 };
 
+exports.logMarketplaceEvent = async (transactionId, event) => {
+  const timestamp = (new Date()).toLocaleString().replace(/\//g, '.');
+
+  await admin
+    .firestore()
+    .collection('marketplace')
+    .doc(transactionId)
+    .set({ 
+      transactionId,
+      timestamp
+    }, { merge: true });
+
+  await admin
+    .firestore()
+    .collection(`marketplace/${transactionId}/events`)
+    .doc(timestamp)
+    .set({ 
+      ...event,
+      timestamp
+    }, { merge: true });
+
+  return true;
+};
+
 exports.updateWalletKeyIndex = async (userId, deviceId, keyIndex) => {
   await admin
     .firestore()
