@@ -503,7 +503,7 @@ exports.marketplace = functions.https.onRequest((req, res) => {
 
     try {
       // Decrypt payload and verify signature
-      const result = await decryptVerifyMarketplace(params.encrypted, params.userId);
+      const result = await decryptVerifyMarketplace(params.encrypted);
 
       if (result && result.verificationResult && result.message) {
         const transactionId =
