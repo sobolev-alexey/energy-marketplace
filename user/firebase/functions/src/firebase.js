@@ -61,11 +61,13 @@ exports.getUser = async (userId, internal = false, wallet = false) => {
   return null;
 };
 
-exports.getTransactions = async (userId, deviceId) => {
+exports.getTransactions = async (userId, deviceId, marketplace = false) => {
   // Get device's events
+  const path = marketplace ? 'marketplace' : `events/${userId}/devices/${deviceId}/transactions`;
+  console.log('getTransactions', marketplace, path);
   const transactionsSnapshot = await admin
     .firestore()
-    .collection(`events/${userId}/devices/${deviceId}/transactions/`)
+    .collection(path)
     .limit(2000)
     .get();
 

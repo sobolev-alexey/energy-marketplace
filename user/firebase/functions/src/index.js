@@ -407,7 +407,7 @@ exports.transactions = functions.https.onRequest((req, res) => {
 
       // Check correct apiKey
       if (user && user.apiKey && user.apiKey === params.apiKey) {
-        const transactions = await getTransactions(params.userId, params.deviceId);
+        const transactions = await getTransactions(params.userId, params.deviceId, user.marketplace);
         return res.json({ status: "success", transactions });
       }
       return res.json({ status: "error", error: "wrong api key" });
