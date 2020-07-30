@@ -12,6 +12,7 @@ import OverviewHeader from "./OverviewHeader";
 import CustomModal from "./CustomModal";
 import MessageContent from "./MessageContent";
 import MessageList from "./MessageList";
+import Marketplace from "./Marketplace";
 
 export { 
     Sidebar, 
@@ -27,5 +28,6 @@ export {
     OverviewHeader,
     CustomModal,
     MessageContent,
-    MessageList
+    MessageList,
+    Marketplace
 };
