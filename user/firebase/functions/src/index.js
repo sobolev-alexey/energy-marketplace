@@ -10,13 +10,11 @@ const {
   setDevice,
   getUser,
   getTransactions,
-  getEvents,
   getDevice,
   deleteDevice,
   logEvent,
   logMarketplaceEvent,
   updateWalletKeyIndex,
-  storeBackendKeys
 } = require("./firebase");
 const { 
   decryptVerify, 
@@ -107,32 +105,6 @@ exports.notify_event = functions.https.onRequest((req, res) => {
       return res.json({ status: "error" });
     } catch (e) {
       console.error("Log event failed.", e);
-      return res.json({ status: "error", error: e.message });
-    }
-  });
-});
-
-exports.events = functions.https.onRequest((req, res) => {
-  cors(req, res, async () => {
-    // Check Fields
-    const params = req.body;
-    if (!params || !params.userId || !params.deviceId || !params.transactionId || !params.apiKey) {
-      console.error("Event request failed. Params: ", params);
-      return res.status(400).json({ error: "Ensure all fields are included" });
-    }
-
-    try {
-      // Retrieve user
-      const user = await getUser(params.userId);
-
-      // Check correct apiKey
-      if (user && user.apiKey && user.apiKey === params.apiKey) {
-        const events = await getEvents(params.userId, params.deviceId, params.transactionId);
-        return res.json({ status: "success", events });
-      }
-      return res.json({ status: "error", error: "wrong api key" });
-    } catch (e) {
-      console.error("Event request failed. Error: ", e);
       return res.json({ status: "error", error: e.message });
     }
   });
