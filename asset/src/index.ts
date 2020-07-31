@@ -29,7 +29,6 @@ AppHelper.build(routes, async (app, config, websocketPort) => {
 
     const devNetLoadBalancerSettings: LoadBalancerSettings = {
         nodeWalkStrategy: new LinearWalkStrategy(config.devNetNodes),
-        // successMode: SuccessMode.keep,
         timeoutMs: 10000
     };
     ServiceFactory.register('devnet-load-balancer-settings', () => devNetLoadBalancerSettings);
@@ -38,13 +37,9 @@ AppHelper.build(routes, async (app, config, websocketPort) => {
     const socketServer = SocketIO(server);
     server.listen(websocketPort);
     socketServer.on('connection', socket => {
-        console.log('marketplace connected');
-        // socket.on('subscribe', data => socket.emit('subscribe', transactionsSubscribe(config, socket)));
         socket.on('message', message);
         socket.on('disconnect', () => console.log('marketplace disconnected'));
     });
-
-    // ServiceFactory.register('businessLogic', () => BusinessLogic());
 
     // tslint:disable-next-line:no-unused-expression
     BusinessLogic();
