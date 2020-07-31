@@ -3,7 +3,7 @@ import { log, transactionLog } from '../utils/loggerHelper';
 
 export default async (job, done) => {
     try {
-        await log(`confirmPaymentProcessing job started`);
+        await log(`confirmProcessing job started`);
         const transaction = JSON.parse(job?.data);
         const payload = {
             ...transaction,
@@ -22,8 +22,8 @@ export default async (job, done) => {
         }
         done(null);
     } catch (error) {
-        console.error('confirmPaymentProcessing', error);
-        await log(`confirmPaymentProcessing Error ${error.toString()}`);
-        done(new Error(`confirmPaymentProcessing Error ${error.toString()}`));
+        console.error('confirmProcessing', error);
+        await log(`confirmProcessing Error ${error.toString()}`);
+        done(new Error(`confirmProcessing Error ${error.toString()}`));
     }
 };
