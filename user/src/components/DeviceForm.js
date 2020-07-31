@@ -19,7 +19,6 @@ const NewDeviceForm = ({ existingDevice = {}, callback = null }) => {
   const [error, setError] = useState();
 
   const uploadFile = async ({ file, onSuccess }) => {
-    console.log("uploadFile", device?.deviceId, file);
     const promise = new Promise(async (resolve, reject) => {
       try {
         let retries = 0;
@@ -36,7 +35,6 @@ const NewDeviceForm = ({ existingDevice = {}, callback = null }) => {
             .put(file)
             .then(snapshot => snapshot.ref.getDownloadURL())
             .then(url => {
-              console.log("uploadFile success", url);
               setImageUrl(url);
               onSuccess(() => form.current.submit());
               resolve(url)
@@ -56,7 +54,6 @@ const NewDeviceForm = ({ existingDevice = {}, callback = null }) => {
   };
 
   const onFinish = async (values) => {
-    console.log("Received values of form: ", values);
     try {
       setLoading(true);
       let user = await localStorage.getItem("user");
@@ -89,13 +86,11 @@ const NewDeviceForm = ({ existingDevice = {}, callback = null }) => {
           dashboard,
           image: imageUrl || existingDevice?.image
         }
-        console.log('Device', payload);
 
         const response = await callApi('device', payload);
         setLoading(false);
         
         if (!response?.error && response?.status !== 'error') {
-          console.log(response?.status);
           if (response?.deviceId) {
             setDevice({ ...payload, deviceId: response?.deviceId });
             // history.push(`/device/${response?.deviceId}`);
