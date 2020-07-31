@@ -511,7 +511,6 @@ exports.marketplace = functions.https.onRequest((req, res) => {
             ? result.message.providerTransactionId
             : result.message.requesterTransactionId;
 
-        console.log('marketplace', transactionId, JSON.stringify(result.message));
         // Store event
         await logMarketplaceEvent(transactionId, result.message);
         return res.json({ status: "success" });
