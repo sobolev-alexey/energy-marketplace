@@ -42,8 +42,6 @@ export const getBalance = async address => {
 
 const transferFunds = async (wallet, totalAmount, paymentQueue) => {
     try {
-        console.log('transferFunds 00', wallet);
-
         const { address, keyIndex, seed } = wallet;
         const config: any = await readData('asset');
         const loadBalancerSettings = ServiceFactory.get<LoadBalancerSettings>(
@@ -63,10 +61,7 @@ const transferFunds = async (wallet, totalAmount, paymentQueue) => {
 
         return new Promise(async (resolve, reject) => {
             try {
-                console.log('transferFunds 01', typeof keyIndex, seed);
                 const remainderAddress = generateAddress(seed, Number(keyIndex) + 1);
-                console.log('transferFunds 02', Number(keyIndex) + 1, remainderAddress);
-
                 const transactionOptions = {
                     inputs: [{
                         address,
@@ -95,9 +90,7 @@ const transferFunds = async (wallet, totalAmount, paymentQueue) => {
                 while (retries++ < 60) {
                     statuses = await iota.getInclusionStates(hashes);
                     inclusions = statuses?.filter(status => status).length;
-                    console.log('Inclusions after transfer', retries, inclusions);
                     if (inclusions > transfers.length) {
-                        console.log(inclusions);
                         break;
                     }
                     statuses = null;
@@ -139,7 +132,6 @@ export const updateWallet = async (seed, address, keyIndex, balance) => {
 export const processPaymentQueue = async () => {
     let paymentQueue: any = [];
     try {
-        console.log('processPayment start');
         const wallet: IWallet = await readData('wallet');
     
         if (!wallet) {
@@ -147,16 +139,13 @@ export const processPaymentQueue = async () => {
             return null;
         }
 
-        console.log('processPaymentQueue', wallet);
-        
         let walletBalance = await getBalance(wallet?.address);
         console.log('processPayment check wallet', wallet?.address, walletBalance);
         
         let totalAmount = 0;
         paymentQueue = await getPaymentQueue();
-        console.log('processPayment paymentQueue', paymentQueue);
         paymentQueue.forEach(data => totalAmount += Number(data?.value));
-        console.log('processPayment', totalAmount);
+        console.log('processPayment paymentQueue', totalAmount, paymentQueue);
         
         if (paymentQueue?.length === 0 || totalAmount === 0) {
             return null;
