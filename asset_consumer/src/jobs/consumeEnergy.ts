@@ -17,8 +17,8 @@ export default async (job, done) => {
             });
 
             await log(`Consumed ${energyConsumptionAmount} W of energy`);
-            done(null);
         }
+        done(null);
     } catch (error) {
         console.error('consumeEnergy', error);
         await log(`consumeEnergy Error ${error.toString()}`);
