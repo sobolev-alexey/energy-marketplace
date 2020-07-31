@@ -17,8 +17,8 @@ export default async (job, done) => {
             });
 
             await log(`Produced ${energyProductionAmount} W of energy`);
-            done(null);
         }
+        done(null);
     } catch (error) {
         console.error('produceEnergy', error);
         await log(`produceEnergy Error ${error.toString()}`);

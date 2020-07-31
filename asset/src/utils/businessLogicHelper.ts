@@ -54,8 +54,11 @@ export async function BusinessLogic() {
         setInterval(processPayments, paymentQueueProcessingSpeed * 1000);
         setInterval(processPendingTransactions, pendingTransactionsProcessingSpeed * 1000);
         setInterval(() => queues.transaction.add({}, options), transactionCreationSpeed * 1000);
-        setInterval(() => queues.consumeEnergy.add({}, options), energyConsumptionSpeed * 1000);
-        setInterval(() => queues.produceEnergy.add({}, options), energyProductionSpeed * 1000);
+        if (asset?.type === 'requester') { 
+            setInterval(() => queues.consumeEnergy.add({}, options), energyConsumptionSpeed * 1000);
+        } else {
+            setInterval(() => queues.produceEnergy.add({}, options), energyProductionSpeed * 1000);
+        }
     }
 }
 
