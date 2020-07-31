@@ -9,7 +9,6 @@ export default async (job, done) => {
         const payload = await decryptVerify(job?.data);        
         if (payload?.verificationResult) {
             const asset: any = await readData('asset');
-            console.log('processContract', asset?.type, payload?.message?.contractId, payload?.message);
             if (asset?.type === 'provider') {
                 await provideEnergy(payload?.message?.offer);
             } else if (asset?.type === 'requester') {
