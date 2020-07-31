@@ -4,9 +4,8 @@ import { log, transactionLog } from '../utils/loggerHelper';
 export default async (job, done) => {
     try {
         await log(`confirmProcessing job started`);
-        const transaction = JSON.parse(job?.data);
         const payload = {
-            ...transaction,
+            ...job?.data,
             timestamp: Date.now().toString(), 
             status: 'Payment processed'
         };
