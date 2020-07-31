@@ -57,7 +57,7 @@ const Overview = () => {
 
   return (
     <Layout>
-      <OverviewHeader />
+      <OverviewHeader marketplace={user?.marketplace || false} />
       <div className="overview-page-wrapper">
         {loading ? (
           <Loading />
