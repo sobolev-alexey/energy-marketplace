@@ -68,7 +68,7 @@ exports.getTransactions = async (userId, deviceId, marketplace = false) => {
   const transactionsSnapshot = await admin
     .firestore()
     .collection(path)
-    .limit(2000)
+    .limit(1500)
     .get();
 
   const transactions = {};
