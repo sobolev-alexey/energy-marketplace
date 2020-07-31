@@ -55,13 +55,9 @@ export const receiveEnergy = async (transaction: any): Promise<void> => {
             timestamp: Date.now().toString(), 
             status: 'Energy provision finished'
         };
-        console.log('receiveEnergy 111', updatedTransactionPayload);
 
         await transactionLog(updatedTransactionPayload);
-
         await log(`Energy provision of ${transaction?.energyAmount} finished to ${transaction.location}`);
-
-        console.log('receiveEnergy 222', updatedTransactionPayload);
         queues.energyProvision.add(updatedTransactionPayload, options);
     } catch (error) {
         console.error('receiveEnergy', error);
