@@ -61,7 +61,7 @@ export default async (job, done) => {
         }
     } catch (error) {
         console.error('processMatch', error);
-        await log(`processMatch Error ${error.toString()}`);
+        await log(`processMatch Error ${JSON.stringify(error)}. Payload: ${JSON.stringify(job?.data)}`);
         done(new Error(`processMatch Error ${error.toString()}`));
     }
 };
