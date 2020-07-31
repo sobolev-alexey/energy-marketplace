@@ -48,7 +48,7 @@ export async function BusinessLogic() {
         }
     };
 
-    console.log('Asset status:', asset?.status);
+    console.log(`Asset status: ${asset?.status}, Type: ${asset?.type}`);
 
     if (asset?.status === 'running') {
         setInterval(processPayments, paymentQueueProcessingSpeed * 1000);
@@ -56,7 +56,7 @@ export async function BusinessLogic() {
         setInterval(() => queues.transaction.add({}, options), transactionCreationSpeed * 1000);
         if (asset?.type === 'requester') { 
             setInterval(() => queues.consumeEnergy.add({}, options), energyConsumptionSpeed * 1000);
-        } else {
+        } else if (asset?.type === 'provider') {
             setInterval(() => queues.produceEnergy.add({}, options), energyProductionSpeed * 1000);
         }
     }
