@@ -161,9 +161,9 @@ export async function signPublishEncryptSendMarketplace(payload: any): Promise<{
         console.log('signPublishEncryptSendMarketplace 01', payload);
         let transactionId;
         if (payload?.type === 'offer') {
-            transactionId = payload?.providerId;
+            transactionId = payload?.providerTransactionId;
         } else if (payload?.type === 'request') {
-            transactionId = payload?.requesterId;
+            transactionId = payload?.requesterTransactionId;
         }
 
         const mam = await readData('mam', 'transactionId', transactionId);
