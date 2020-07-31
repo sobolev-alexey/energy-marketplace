@@ -17,9 +17,8 @@ export const paymentConfirmation = async () => {
         
         // Check presence of pending payment confirmations
         const pendingPaymentConfirmations: any = await readAllData('transactionLog', 10, 'status', 'Payment processed');
-        console.log('pendingPaymentConfirmations', pendingPaymentConfirmations);
+        console.log('PendingPaymentConfirmations:', pendingPaymentConfirmations?.length);
         if (!pendingPaymentConfirmations || !pendingPaymentConfirmations.length) {
-            console.log('paymentConfirmation: no pending transactions', pendingPaymentConfirmations.length);
             return;
         }
 
