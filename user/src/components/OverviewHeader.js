@@ -13,6 +13,7 @@ const OverviewHeader = ({ marketplace = false }) => (
           <h5>Devices</h5>
           <Link to="/new" className="cta2">
             <PlusCircleFilled style={{ fontSize: "36px" }} /> Add a new device
+            <span />
           </Link>
         </React.Fragment>
       )
