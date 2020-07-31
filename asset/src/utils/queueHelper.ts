@@ -11,7 +11,7 @@ import processPaymentRequest from '../jobs/processPaymentRequest';
 import processPayment from '../jobs/processPayment';
 import issueClaim from '../jobs/issueClaim';
 import cancelTransaction from '../jobs/cancelTransaction';
-import confirmPaymentProcessing from '../jobs/confirmPaymentProcessing';
+import confirmProcessing from '../jobs/confirmProcessing';
 import confirmPayment from '../jobs/confirmPayment';
 
 const redisTestClient = redisClient.createClient();
@@ -71,7 +71,7 @@ const processPaymentQueue = new Queue('processPayment', { redis, prefix: `{provi
 const processPaymentRequestQueue = new Queue('processPaymentRequest', { redis, prefix: `{provider}`, settings });
 const issueClaimQueue = new Queue('issueClaim', { redis, prefix: `{provider}`, settings });
 const cancelTransactionQueue = new Queue('cancelTransaction', { redis, prefix: `{provider}`, settings });
-const confirmPaymentProcessingQueue = new Queue('confirmPaymentProcessing', { redis, prefix: `{provider}`, settings });
+const confirmProcessingQueue = new Queue('confirmProcessing', { redis, prefix: `{provider}`, settings });
 const confirmPaymentQueue = new Queue('confirmPayment', { redis, prefix: `{provider}`, settings });
 
 export const queues = {
@@ -84,7 +84,7 @@ export const queues = {
     processPaymentRequest: processPaymentRequestQueue,
     issueClaim: issueClaimQueue,
     cancelTransaction: cancelTransactionQueue,
-    confirmPaymentProcessing: confirmPaymentProcessingQueue,
+    confirmProcessing: confirmProcessingQueue,
     confirmPayment: confirmPaymentQueue
 };
 
@@ -135,9 +135,9 @@ queues.cancelTransaction.on('completed', () => {
     console.log('cancelTransaction job completed');
 });
 
-queues.confirmPaymentProcessing.process(confirmPaymentProcessing);
-queues.confirmPaymentProcessing.on('completed', () => {
-    console.log('confirmPaymentProcessing job completed');
+queues.confirmProcessing.process(confirmProcessing);
+queues.confirmProcessing.on('completed', () => {
+    console.log('confirmProcessing job completed');
 });
 
 queues.confirmPayment.process(confirmPayment);

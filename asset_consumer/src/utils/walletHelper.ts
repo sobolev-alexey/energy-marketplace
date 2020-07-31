@@ -107,7 +107,8 @@ const transferFunds = async (wallet, totalAmount, paymentQueue) => {
                     
                     // remove transfer from the queue
                     for (const transfer of paymentQueue) {
-                        queues.confirmPaymentProcessing.add(transfer?.transactionPayload, options);
+                        console.log('Payment completed, adding to confirmation queue', transfer?.transactionPayload);
+                        queues.confirmProcessing.add(transfer?.transactionPayload, options);
                         await removeData('paymentQueue', 'address', transfer?.address);
                     }
                 }
