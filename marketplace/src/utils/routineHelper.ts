@@ -25,17 +25,12 @@ export async function decryptVerify(request: any): Promise<{
                     : decrypted?.message?.providerId ;
                 const asset: any = await readData('asset', 'assetId', assetId);
 
-                console.log('decryptVerify 01', assetId, decrypted?.message?.type);
-                console.log('decryptVerify 02', asset);
-                console.log('decryptVerify 03', decrypted?.message);
-                console.log('decryptVerify 04', decrypted?.mam);
-
                 if (asset) {
                     const verificationResult: boolean = encryptionService.verifySignature(
                         asset?.assetPublicKey, decrypted?.message, decrypted?.signature
                     );  
 
-                    console.log('decryptVerify 05', verificationResult);
+                    console.log('decryptVerify', verificationResult);
 
                     await writeData('mam', decrypted?.mam);
                     if (verificationResult) {
@@ -114,27 +109,19 @@ export async function signPublishEncryptSend(
             );
 
             // Publish payload to MAM
-            console.log('signPublishEncryptSend 00', assetId, `${asset?.assetURL}/${endpoint}`);
-            console.log('signPublishEncryptSend 01', transactionId, payload);
             const mam = await publish(transactionId, { message: payload, signature });
-            console.log('signPublishEncryptSend 02', mam);
             await new Promise(resolve => setTimeout(resolve, 2000));
             
             // Encrypt payload and signature with asset's public key
             const messagePayload: IMessagePayload = { message: payload, signature, mam };
-            // console.log(444, messagePayload);
 
             const encrypted: string = encryptionService.publicEncrypt(
                 asset?.assetPublicKey, JSON.stringify(messagePayload)
             );
 
-            console.log('signPublishEncryptSend 03', asset);
-
             // Send encrypted payload and signature to asset
             // tslint:disable-next-line:no-unnecessary-local-variable
             const response = await sendRequest(`${asset?.assetURL}/${endpoint}`, { encrypted });
-            console.log('signPublishEncryptSend 04', response);
-
             return response;
         }
     } catch (error) {
@@ -158,7 +145,6 @@ export async function signPublishEncryptSendMarketplace(payload: any): Promise<{
             keys?.privateKey, payload
         );
 
-        console.log('signPublishEncryptSendMarketplace 01', payload);
         let transactionId;
         if (payload?.type === 'offer') {
             transactionId = payload?.providerTransactionId;
@@ -167,23 +153,17 @@ export async function signPublishEncryptSendMarketplace(payload: any): Promise<{
         }
 
         const mam = await readData('mam', 'transactionId', transactionId);
-        console.log('signPublishEncryptSendMarketplace 02', transactionId, mam);
 
         // Encrypt payload and signature with asset's public key
         const messagePayload: any = { message: payload, signature, mam };
-        // console.log(444, messagePayload);
 
         const encrypted: string = encryptionService.publicEncrypt(
             transactionGUIPublicKey, JSON.stringify(messagePayload)
         );
 
-        console.log('signPublishEncryptSendMarketplace 03', messagePayload);
-
         // Send encrypted payload and signature to asset
         // tslint:disable-next-line:no-unnecessary-local-variable
         const response = await sendRequest(`${transactionGUIAPI}/marketplace`, { encrypted });
-        console.log('signPublishEncryptSendMarketplace 04', response);
-
         return response;
     } catch (error) {
         console.error('signPublishEncryptSend', error);
