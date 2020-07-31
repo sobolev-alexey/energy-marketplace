@@ -91,7 +91,6 @@ export const arenaConfig = Arena(
         }))
     },                        
     {
-        // basePath: '/arena',
         disableListen: true // Let express handle the listening.
     }
 );
