@@ -45,6 +45,7 @@ app.post('/remove', async (req, res) => {
 
 const findMatch = async (table, payload) => {
     try {
+        console.log('Looking for matching', table, payload);
         // Rules:
         // energy amount offered >= energy amount requested
         // energy price offered <= energy price requested
@@ -91,6 +92,7 @@ const findMatch = async (table, payload) => {
 
 const sendMatch = async payload => {
     try {
+        console.log('sendMatch request', payload);
         const axiosResponse = await axios.post(marketplace, payload);
         return axiosResponse.data;
     } catch (error) {
