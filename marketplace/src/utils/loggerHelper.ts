@@ -4,7 +4,6 @@ import { signPublishEncryptSendMarketplace } from './routineHelper';
 export const log = async (event: string) => {
     try {
         await writeData('log', { timestamp: Date.now().toString(), event });
-        console.log('Log:', event);
     } catch (error) {
         console.error('logger', error);
     }
