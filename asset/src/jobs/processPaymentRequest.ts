@@ -8,7 +8,6 @@ export default async (job, done) => {
     try {
         await log(`processPaymentRequest job started`);
         const asset: any = await readData('asset');
-        console.log('Payment JOB', asset);
         if (asset?.type === 'requester') {
             const payload = await decryptVerify(job?.data);        
             if (payload?.verificationResult) {
