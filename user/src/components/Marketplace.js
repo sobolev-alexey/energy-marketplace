@@ -4,7 +4,7 @@ import callApi from "../utils/callApi";
 
 const Marketplace = () => {
   const [transactions, setTransactions] = useState();
-  const [loading] = useState(true);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadTransactions() {
@@ -21,6 +21,7 @@ const Marketplace = () => {
 
           if (!transactionsResponse?.error && transactionsResponse?.status !== 'error') {
             setTransactions(transactionsResponse?.transactions);
+            setLoading(false);
           } else {
             console.error("Error loading transaction data", transactionsResponse?.error);
           }
