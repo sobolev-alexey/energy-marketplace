@@ -11,10 +11,10 @@ const db = new sqlite3.Database(
             }
 
             await db.run(`CREATE TABLE IF NOT EXISTS offer (
-                providerId TEXT, providerTransactionId TEXT, timestamp TEXT, energyAmount REAL, energyPrice REAL, type TEXT, walletAddress TEXT)`);
+                providerId TEXT, providerTransactionId TEXT, timestamp TEXT, energyAmount REAL, energyPrice REAL, type TEXT, additionalDetails TEXT, walletAddress TEXT)`);
 
             await db.run(`CREATE TABLE IF NOT EXISTS request (
-                requesterId TEXT, requesterTransactionId TEXT, timestamp TEXT, energyAmount REAL, energyPrice REAL, type TEXT)`);
+                requesterId TEXT, requesterTransactionId TEXT, timestamp TEXT, energyAmount REAL, energyPrice REAL, type TEXT, additionalDetails TEXT)`);
         } catch (error) {
             console.log('create', error);
             return null;
@@ -30,20 +30,20 @@ exports.close = async () => {
     });
 };
 
-exports.createOffer = async ({ providerId, providerTransactionId, timestamp, energyAmount, energyPrice, type, walletAddress = '' }) => {
+exports.createOffer = async ({ providerId, providerTransactionId, timestamp, energyAmount, energyPrice, type, additionalDetails = '', walletAddress = '' }) => {
     const query = `
         REPLACE INTO offer (
-            providerId, providerTransactionId, timestamp, energyAmount, energyPrice, type, walletAddress
-        ) VALUES (?, ?, ?, ?, ?, ?, ?)`;
-    await db.run(query, [providerId, providerTransactionId, timestamp, energyAmount, energyPrice, type, walletAddress]);
+            providerId, providerTransactionId, timestamp, energyAmount, energyPrice, type, additionalDetails, walletAddress
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+    await db.run(query, [providerId, providerTransactionId, timestamp, energyAmount, energyPrice, type, additionalDetails, walletAddress]);
 };
 
-exports.createRequest = async ({ requesterId, requesterTransactionId, timestamp, energyAmount, energyPrice, type }) => {
+exports.createRequest = async ({ requesterId, requesterTransactionId, timestamp, energyAmount, energyPrice, type, additionalDetails = '' }) => {
     const query = `
         REPLACE INTO request (
-            requesterId, requesterTransactionId, timestamp, energyAmount, energyPrice, type
-        ) VALUES (?, ?, ?, ?, ?, ?)`;
-    await db.run(query, [requesterId, requesterTransactionId, timestamp, energyAmount, energyPrice, type]);
+            requesterId, requesterTransactionId, timestamp, energyAmount, energyPrice, type, additionalDetails
+        ) VALUES (?, ?, ?, ?, ?, ?, ?)`;
+    await db.run(query, [requesterId, requesterTransactionId, timestamp, energyAmount, energyPrice, type, additionalDetails]);
 };
 
 exports.findOffer = async (request) => {

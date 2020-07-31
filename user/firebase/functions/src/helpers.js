@@ -62,7 +62,7 @@ const decryptVerifyMarketplace = async encrypted => {
       );
 
       const verificationResult = encryptionService.verifySignature(
-        decodeURIComponent(device.marketplacePublicKey), decrypted.message, decrypted.signature
+        decodeURIComponent(settings.marketplacePublicKey), decrypted.message, decrypted.signature
       );  
               
       return { verificationResult, message: decrypted.message };

@@ -2,7 +2,7 @@ import React, { useEffect, useState, useContext } from "react";
 import { Input, Select, Divider } from "antd";
 import { AppContext } from "../context/globalState";
 import callApi from "../utils/callApi";
-import { Layout, Loading, DevicesTable, OverviewHeader } from "../components";
+import { Layout, Loading, DevicesTable, OverviewHeader, Marketplace } from "../components";
 
 const { Search } = Input;
 const { Option } = Select;
@@ -57,32 +57,35 @@ const Overview = () => {
 
   return (
     <Layout>
-      <OverviewHeader />
+      <OverviewHeader marketplace={user?.marketplace || false} />
       <div className="overview-page-wrapper">
         {loading ? (
           <Loading />
-        ) : (
-          <div>
-            <div className="overview-sub-header-wrapper">
-              <Select defaultValue="A-Z" style={{ width: "188px" }} onChange={setDevicesSort}>
-                <Option value="A-Z">Sort by: A-Z</Option>
-                <Option value="Z-A">Sort by: Z-A</Option>
-              </Select>
+        ) : 
+          user?.marketplace
+            ? <Marketplace />
+            : (
+              <div>
+                <div className="overview-sub-header-wrapper">
+                  <Select defaultValue="A-Z" style={{ width: "188px" }} onChange={setDevicesSort}>
+                    <Option value="A-Z">Sort by: A-Z</Option>
+                    <Option value="Z-A">Sort by: Z-A</Option>
+                  </Select>
 
-              <Search
-                placeholder="Search for devices"
-                onChange={(e) => {
-                  setSearchQuery(e.target.value);
-                }}
-                style={{ width: 300 }}
-              />
-            </div>
-            <div>
-              <Divider className={"divider"} />
-              <DevicesTable data={filteredDevices} />
-            </div>
-          </div>
-        )}
+                  <Search
+                    placeholder="Search for devices"
+                    onChange={(e) => {
+                      setSearchQuery(e.target.value);
+                    }}
+                    style={{ width: 300 }}
+                  />
+                </div>
+                <div>
+                  <Divider className={"divider"} />
+                  <DevicesTable data={filteredDevices} />
+                </div>
+              </div>
+            )}
       </div>
     </Layout>
   );

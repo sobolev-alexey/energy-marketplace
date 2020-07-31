@@ -61,12 +61,14 @@ exports.getUser = async (userId, internal = false, wallet = false) => {
   return null;
 };
 
-exports.getTransactions = async (userId, deviceId) => {
+exports.getTransactions = async (userId, deviceId, marketplace = false) => {
   // Get device's events
+  const path = marketplace ? 'marketplace' : `events/${userId}/devices/${deviceId}/transactions`;
+  console.log('getTransactions', marketplace, path);
   const transactionsSnapshot = await admin
     .firestore()
-    .collection(`events/${userId}/devices/${deviceId}/transactions/`)
-    .limit(2000)
+    .collection(path)
+    .limit(1500)
     .get();
 
   const transactions = {};
@@ -99,22 +101,6 @@ exports.getTransactions = async (userId, deviceId) => {
   }
 
   return transactions;
-};
-
-exports.getEvents = async (userId, deviceId, transactionId) => {
-  // Get events
-  const querySnapshot = await admin
-    .firestore()
-    .collection(
-      `events/${userId}/devices/${deviceId}/transactions/${transactionId}/events`
-    )
-    .get();
-
-  // Check there is data
-  if (querySnapshot.size === 0) return [];
-
-  // Return data
-  return querySnapshot.docs.filter(doc => doc.exists && doc.data());
 };
 
 exports.updateWalletAddressKeyIndex = async (address, keyIndex, userId = null, deviceId = null) => {

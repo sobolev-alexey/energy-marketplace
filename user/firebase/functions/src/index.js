@@ -10,13 +10,11 @@ const {
   setDevice,
   getUser,
   getTransactions,
-  getEvents,
   getDevice,
   deleteDevice,
   logEvent,
   logMarketplaceEvent,
   updateWalletKeyIndex,
-  storeBackendKeys
 } = require("./firebase");
 const { 
   decryptVerify, 
@@ -107,32 +105,6 @@ exports.notify_event = functions.https.onRequest((req, res) => {
       return res.json({ status: "error" });
     } catch (e) {
       console.error("Log event failed.", e);
-      return res.json({ status: "error", error: e.message });
-    }
-  });
-});
-
-exports.events = functions.https.onRequest((req, res) => {
-  cors(req, res, async () => {
-    // Check Fields
-    const params = req.body;
-    if (!params || !params.userId || !params.deviceId || !params.transactionId || !params.apiKey) {
-      console.error("Event request failed. Params: ", params);
-      return res.status(400).json({ error: "Ensure all fields are included" });
-    }
-
-    try {
-      // Retrieve user
-      const user = await getUser(params.userId);
-
-      // Check correct apiKey
-      if (user && user.apiKey && user.apiKey === params.apiKey) {
-        const events = await getEvents(params.userId, params.deviceId, params.transactionId);
-        return res.json({ status: "success", events });
-      }
-      return res.json({ status: "error", error: "wrong api key" });
-    } catch (e) {
-      console.error("Event request failed. Error: ", e);
       return res.json({ status: "error", error: e.message });
     }
   });
@@ -435,7 +407,7 @@ exports.transactions = functions.https.onRequest((req, res) => {
 
       // Check correct apiKey
       if (user && user.apiKey && user.apiKey === params.apiKey) {
-        const transactions = await getTransactions(params.userId, params.deviceId);
+        const transactions = await getTransactions(params.userId, params.deviceId, user.marketplace);
         return res.json({ status: "success", transactions });
       }
       return res.json({ status: "error", error: "wrong api key" });
@@ -531,7 +503,7 @@ exports.marketplace = functions.https.onRequest((req, res) => {
 
     try {
       // Decrypt payload and verify signature
-      const result = await decryptVerifyMarketplace(params.encrypted, params.userId);
+      const result = await decryptVerifyMarketplace(params.encrypted);
 
       if (result && result.verificationResult && result.message) {
         const transactionId =

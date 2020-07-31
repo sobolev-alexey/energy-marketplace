@@ -11,13 +11,13 @@
     "database": "../../db/energy_broker.sqlite3",
     "mamMode": "RESTRICTED",
     "tag": "ENERGYBROKER",
-    "energyProductionSpeed": 40,
+    "energyProductionSpeed": 400,
     "energyProductionAmount": 50,
-    "energyConsumptionSpeed": 20,
-    "energyConsumptionAmount": 30,
-    "energyProvisionSpeed": 40,
-    "transactionCreationSpeed": 40,
+    "energyConsumptionSpeed": 400,
+    "energyConsumptionAmount": 45,
+    "energyProvisionSpeed": 100,
+    "transactionCreationSpeed": 2000,
     "paymentQueueProcessingSpeed": 310,
     "pendingTransactionsProcessingSpeed": 600,
-    "maxPendingDurationHours": 24
+    "maxPendingDurationHours": 12
 }
