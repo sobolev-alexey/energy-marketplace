@@ -92,12 +92,12 @@ setQueues([ ...Object.values(queues) ]);
 
 queues.produceEnergy.process(produceEnergy);
 queues.produceEnergy.on('completed', () => {
-    console.log('produceEnergy job completed');
+    // console.log('produceEnergy job completed');
 });
 
 queues.consumeEnergy.process(consumeEnergy);
 queues.consumeEnergy.on('completed', () => {
-    console.log('consumeEnergy job completed');
+    // console.log('consumeEnergy job completed');
 });
 
 queues.transaction.process(createTransaction);
