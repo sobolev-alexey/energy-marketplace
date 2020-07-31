@@ -38,9 +38,8 @@ export class AppHelper {
 
         // Queue UI
         const asset: any = await readData('asset');
+        console.log('Dashboard:', asset?.dashboard);
         if (asset?.dashboard === 'enabled') {
-            console.log('Enabling dashboard', asset?.dashboard);
-
             app.use('/dashboard', UI);
         }
 

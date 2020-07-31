@@ -11,7 +11,6 @@ app.use(bodyParser.json());
 
 app.post('/offer', async (req, res) => {
     try {
-        // console.log('Got offer');
         findMatch('request', req.body);
         res.json({ success: true });
     } catch (e) {
@@ -22,7 +21,6 @@ app.post('/offer', async (req, res) => {
 
 app.post('/request', async (req, res) => {
     try {
-        // console.log('Got request');
         findMatch('offer', req.body);
         res.json({ success: true });
     } catch (e) {
@@ -33,7 +31,6 @@ app.post('/request', async (req, res) => {
 
 app.post('/remove', async (req, res) => {
     try {
-        // console.log('Remove transaction', req.body);
         if (req.body.type === 'request') {
             await removeData('request', 'requesterTransactionId', req.body.requesterTransactionId);
         } else if (req.body.type === 'offer') {
@@ -48,7 +45,6 @@ app.post('/remove', async (req, res) => {
 
 const findMatch = async (table, payload) => {
     try {
-        // console.log('Looking for matching', table, payload);
         // Rules:
         // energy amount offered >= energy amount requested
         // energy price offered <= energy price requested
@@ -58,8 +54,6 @@ const findMatch = async (table, payload) => {
                 const matchingOffer = await findOffer(payload);
 
                 if (matchingOffer) {
-                    // console.log('Matching offer found. Request', payload, 'offer', matchingOffer, Date.now())
-                    // console.log('Deleting offer', matchingOffer.providerTransactionId)
                     await removeData('offer', 'providerTransactionId', matchingOffer.providerTransactionId);
 
                     sendMatch({
@@ -75,8 +69,6 @@ const findMatch = async (table, payload) => {
                 const matchingRequest = await findRequest(payload);
 
                 if (matchingRequest) {
-                    // console.log('Matching request found. Request', payload, 'request', matchingRequest, Date.now())
-                    // console.log('Deleting request', matchingRequest.requesterTransactionId)
                     await removeData('request', 'requesterTransactionId', matchingRequest.requesterTransactionId);
 
                     sendMatch({
@@ -99,9 +91,7 @@ const findMatch = async (table, payload) => {
 
 const sendMatch = async payload => {
     try {
-        // console.log('sendMatch request', payload);
         const axiosResponse = await axios.post(marketplace, payload);
-        // console.log('sendMatch response', axiosResponse.data);
         return axiosResponse.data;
     } catch (error) {
         return { success: false };

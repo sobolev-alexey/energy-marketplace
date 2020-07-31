@@ -4,6 +4,7 @@ import { log } from '../utils/loggerHelper';
 export default async (job, done) => {
     try {
         await log(`energyProvision job started`);
+
         const response = await signPublishEncryptSend(job?.data, 'provision');
 
         // Evaluate response

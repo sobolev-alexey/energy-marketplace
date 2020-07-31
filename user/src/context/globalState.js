@@ -29,12 +29,10 @@ const GlobalState = ({ children }) => {
         setUser({ userId: firebaseUser?.uid, ...JSON.parse(existingUser) });
         
         if (!existingUser) {
-          console.log('Store user');
           setUser({ userId: firebaseUser?.uid });
           await localStorage.setItem("user", JSON.stringify({ userId: user?.uid }));
         }
       } else {
-        console.log('Remove user');
         await localStorage.clear();
         setUser({});
       }

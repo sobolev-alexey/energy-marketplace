@@ -68,7 +68,6 @@ export async function signPublishEncryptSend(payload: any, endpoint: string): Pr
             let mam;
             let publicKey;
 
-            console.log('signPublishEncryptSend 1', endpoint, payload);
             if (endpoint === 'fund' || endpoint === 'notify_event') {
                 // Get existing MAM channel details
                 mam = await readData('mam', 'transactionId', transactionId);
@@ -89,13 +88,9 @@ export async function signPublishEncryptSend(payload: any, endpoint: string): Pr
             const requestPayload: { encrypted: string; userId?: string; keyIndex?: number; } = { encrypted };
             if (endpoint === 'fund' || endpoint === 'notify_event') {
                 const wallet: IWallet = await readData('wallet');
-                
                 requestPayload.keyIndex = wallet?.keyIndex;
                 requestPayload.userId = asset.assetOwner;
-                console.log('signPublishEncryptSend 1.5', requestPayload.userId);
             }
-
-            console.log('signPublishEncryptSend 2', endpoint, payload);
 
             return await sendRequest(endpoint, requestPayload);
         }

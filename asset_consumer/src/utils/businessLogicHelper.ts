@@ -29,8 +29,6 @@ export async function BusinessLogic() {
     const processPendingTransactions = async (): Promise<void> => {
         const abandonedTransactions: any = await getAbandonedTransactions();
         const unpaidTransactions: any = await getUnpaidTransactions();
-        console.log('abandonedTransactions', abandonedTransactions);
-        console.log('unpaidTransactions', unpaidTransactions);
 
         // Cancel abandoned transactions
         abandonedTransactions.forEach(async transaction => 
@@ -50,10 +48,9 @@ export async function BusinessLogic() {
         }
     };
 
-    console.log('Asset status', asset?.status);
+    console.log('Asset status:', asset?.status);
 
     if (asset?.status === 'running') {
-        console.log('Asset starting');
         setInterval(processPayments, paymentQueueProcessingSpeed * 1000);
         setInterval(processPendingTransactions, pendingTransactionsProcessingSpeed * 1000);
         setInterval(() => queues.transaction.add({}, options), transactionCreationSpeed * 1000);

@@ -90,9 +90,7 @@ const transferFunds = async (wallet, totalAmount, paymentQueue) => {
                 while (retries++ < 60) {
                     statuses = await iota.getInclusionStates(hashes);
                     inclusions = statuses?.filter(status => status).length;
-                    console.log('Inclusions after transfer', retries, inclusions);
                     if (inclusions > transfers.length) {
-                        console.log(inclusions);
                         break;
                     }
                     statuses = null;
@@ -134,7 +132,6 @@ export const updateWallet = async (seed, address, keyIndex, balance) => {
 export const processPaymentQueue = async () => {
     let paymentQueue: any = [];
     try {
-        console.log('processPayment start');
         const wallet: IWallet = await readData('wallet');
     
         if (!wallet) {
@@ -147,9 +144,8 @@ export const processPaymentQueue = async () => {
         
         let totalAmount = 0;
         paymentQueue = await getPaymentQueue();
-        console.log('processPayment paymentQueue', paymentQueue);
         paymentQueue.forEach(data => totalAmount += Number(data?.value));
-        console.log('processPayment', totalAmount);
+        console.log('processPayment paymentQueue', totalAmount, paymentQueue);
         
         if (paymentQueue?.length === 0 || totalAmount === 0) {
             return null;
