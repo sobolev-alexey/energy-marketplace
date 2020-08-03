@@ -1,6 +1,4 @@
 import Queue from 'bull';
-import { setQueues } from 'bull-board';
-import Arena from 'bull-arena';
 import redisClient from 'redis';
 import { redisHost, redisPortNumber } from '../config.json';
 import issueClaim from '../jobs/issueClaim';
@@ -79,21 +77,6 @@ export const queues = {
     register: registerQueue,
     offerOrRequest: offerOrRequestQueue
 };
-
-setQueues([ ...Object.values(queues) ]);
-
-export const arenaConfig = Arena(
-    {
-        queues: Object.keys(queues).map(queue => ({
-            name: queue,
-            hostId: queue,
-            redis
-        }))
-    },                        
-    {
-        disableListen: true // Let express handle the listening.
-    }
-);
 
 queues.issueClaim.process(issueClaim);
 queues.issueClaim.on('completed', () => {
