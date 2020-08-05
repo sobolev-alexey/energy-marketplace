@@ -81,8 +81,8 @@ exports.notify_event = functions.https.onRequest((req, res) => {
   cors(req, res, async () => {
     // Check Fields
     const params = req.body;
-    if (!params || !params.userId || !params.keyIndex || !params.encrypted) {
-      console.error("Log event failed. Params: ", params);
+    if (!params || !params.userId || !params.encrypted) {
+      console.error("Log event failed. Params: ", params.userId, params.keyIndex);
       return res.status(400).json({ error: "Ensure all fields are included" });
     }
 
@@ -97,6 +97,7 @@ exports.notify_event = functions.https.onRequest((req, res) => {
             : result.message.requesterTransactionId;
 
         // Store event
+        console.log('Event', result.assetId, JSON.stringify(result.message));
         await logEvent(params.userId, result.assetId, transactionId, result.message, result.mam);
         await updateWalletKeyIndex(params.userId, result.assetId, params.keyIndex);
         return res.json({ status: "success" });
@@ -422,7 +423,7 @@ exports.fund = functions.https.onRequest((req, res) => {
   cors(req, res, async () => {
     // Check Fields
     const params = req.body;
-    if (!params || !params.userId || !params.keyIndex || !params.encrypted) {
+    if (!params || !params.userId || !params.encrypted) {
       console.error("Log event failed. Params: ", params);
       return res.status(400).json({ error: "Ensure all fields are included" });
     }
@@ -512,7 +513,7 @@ exports.marketplace = functions.https.onRequest((req, res) => {
             : result.message.requesterTransactionId;
 
         // Store event
-        await logMarketplaceEvent(transactionId, result.message);
+        await logMarketplaceEvent(transactionId, result.message, result.mam);
         return res.json({ status: "success" });
       }
 

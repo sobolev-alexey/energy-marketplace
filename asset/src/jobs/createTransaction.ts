@@ -11,6 +11,7 @@ export default async (job, done) => {
 
         if (asset) {
             const energyData: any = await readData('energy');
+            console.log('createTransaction energy', JSON.stringify(energyData));
 
             switch (asset.type) {
                 case 'requester': {

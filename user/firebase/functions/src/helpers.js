@@ -16,6 +16,7 @@ const { EncryptionService } = require('./encryption');
 const decryptVerify = async (encrypted, userId) => {
   try {
     if (encrypted && userId) {
+      const timestamp = Date.now();
       const user = await getUser(userId, true);
       if (user && user.privateKey) {
 
@@ -34,11 +35,16 @@ const decryptVerify = async (encrypted, userId) => {
             : decrypted.message.requesterId;
         }
 
+        console.log('decryptVerify 1', timestamp, assetId, JSON.stringify(user));
+        console.log('decryptVerify 2', timestamp, JSON.stringify(decrypted.message));
         const device = user.devices.find(asset => asset.id === assetId);
+
+        console.log('decryptVerify 3', timestamp, JSON.stringify(device));
 
         const verificationResult = encryptionService.verifySignature(
           device.publicKey, decrypted.message, decrypted.signature
         );  
+        console.log('decryptVerify 4', timestamp, verificationResult);
               
         return { verificationResult, message: decrypted.message, mam: decrypted.mam, assetId };
       }
@@ -64,8 +70,9 @@ const decryptVerifyMarketplace = async encrypted => {
       const verificationResult = encryptionService.verifySignature(
         decodeURIComponent(settings.marketplacePublicKey), decrypted.message, decrypted.signature
       );  
+      console.log('decryptVerifyMarketplace', verificationResult, JSON.stringify(decrypted.mam), JSON.stringify(decrypted.message));
               
-      return { verificationResult, message: decrypted.message };
+      return { verificationResult, message: decrypted.message, mam: decrypted.mam };
     } else {
       throw new Error('No encrypted payload found');
     }

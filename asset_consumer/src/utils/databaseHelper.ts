@@ -213,7 +213,7 @@ export const getAbandonedTransactions = async () => {
     return new Promise((resolve, reject) => {
         try {
             const query = `
-                SELECT * FROM transactionLog 
+                SELECT * FROM transactionList 
                 WHERE timestamp < ${getMaxAllowedTimestamp()}
                 AND (
                     status = 'Initial offer' OR 
@@ -236,7 +236,7 @@ export const getUnpaidTransactions = async () => {
     return new Promise((resolve, reject) => {
         try {
             const query = `
-                SELECT * FROM transactionLog 
+                SELECT * FROM transactionList 
                 WHERE timestamp < ${getMaxAllowedTimestamp()}
                 AND (
                     status = 'Energy provision finished' OR 
