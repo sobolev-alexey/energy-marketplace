@@ -191,7 +191,7 @@ exports.logEvent = async (userId, deviceId, transactionId, event, mam) => {
   return true;
 };
 
-exports.logMarketplaceEvent = async (transactionId, event) => {
+exports.logMarketplaceEvent = async (transactionId, event, mam) => {
   const timestamp = (new Date()).toLocaleString().replace(/\//g, '.');
 
   await admin
@@ -209,6 +209,7 @@ exports.logMarketplaceEvent = async (transactionId, event) => {
     .doc(timestamp)
     .set({ 
       ...event,
+      mam,
       timestamp
     }, { merge: true });
 

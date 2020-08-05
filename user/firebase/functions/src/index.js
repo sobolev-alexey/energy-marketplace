@@ -512,7 +512,7 @@ exports.marketplace = functions.https.onRequest((req, res) => {
             : result.message.requesterTransactionId;
 
         // Store event
-        await logMarketplaceEvent(transactionId, result.message);
+        await logMarketplaceEvent(transactionId, result.message, result.mam);
         return res.json({ status: "success" });
       }
 
