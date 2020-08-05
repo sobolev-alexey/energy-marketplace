@@ -7,6 +7,7 @@ export default async (job, done) => {
         const request = await decryptVerify(job?.data);
         const paymentConfirmationPayload = request?.message;
 
+        console.log('processPaymentConfirmation', request);
         if (request?.verificationResult && paymentConfirmationPayload) {
             // Log transaction
             await transactionLog(paymentConfirmationPayload);

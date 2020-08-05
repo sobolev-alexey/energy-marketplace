@@ -9,6 +9,7 @@ export default async (job, done) => {
         const request = await decryptVerify(job?.data);
         const cancellationPayload = request?.message;
 
+        console.log('processCancellationRequest', request);
         if (request?.verificationResult && cancellationPayload) {
             // Log transaction
             await transactionLog(cancellationPayload);

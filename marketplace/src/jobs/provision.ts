@@ -7,6 +7,8 @@ export default async (job, done) => {
         const request = await decryptVerify(job?.data);
         const paymentRequestPayload = request?.message;
 
+        console.log('Provision job', request);
+
         paymentRequestPayload.timestamp = Date.now().toString();
         paymentRequestPayload.status = 'Payment requested';
 
