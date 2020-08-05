@@ -162,7 +162,7 @@ exports.device = functions.https.onRequest((req, res) => {
           assetId: deviceId,
           assetName: params.name,
           assetDescription: params.description || "",
-          type: params.type,
+          type: params.type === "consumer" ? "requester" : "provider",
           assetOwner: user.userId,
           network: settings.tangle.network,
           location: params.location,
