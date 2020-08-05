@@ -12,8 +12,9 @@ export default async (job, done) => {
             // Log transaction
             await transactionLog(paymentConfirmationPayload);
 
+            paymentConfirmationPayload.type = 'offer';
             const paymentConfirmationResponse = await signPublishEncryptSend(
-                paymentConfirmationPayload, paymentConfirmationPayload?.providerId, paymentConfirmationPayload?.requesterTransactionId, 'payment_sent'
+                paymentConfirmationPayload, paymentConfirmationPayload?.providerId, paymentConfirmationPayload?.providerTransactionId, 'payment_sent'
             );
 
             // Evaluate responses 

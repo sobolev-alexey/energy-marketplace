@@ -12,6 +12,7 @@ export default async (job, done) => {
             // Log transaction
             await transactionLog(claimPayload);
 
+            claimPayload.type = 'request';
             const claimResponse = await signPublishEncryptSend(
                 claimPayload, claimPayload?.requesterId, claimPayload?.requesterTransactionId, 'claim'
             );
