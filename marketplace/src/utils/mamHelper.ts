@@ -120,13 +120,15 @@ export const fetch = async (assetId, transactionId) => {
         const api = composeAPI(loadBalancerSettings);
 
         const channelState: any = await readData('mam', 'transactionId', transactionId, 1);
-        
-        const fetched = await mamFetchAll(api, channelState.root, channelState.mode, channelState.sideKey, chunkSize);
         const result = [];
         
-        if (fetched && fetched.length > 0) {
-            for (let i = 0; i < fetched.length; i++) {
-                result.push(trytesToAscii(fetched[i].message));
+        if (channelState && channelState.root) {
+            const fetched = await mamFetchAll(api, channelState?.root, channelState?.mode, channelState?.sideKey, chunkSize);
+        
+            if (fetched && fetched.length > 0) {
+                for (let i = 0; i < fetched.length; i++) {
+                    result.push(trytesToAscii(fetched[i].message));
+                }
             }
         }
 
