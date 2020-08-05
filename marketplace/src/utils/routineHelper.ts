@@ -47,7 +47,7 @@ export async function decryptVerify(request: any): Promise<{
 
                         console.log('decryptVerify 06', assetId, transactionId);
                         const mamFetchResults = await fetch(assetId, transactionId);
-                        console.log('decryptVerify 07', assetId, mamFetchResults);
+                        console.log('decryptVerify 07', assetId, mamFetchResults.length);
                                                
                         if (mamFetchResults.length > 0) {
                             let mamFetchLastMessage = mamFetchResults.length > 0 && mamFetchResults[mamFetchResults.length - 1];
@@ -72,7 +72,7 @@ export async function decryptVerify(request: any): Promise<{
                             }
                         } else {
                             await log(`MAM stream can't be fetched. ${assetId}`);
-                            throw new Error(`MAM stream can't be fetched`);
+                            // throw new Error(`MAM stream can't be fetched`);
                         }
                         return { verificationResult: true, message: decrypted?.message };
                     }
