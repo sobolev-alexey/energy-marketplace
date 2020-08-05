@@ -12,6 +12,7 @@ export default async (job, done) => {
             // Log transaction
             await transactionLog(paymentConfirmationPayload);
 
+            paymentConfirmationPayload.type = 'request';
             const paymentConfirmationResponse = await signPublishEncryptSend(
                 paymentConfirmationPayload, paymentConfirmationPayload?.requesterId, paymentConfirmationPayload?.requesterTransactionId, 'payment_confirmed'
             );
