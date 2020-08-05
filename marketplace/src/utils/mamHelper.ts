@@ -138,3 +138,27 @@ export const fetch = async (assetId, transactionId) => {
         throw new Error(error);
     }
 };
+
+export const testMam = async payload => {
+    try {
+        const config: any = await readData('asset');
+        const loadBalancerSettings = ServiceFactory.get<LoadBalancerSettings>(
+            `${config?.network}-load-balancer-settings`
+        );
+        const api = composeAPI(loadBalancerSettings);
+        const secretKey = generateRandomKey(81);
+        const mamState = createChannel(generateRandomKey(81), defaultSecurity, MAM_MODE[mamMode], secretKey);
+        const mamMessage = createMessage(mamState, asciiToTrytes(JSON.stringify(payload)));
+        const root = mamMessage.root;
+
+        await mamAttach(api, mamMessage, defaultDepth, defaultMwm, tag);
+        
+        console.log(`MAM state ${mamState}`);
+        console.log(`You can view the mam channel here https://utils.iota.org/mam/${root}/${MAM_MODE[mamMode]}/${secretKey}/${config?.network}`);
+
+        return { mam: mamState, url: `https://utils.iota.org/mam/${root}/${MAM_MODE[mamMode]}/${secretKey}/${config?.network}` };
+    } catch (error) {
+        console.error('MAM fetch', error);
+        throw new Error(error);
+    }
+};
