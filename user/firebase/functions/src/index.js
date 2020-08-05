@@ -97,6 +97,7 @@ exports.notify_event = functions.https.onRequest((req, res) => {
             : result.message.requesterTransactionId;
 
         // Store event
+        console.log('Event', result.assetId, JSON.stringify(result.message));
         await logEvent(params.userId, result.assetId, transactionId, result.message, result.mam);
         await updateWalletKeyIndex(params.userId, result.assetId, params.keyIndex);
         return res.json({ status: "success" });
