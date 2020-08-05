@@ -122,7 +122,7 @@ export const fetch = async (assetId, transactionId) => {
         const channelState: any = await readData('mam', 'transactionId', transactionId, 1);
         const result = [];
         
-        if (channelState) {
+        if (channelState && channelState.root) {
             const fetched = await mamFetchAll(api, channelState?.root, channelState?.mode, channelState?.sideKey, chunkSize);
         
             if (fetched && fetched.length > 0) {
