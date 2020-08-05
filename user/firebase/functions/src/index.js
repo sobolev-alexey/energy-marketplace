@@ -81,8 +81,8 @@ exports.notify_event = functions.https.onRequest((req, res) => {
   cors(req, res, async () => {
     // Check Fields
     const params = req.body;
-    if (!params || !params.userId || !params.keyIndex || !params.encrypted) {
-      console.error("Log event failed. Params: ", params);
+    if (!params || !params.userId || !params.encrypted) {
+      console.error("Log event failed. Params: ", params.userId, params.keyIndex);
       return res.status(400).json({ error: "Ensure all fields are included" });
     }
 
@@ -422,7 +422,7 @@ exports.fund = functions.https.onRequest((req, res) => {
   cors(req, res, async () => {
     // Check Fields
     const params = req.body;
-    if (!params || !params.userId || !params.keyIndex || !params.encrypted) {
+    if (!params || !params.userId || !params.encrypted) {
       console.error("Log event failed. Params: ", params);
       return res.status(400).json({ error: "Ensure all fields are included" });
     }
