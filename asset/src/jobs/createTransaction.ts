@@ -11,22 +11,17 @@ export default async (job, done) => {
 
         if (asset) {
             const energyData: any = await readData('energy');
-            console.log('createTransaction energy', asset.type, energyData, asset.minOfferAmount);
 
             switch (asset.type) {
                 case 'requester': {
-                    console.log('createTransaction requester 1');
                     if (energyData?.energyAvailable <= asset?.minOfferAmount * 2 ) {
-                        console.log('createTransaction requester 2');                       
                         await createRequest(asset);
                     }
                     break; 
                 }
                 case 'provider':
                 default: {
-                    console.log('createTransaction provider 1');
                     if (energyData?.energyAvailable >= asset?.minOfferAmount ) {
-                        console.log('createTransaction provider 2');
                         await createOffer(asset, energyData);
                     }
                     break; 
@@ -56,8 +51,6 @@ const createOffer = async(asset, energyData) => {
         const energyToOffer = Number(energyData.energyAvailable);
         const payload: any = await generatePayload(asset, 'offer', status, energyToOffer);
         payload.walletAddress = wallet?.address;
-
-        console.log('createOffer payload', payload);
 
         // Send encrypted payload and signature to Marketplace
         const response = await signPublishEncryptSend(payload, 'offer');
@@ -90,8 +83,6 @@ const createRequest = async (asset): Promise<void> => {
         const energyToRequest = Number(asset.minOfferAmount);
         const payload: any = await generatePayload(asset, 'request', status, energyToRequest);
         
-        console.log('createRequest payload', payload);
-
         // Send encrypted payload and signature to Marketplace
         const response = await signPublishEncryptSend(payload, 'request');
         if (response.success) {

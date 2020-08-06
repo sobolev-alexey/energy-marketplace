@@ -25,17 +25,10 @@ export async function decryptVerify(request: any): Promise<{
                     : decrypted?.message?.providerId ;
                 const asset: any = await readData('asset', 'assetId', assetId);
 
-                console.log('decryptVerify 01', assetId, decrypted?.message?.type);
-                console.log('decryptVerify 02', asset);
-                console.log('decryptVerify 03', decrypted?.message);
-                console.log('decryptVerify 04', decrypted?.mam);
-
                 if (asset) {
                     const verificationResult: boolean = encryptionService.verifySignature(
                         asset?.assetPublicKey, decrypted?.message, decrypted?.signature
                     );  
-
-                    console.log('decryptVerify 05', verificationResult, assetId);
 
                     await writeData('mam', decrypted?.mam);
                     if (verificationResult) {
@@ -45,9 +38,7 @@ export async function decryptVerify(request: any): Promise<{
                             ? decrypted?.message?.requesterTransactionId 
                             : decrypted?.message?.providerTransactionId;
 
-                        console.log('decryptVerify 06', assetId, transactionId);
                         const mamFetchResults = await fetch(assetId, transactionId);
-                        console.log('decryptVerify 07', assetId, mamFetchResults.length);
                                                
                         if (mamFetchResults.length > 0) {
                             let mamFetchLastMessage = mamFetchResults.length > 0 && mamFetchResults[mamFetchResults.length - 1];
@@ -117,10 +108,7 @@ export async function signPublishEncryptSend(
             );
 
             // Publish payload to MAM
-            console.log('signPublishEncryptSend 00', assetId, `${asset?.assetURL}/${endpoint}`);
-            console.log('signPublishEncryptSend 01', transactionId, payload);
             const mam = await publish(transactionId, { message: payload, signature });
-            console.log('signPublishEncryptSend 02', mam);
             await new Promise(resolve => setTimeout(resolve, 2000));
             
             // Encrypt payload and signature with asset's public key
@@ -131,12 +119,9 @@ export async function signPublishEncryptSend(
                 asset?.assetPublicKey, JSON.stringify(messagePayload)
             );
 
-            console.log('signPublishEncryptSend 03', asset);
-
             // Send encrypted payload and signature to asset
             // tslint:disable-next-line:no-unnecessary-local-variable
             const response = await sendRequest(`${asset?.assetURL}/${endpoint}`, { encrypted });
-            console.log('signPublishEncryptSend 04', response);
 
             return response;
         }

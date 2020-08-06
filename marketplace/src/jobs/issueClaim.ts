@@ -7,7 +7,6 @@ export default async (job, done) => {
         const request = await decryptVerify(job?.data);
         const claimPayload = request?.message;
 
-        console.log('processClaimRequest', request);
         if (request?.verificationResult && claimPayload) {
             // Log transaction
             await transactionLog(claimPayload);
