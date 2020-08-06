@@ -101,18 +101,27 @@ const Sidebar = () => {
           <Loading />
         ) : (
         <div className="sidebar-content">
-          <h5 className="main-wallet-text"> MAIN WALLLET </h5>
-          <h1 className="wallet-balance">
-            {balance?.[0]}
-            <span className='wallet-balance3'>&nbsp;{balance?.[1]}</span>
-          </h1>
-          <br />
-          <button className="custom-button" onClick={addFunds}>
-            Add funds
-          </button>
-          <button className='custom-button-withdraw' onClick={withdraw}>
-            Withdraw
-          </button>
+          {
+            user?.marketplace 
+            ? null
+            : (
+              <React.Fragment>
+                <h5 className="main-wallet-text"> MAIN WALLLET </h5>
+                <h1 className="wallet-balance">
+                  {balance?.[0]}
+                  <span className='wallet-balance3'>&nbsp;{balance?.[1]}</span>
+                </h1>
+                <br />
+                <button className="custom-button" onClick={addFunds}>
+                  Add funds
+                </button>
+                <button className='custom-button-withdraw' onClick={withdraw}>
+                  Withdraw
+                </button>
+              </React.Fragment>
+            )
+          }
+
           {showModal && (
             <CustomModal
               error={error}
