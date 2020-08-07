@@ -6,6 +6,10 @@ Commercial-level energy brokers arrange energy contracts among electricity provi
 Brokers allow service providers a new means to contact and maintain customers. 
 
 ## Requirements and tech specifications
+#### Documentation
+https://docs.google.com/document/d/1D09L_yaLlyZPrRX3Mh4j4vrH9cELQlwRff4clVpi1R0/edit?ts=5f22a0d4#
+
+#### Requirements specification
 https://docs.google.com/document/d/1sysI7eqadabsBJ-vPg2knwfgC-xsMFkcniUT9eLS_0w/edit?ts=5e68df88#
 
 
