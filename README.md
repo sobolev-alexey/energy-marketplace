@@ -4,26 +4,3 @@ Energy brokers act as intermediaries between energy providers and energy request
 
 Commercial-level energy brokers arrange energy contracts among electricity providers.  
 Brokers allow service providers a new means to contact and maintain customers. 
-
-## Requirements and tech specifications
-#### Documentation
-https://docs.google.com/document/d/1D09L_yaLlyZPrRX3Mh4j4vrH9cELQlwRff4clVpi1R0/edit?ts=5f22a0d4#
-
-#### Requirements specification
-https://docs.google.com/document/d/1sysI7eqadabsBJ-vPg2knwfgC-xsMFkcniUT9eLS_0w/edit?ts=5e68df88#
-
-
-
-
-npm i -g pm2
-
-Install Redis
-https://redis.io/topics/quickstart
-
-brew install redis
-
-# launch it at background by following the instruction on the installer.
-brew services start redis
-
-To see if redis is running at background run :
-redis-cli ping
