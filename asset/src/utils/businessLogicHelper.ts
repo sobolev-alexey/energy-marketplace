@@ -1,6 +1,6 @@
 import { 
     energyConsumptionSpeed, 
-    energyProductionSpeed, 
+    // energyProductionSpeed, 
     transactionCreationSpeed,
     paymentQueueProcessingSpeed,
     pendingTransactionsProcessingSpeed
@@ -57,7 +57,7 @@ export async function BusinessLogic() {
         if (asset?.type === 'requester') { 
             setInterval(() => queues.consumeEnergy.add({}, options), energyConsumptionSpeed * 1000);
         } else if (asset?.type === 'provider') {
-            setInterval(() => queues.produceEnergy.add({}, options), energyProductionSpeed * 1000);
+            // setInterval(() => queues.produceEnergy.add({}, options), energyProductionSpeed * 1000);
         }
     }
 }
