@@ -19,5 +19,4 @@ yarn-error.log*
 
 marketplace/src/routes/v0/*
 
-location_tracking
 test
