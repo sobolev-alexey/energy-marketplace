@@ -1,0 +1,40 @@
+https://docs.google.com/document/d/1SRm_Vu54C2RciaAH816JqOZZMS3xcI_3XcZD1-ICGMA/edit?usp=sharing
+
+
+using this apis https://mam-api.dag.sh/docs/?http#mam-api 
+
+they will have to create a JSON digital twin and take charge to store in the app, any MAM root key and index which is returned to them by the API
+
+
+
+
+they send us the hash, we do not receive the location at all
+
+so from our side we just receive a small payload and publish it to a MAM channel.
+hash, MAM encryption key and existing MAM channel details are provided by the partner.
+Is it correct?
+https://iotafoundation.slack.com/archives/GVA0HBJ12/p1587055127017800
+
+we receive encrypted payload (hash of the location) and existing MAM channel details
+
+so our service is stateless
+
+how long the streams can be? Can we reset long streams at some point (after reaching specific length) and start another one?
+I would say not often, once a month? Maybe less. I think we can reset streams as long as we communicate to the app. 
+
+ can even store channel details internally, in order to close one long channel and start another one. This can be done internally, and for outside client will still appear as the single channel.
+
+
+we would go for zero effort I would just explain how to do that using https://mam-api.dag.sh/ 
+
+we could also store time and do time based fetch
+Create one channel per user per day
+Store prev channel details in local DB for fetching
+add flag to optionally log info to DB
+fetch in parallel, max 20 streams
+Increase timeout to 540 or more
+
+
+
+
+

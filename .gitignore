@@ -1,23 +1,6 @@
 */node_modules
-*/build
-.build
-*/dist
-.dist
-marketplace_light
 
-*/db/*.sqlite3
-
-# misc
 .DS_Store
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
 
 yarn-debug.log*
 yarn-error.log*
-
-marketplace/src/routes/v0/*
-
-location_tracking
-test

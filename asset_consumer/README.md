@@ -1,3 +1,0 @@
-# Energy Prosumer Asset Module
-
-
