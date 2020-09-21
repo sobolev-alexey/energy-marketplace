@@ -63,16 +63,16 @@ export class AppHelper {
         const port = process.env.PORT ? parseInt(process.env.PORT, 10) : serverPortNumber;
         const websocketPort = process.env.WS_PORT ? parseInt(process.env.WS_PORT, 10) : websocketPortNumber;
         if (!customListener) {
-            app.listen(port, async err => {
-                if (err) {
-                    throw err;
-                }
+            app.listen(port, () => {
+                try {
+                    console.log(`Started Asset module on port ${port} v${packageJson.version}`);
+                    console.log(`Running Config '${configId}'`);
 
-                console.log(`Started Asset module on port ${port} v${packageJson.version}`);
-                console.log(`Running Config '${configId}'`);
-
-                if (onComplete) {
-                    onComplete(app, config, websocketPort);
+                    if (onComplete) {
+                        onComplete(app, config, websocketPort);
+                    }
+                } catch (error) {
+                    throw error;
                 }
             });
         } else {
