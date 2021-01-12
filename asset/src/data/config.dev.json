@@ -8,7 +8,7 @@
     ],
     "devNetNodes": [
         {
-            "provider": "http://bare01.devnet.iota.cafe:14265",
+            "provider": "https://nodes.devnet.iota.org",
             "depth": 3,
             "mwm": 9
         }
