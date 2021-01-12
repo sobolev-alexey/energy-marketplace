@@ -30,9 +30,10 @@ export default async (job, done) => {
                     await writeData('asset', decrypted?.message);
                     await log(`Asset registration successful. ${assetId}`);
                     done(null);
+                } else {
+                    await log(`Asset signature verification failed. ${assetId}, ${verificationResult}`);
+                    done(new Error('Asset signature verification failed'));
                 }
-                await log(`Asset signature verification failed. ${assetId}`);
-                done(new Error('Asset signature verification failed'));
             } else {
                 await log(`No marketplace key`);
                 done(new Error('No marketplace key'));
