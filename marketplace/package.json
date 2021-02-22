@@ -21,7 +21,7 @@
         "start": "NODE_OPTIONS=--enable-source-maps run-p serve-mon build-watch"
     },
     "engines": {
-        "node": ">=13.0"
+        "node": ">=14.0"
     },
     "dependencies": {
         "@iota/client-load-balancer": "github:iotaledger/client-load-balancer#no-mam",
@@ -33,20 +33,20 @@
         "bull": "^3.20.1",
         "cors": "2.8.5",
         "express": "4.17.1",
-        "lodash": "^4.17.20",
+        "lodash": "^4.17.21",
         "node-rsa": "^1.1.1",
         "randomstring": "^1.1.5",
         "redis": "^3.0.2",
         "socket.io-client": "^2.3.0",
-        "sqlite3": "4.1.1",
+        "sqlite3": "5.0.2",
         "uuid": "^8.3.2"
     },
     "devDependencies": {
         "@types/bull": "^3.15.0",
-        "@types/cors": "^2.8.9",
+        "@types/cors": "^2.8.10",
         "@types/express": "^4.17.11",
-        "@types/node": "^14.14.27",
-        "@types/node-rsa": "^1.0.0",
+        "@types/node": "^14.14.31",
+        "@types/node-rsa": "^1.1.0",
         "@types/redis": "^2.8.28",
         "@types/socket.io": "^2.1.13",
         "copyfiles": "^2.4.1",
